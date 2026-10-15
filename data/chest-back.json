@@ -339,7 +339,8 @@
             }
           ]
         }
-      ]
+      ],
+      "notes": "*T-Bar weight on 23/09 was logged as 5 kg (typo — confirmed 30 kg on next session)."
     },
     {
       "date": "2026-09-28",
@@ -427,5 +428,5 @@
       ]
     }
   ],
-  "seedVersion": 2
+  "seedVersion": 3
 }

@@ -45,4 +45,12 @@ t('alternatives: back gets 2 library picks',()=>assert.equal(R.alternatives('che
 t('swap keeps cap',()=>{const r=R.swapExercise(rt,'b',{name:'Lat pulldown'});assert.equal(R.activeSlots(r),4);assert.equal(r.find(x=>x.id==='b').active,false)});
 t('quick session + merge same date',()=>{const q=R.buildQuickSession('2026-10-16',[{exerciseId:'c',sets:3,reps:10,weight:12,effort:'Ok'},{exerciseId:'d',sets:0,reps:5}]);
   assert.equal(q.entries.length,1);assert.equal(q.entries[0].sets.length,3);const m=R.addSession([S('2026-10-16','c',10,[8])],q);assert.equal(m.length,1);assert.equal(m[0].entries[0].sets.length,4)});
+t('trend kg: weight+reps',()=>{const r=R.trendSeries(ex,[S('2026-10-01','c',10,[10,10,10]),S('2026-10-03','c',12.5,[8,8,8])]);assert.deepEqual(r.series[0].values,[10,12.5]);assert.deepEqual(r.series[1].values,[30,24])});
+t('trend bodyweight: reps only',()=>{const r=R.trendSeries(bw,[S('2026-10-01','p',0,[10])]);assert.equal(r.series.length,1);assert.equal(r.series[0].label,'Total reps')});
+t('trend rowing: minutes',()=>assert.equal(R.trendSeries({id:'r',unit:'min'},[S('2026-10-01','r',0,[20])]).series[0].label,'Minutes'));
+t('sparkPoints bounds',()=>{const p=R.sparkPoints([1,3,2],100,40,4).split(' ').map(x=>x.split(',').map(Number));assert.equal(p.length,3);assert.equal(p[1][1],4);assert.equal(p[0][1],36);assert.equal(R.sparkPoints([]),'')});
+t('quick session notes',()=>{const q=R.buildQuickSession('2026-10-16',[{exerciseId:'c',sets:1,reps:5}],' tired ');assert.equal(q.notes,'tired');assert.ok(!('notes' in R.buildQuickSession('2026-10-16',[],'  ')))});
+t('addSession appends notes on same date',()=>{const m=R.addSession([{date:'2026-10-16',entries:[],notes:'a'}],{date:'2026-10-16',entries:[],notes:'b'});assert.equal(m[0].notes,'a\nb');assert.ok(m[0].notesLocal)});
+t('mergeSeed keeps phone notes on seeded date + takes seed notes',()=>{const stored={routine:[],seedDates:['2026-09-01','2026-09-02'],sessions:[{date:'2026-09-01',entries:[],notes:'mine',notesLocal:true},{date:'2026-09-02',entries:[]}]};
+  const m=R.mergeSeed(stored,{seedVersion:3,routine:[],sessions:[{date:'2026-09-01',entries:[]},{date:'2026-09-02',entries:[],notes:'Short row'}]});assert.equal(m.sessions[0].notes,'mine');assert.equal(m.sessions[1].notes,'Short row')});
 console.log(`\n${n} tests passed`);

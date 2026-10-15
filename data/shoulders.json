@@ -335,8 +335,8 @@
           ]
         }
       ],
-      "note": "Legs and StepMaster skipped"
+      "notes": "Legs & StepMaster: Skipped (ran out of time)"
     }
   ],
-  "seedVersion": 2
+  "seedVersion": 3
 }

@@ -84,7 +84,11 @@ function suggestions(tab, routine, sessions, dismissed){
 function mergeSeed(stored, seed){
   const seedDates=new Set((seed.sessions||[]).map(s=>s.date)), oldSeed=new Set(stored.seedDates||[]);
   const local=(stored.sessions||[]).filter(s=>s.local || (!seedDates.has(s.date) && !oldSeed.has(s.date)));
-  const sessions=[...(seed.sessions||[]), ...local].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+  // keep phone-added notes on seeded dates
+  const phoneNotes=Object.fromEntries((stored.sessions||[]).filter(s=>s.notesLocal&&!s.local).map(s=>[s.date,s.notes]));
+  const seeded=(seed.sessions||[]).map(s=>phoneNotes[s.date]!==undefined?{...s,notes:phoneNotes[s.date],notesLocal:true}:s);
+  const localDates=new Set(local.map(s=>s.date));
+  const sessions=[...seeded.filter(s=>!localDates.has(s.date)), ...local].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
   let routine=(seed.routine||[]).map(r=>({...r}));
   for(const r of stored.routine||[]) if(!routine.some(x=>x.id===r.id)) routine.push({...r, active: activeSlots(routine)<MAX_ACTIVE && isActive(r) ? r.active : false});
   return {...stored, _example:!!seed._example, routine, sessions, seedVersion:seed.seedVersion||1, seedDates:[...seedDates]};
@@ -139,16 +143,31 @@ function swapExercise(routine, oldId, newEx){
   return out;
 }
 // Quick log: items [{exerciseId, sets, reps, weight, effort}] -> session
-function buildQuickSession(date, items){
-  return {date, local:true, entries:items.filter(i=>i.sets>0).map(i=>({exerciseId:i.exerciseId,
+function buildQuickSession(date, items, notes){
+  const out={date, local:true, entries:items.filter(i=>i.sets>0).map(i=>({exerciseId:i.exerciseId,
     sets:Array.from({length:i.sets},()=>({reps:i.reps,weight:i.weight||0,effort:i.effort||'Good'}))}))};
+  if(notes&&String(notes).trim()) { out.notes=String(notes).trim(); out.notesLocal=true; }
+  return out;
+}
+// Trend series for sparklines: kg -> weight + reps; bodyweight -> reps; min -> minutes; m -> metres
+function trendSeries(ex, sessions){
+  const h=history(ex.id,sessions), dates=h.map(x=>x.date);
+  if(ex.unit==='kg') return {dates, series:[{label:'Top weight (kg)',values:h.map(x=>x.weight)},{label:'Total reps',values:h.map(x=>x.totalReps)}]};
+  const label=ex.unit==='min'?'Minutes':ex.unit==='m'?'Metres':'Total reps';
+  return {dates, series:[{label,values:h.map(x=>x.totalReps)}]};
+}
+function sparkPoints(values, w=280, h=48, pad=4){
+  if(!values.length) return '';
+  const mn=Math.min(...values), mx=Math.max(...values), rng=mx-mn||1, n=values.length;
+  return values.map((v,i)=>`${(n===1?w/2:pad+i*(w-2*pad)/(n-1)).toFixed(1)},${(h-pad-(v-mn)*(h-2*pad)/rng).toFixed(1)}`).join(' ');
 }
 function addSession(sessions, sess){
   const out=sessions.map(s=>({...s,entries:s.entries.map(e=>({...e,sets:[...e.sets]}))})), ex=out.find(s=>s.date===sess.date);
-  if(ex){ for(const en of sess.entries){const o=ex.entries.find(x=>x.exerciseId===en.exerciseId); o?o.sets.push(...en.sets):ex.entries.push(en)} ex.local=true; }
+  if(ex){ for(const en of sess.entries){const o=ex.entries.find(x=>x.exerciseId===en.exerciseId); o?o.sets.push(...en.sets):ex.entries.push(en)} ex.local=true;
+    if(sess.notes){ ex.notes=ex.notes?ex.notes+'\n'+sess.notes:sess.notes; ex.notesLocal=true; } }
   else out.push(sess);
   return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
 }
-const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE};
+const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);

@@ -108,7 +108,7 @@
           ]
         }
       ],
-      "note": "Baseline restart"
+      "notes": "Baseline restart"
     },
     {
       "date": "2026-02-09",
@@ -144,7 +144,7 @@
           ]
         }
       ],
-      "note": "Push 1x13 + 1x10"
+      "notes": "Push 1x13 + 1x10"
     },
     {
       "date": "2026-02-10",
@@ -180,7 +180,7 @@
           ]
         }
       ],
-      "note": "Added dips & pull-ups"
+      "notes": "Added dips & pull-ups"
     },
     {
       "date": "2026-02-18",
@@ -261,7 +261,7 @@
           ]
         }
       ],
-      "note": "First row"
+      "notes": "First row"
     },
     {
       "date": "2026-02-21",
@@ -307,7 +307,7 @@
           ]
         }
       ],
-      "note": "Added Back Strength"
+      "notes": "Added Back Strength"
     },
     {
       "date": "2026-02-23",
@@ -963,7 +963,7 @@
           ]
         }
       ],
-      "note": "Shorter row"
+      "notes": "Shorter row"
     },
     {
       "date": "2026-03-29",
@@ -1144,7 +1144,7 @@
           ]
         }
       ],
-      "note": "Short row"
+      "notes": "Short row"
     },
     {
       "date": "2026-04-01",
@@ -1205,7 +1205,7 @@
           ]
         }
       ],
-      "note": "50-rep milestone"
+      "notes": "50-rep milestone"
     },
     {
       "date": "2026-04-02",
@@ -1306,7 +1306,7 @@
           ]
         }
       ],
-      "note": "Row skipped"
+      "notes": "Row skipped"
     },
     {
       "date": "2026-04-08",
@@ -1427,7 +1427,7 @@
           ]
         }
       ],
-      "note": "60 push-ups"
+      "notes": "60 push-ups"
     },
     {
       "date": "2026-05-08",
@@ -1483,7 +1483,7 @@
           ]
         }
       ],
-      "note": "Comeback after break"
+      "notes": "Comeback after break"
     },
     {
       "date": "2026-05-11",
@@ -1604,7 +1604,7 @@
           ]
         }
       ],
-      "note": "Shorter row"
+      "notes": "Shorter row"
     },
     {
       "date": "2026-05-28",
@@ -1845,7 +1845,7 @@
           ]
         }
       ],
-      "note": "After gap"
+      "notes": "After gap"
     },
     {
       "date": "2026-06-24",
@@ -2086,7 +2086,7 @@
           ]
         }
       ],
-      "note": "After long break"
+      "notes": "After long break"
     },
     {
       "date": "2026-08-26",
@@ -2327,7 +2327,7 @@
           ]
         }
       ],
-      "note": "50-rep again"
+      "notes": "50-rep again"
     },
     {
       "date": "2026-09-04",
@@ -2390,5 +2390,5 @@
       ]
     }
   ],
-  "seedVersion": 2
+  "seedVersion": 3
 }

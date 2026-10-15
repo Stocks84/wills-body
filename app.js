@@ -1,5 +1,6 @@
 'use strict';
 const KEY='willsBody.v1', TABS=[['arms','Arms'],['chest-back','Chest & Back'],['shoulders','Shoulders'],['bodyweight','Bodyweight']];
+let draftNotes={};
 let S, cur=localStorage.getItem(KEY+'.tab')||'arms', draft={}, ui={}; // draft: exId -> {sets:[], reps, weight, effort, targetSets}
 const $=s=>document.querySelector(s), esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
@@ -43,6 +44,7 @@ function render(){
     h+=`<div class="card"><h3>${esc(ex.name)}</h3><div class="mut">Routine: ${ex.targetSets} × ${ex.targetReps} ${unitLbl(ex.unit)}</div>
       <div class="mut">Last: ${last?last.date+'</div><div class="sets">'+fmtSets(last.sets,ex.unit):'none yet'}</div>
       <div><button class="ghost" style="float:right;min-height:40px" data-act="toggle" data-ex="${ex.id}" aria-label="Deactivate">✕</button>Next: <span class="plan">${plan.sets}×${plan.reps}${ex.unit==='kg'?' @ '+plan.weight+'kg':''}</span> <span class="mut">${esc(plan.note)}</span></div>
+      ${trendHTML(ex,T.sessions)}
       ${flags.map(f=>`<div style="color:var(--warn)">⚠ ${esc(f.reason)}</div>`).join('')}
       ${stepper(ex.id,'targetSets','Sets',d.targetSets)}${stepper(ex.id,'reps',ex.unit==='min'?'Minutes':ex.unit==='m'?'Metres':'Reps',d.reps)}
       ${ex.unit==='kg'?stepper(ex.id,'weight','Weight kg',d.weight):''}
@@ -53,9 +55,13 @@ function render(){
   const inactive=T.routine.filter(r=>!Rules.isActive(r));
   if(inactive.length) h+=`<details class="card"><summary>Inactive / optional (${inactive.length}) – max 4 active</summary>${inactive.map(r=>`<div class="row" style="margin-top:6px"><span>${esc(r.name)}</span><button class="ghost" data-act="toggle" data-ex="${r.id}">Activate</button></div>`).join('')}</details>`;
   const any=T.routine.some(r=>draft[r.id]&&draft[r.id].sets.length);
+  h+=`<label class="mut" style="display:block;margin:8px 0">Session notes (optional)<textarea id="sessNotes" rows="2" style="min-height:64px">${esc(draftNotes[cur]||'')}</textarea></label>`;
   h+=`<button class="primary" data-act="complete" ${any?'':'disabled style="opacity:.4"'}>✅ Session complete</button>
     <div class="row" style="margin:12px 0"><button class="ghost" data-act="import">Import log</button></div>`;
+  const hist=[...T.sessions].reverse();
+  if(hist.length) h+=`<details class="card"><summary>Session history (${hist.length})</summary>${hist.map(s=>`<div class="hist"><b>${s.date}</b>${s.label?' · '+esc(s.label):''}<div class="mut">${s.entries.map(e=>{const r=T.routine.find(x=>x.id===e.exerciseId);return esc(r?r.name:e.exerciseId)+' '+e.sets.length+'×'+(e.sets[0]?e.sets[0].reps:'')+(e.sets[0]&&e.sets[0].weight?' @'+e.sets[0].weight+'kg':'')}).join(' · ')}</div>${s.notes?`<div class="note">📝 ${esc(s.notes)}</div>`:''}</div>`).join('')}</details>`;
   $('#main').innerHTML=h;
+  const sn=$('#sessNotes'); if(sn) sn.oninput=()=>{draftNotes[cur]=sn.value};
 }
 function stepper(id,f,label,v){return `<div class="step"><button data-act="dec" data-ex="${id}" data-f="${f}" aria-label="less ${label}">−</button><div class="v">${v}<small>${label}</small></div><button data-act="inc" data-ex="${id}" data-f="${f}" aria-label="more ${label}">+</button></div>`}
 document.addEventListener('click',e=>{
@@ -80,38 +86,53 @@ function complete(){
   if(!entries.length) return;
   const date=today(), ex=T.sessions.find(s=>s.date===date);
   if(ex){for(const en of entries){const o=ex.entries.find(x=>x.exerciseId===en.exerciseId);o?o.sets.push(...en.sets):ex.entries.push(en)}} else T.sessions.push({date,entries,local:true});
+  const nt=(draftNotes[cur]||'').trim(); if(nt){const s=T.sessions.find(s=>s.date===date);s.notes=s.notes&&s.local?s.notes+'\n'+nt:(s.notes?s.notes+'\n'+nt:nt);s.notesLocal=true;} delete draftNotes[cur];
   T.plans.push({date,items:T.routine.filter(Rules.isActive).map(r=>({id:r.id,name:r.name,unit:r.unit,...Rules.nextPlan(r,T.sessions)}))});
   draft={}; save(); stopTimer(); toast('Session saved – next plan snapshotted');
 }
-function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#14532d;padding:12px 18px;border-radius:12px;z-index:20;font-weight:700';document.body.append(t);setTimeout(()=>t.remove(),2500)}
-// Quick log sheet
+function trendHTML(ex,sessions){const t=Rules.trendSeries(ex,sessions);if(t.dates.length<2)return '';
+  return `<details class="trend"><summary>📈 Trend (${t.dates.length} sessions)</summary>${t.series.map((s,i)=>`<div class="mut">${s.label}: ${s.values[0]} → ${s.values[s.values.length-1]}</div>
+    <svg viewBox="0 0 280 48" width="100%" height="48" role="img" aria-label="${s.label} trend"><polyline fill="none" stroke="${i?'var(--acc2)':'var(--acc)'}" stroke-width="3" stroke-linejoin="round" points="${Rules.sparkPoints(s.values)}"/></svg>`).join('')}
+    <div class="mut">${t.dates[0]} → ${t.dates[t.dates.length-1]}</div></details>`;}
+function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#14532d;color:#fff;padding:12px 18px;border-radius:12px;z-index:20;font-weight:700';document.body.append(t);setTimeout(()=>t.remove(),2500)}
+// Quick log sheet with block selector; per-block entries persist until Save
 function openQuick(){
-  const T=S.tabs[cur], exs=T.routine.filter(Rules.isActive), dlg=$('#dlg');
-  const q=exs.map(ex=>{const p=Rules.nextPlan(ex,T.sessions);return {ex,exerciseId:ex.id,sets:p.sets,reps:p.reps,weight:ex.unit==='kg'?p.weight:0,effort:'Good'}});
-  const draw=()=>{dlg.innerHTML=`<h3>Log whole session – ${TABS.find(t=>t[0]===cur)[1]}</h3>
-    <label class="mut">Date <input type="date" id="qDate" value="${dlg.dataset.date||today()}"></label>
+  const dlg=$('#dlg'), Q={}, edited=new Set(), notes={}; let qb=cur;
+  const build=k=>{const T=S.tabs[k];return T.routine.filter(Rules.isActive).map(ex=>{const p=Rules.nextPlan(ex,T.sessions);return {ex,exerciseId:ex.id,sets:p.sets,reps:p.reps,weight:ex.unit==='kg'?p.weight:0,effort:'Good'}})};
+  const qs=(k,f,l,v)=>`<div class="step"><button data-q="${k}" data-qf="${f}" data-qd="-1">−</button><div class="v">${v}<small>${l}</small></div><button data-q="${k}" data-qf="${f}" data-qd="1">+</button></div>`;
+  let date=today(), timerAfter=false;
+  const draw=()=>{const q=Q[qb]||(Q[qb]=build(qb));
+    dlg.innerHTML=`<h3>Log whole session</h3>
+    <div class="blocks">${TABS.map(([k,l])=>`<button data-qb="${k}" class="${k===qb?'on':''}">${l}${edited.has(k)?' •':''}</button>`).join('')}</div>
+    <div class="qtimer ${tInt?'':'hidden'}">⏱ Rest <b class="qTimerCount">${tInt?$('#timerCount').textContent:''}</b>s <button data-qt="skip">Skip</button></div>
+    <label class="mut">Date <input type="date" id="qDate" value="${date}"></label>
     ${q.map((i,k)=>`<div class="card"><h3>${esc(i.ex.name)}</h3>${qs(k,'sets','Sets',i.sets)}${qs(k,'reps',i.ex.unit==='min'?'Minutes':i.ex.unit==='m'?'Metres':'Reps',i.reps)}${i.ex.unit==='kg'?qs(k,'weight','Weight kg',i.weight):''}
       <div class="eff">${['Ok','Good','Tough'].map(e=>`<button class="${i.effort===e?'on':''}" data-q="${k}" data-qe="${e}">${e}</button>`).join('')}</div></div>`).join('')}
-    <label class="row" style="margin:8px 0"><input type="checkbox" id="qTimer" ${dlg.dataset.timer==='1'?'checked':''} style="flex:0;width:28px;height:28px"> Start rest timer after saving</label>
-    <div class="row"><button class="ghost" id="qCancel">Cancel</button><button class="primary" id="qSave">Save session</button></div>`;};
-  const qs=(k,f,l,v)=>`<div class="step"><button data-q="${k}" data-qf="${f}" data-qd="-1">−</button><div class="v">${v}<small>${l}</small></div><button data-q="${k}" data-qf="${f}" data-qd="1">+</button></div>`;
-  dlg.dataset.date='';dlg.dataset.timer='0';draw();dlg.showModal();
+    <label class="mut" style="display:block">Notes for this block (optional)<textarea id="qNotes" rows="2" style="min-height:64px">${esc(notes[qb]||'')}</textarea></label>
+    <div class="row" style="margin:8px 0"><button class="ghost" data-qt="start">⏱ Start rest</button><label class="row" style="flex:2"><input type="checkbox" id="qTimer" ${timerAfter?'checked':''} style="flex:0;width:28px;height:28px"> Timer after save</label></div>
+    <div class="row"><button class="ghost" id="qCancel">Cancel</button><button class="primary" id="qSave">Save ${edited.size>1?edited.size+' sessions':'session'}</button></div>`;
+    $('#qNotes').oninput=ev=>{notes[qb]=ev.target.value;if(ev.target.value.trim())edited.add(qb)};};
+  draw();dlg.showModal();
   dlg.onclick=ev=>{const b=ev.target.closest('button');if(!b)return;ev.stopPropagation();
-    dlg.dataset.date=$('#qDate').value;dlg.dataset.timer=$('#qTimer').checked?'1':'0';
-    if(b.id==='qCancel'){dlg.close();return}
-    if(b.id==='qSave'){const sess=Rules.buildQuickSession(dlg.dataset.date||today(),q);if(!sess.entries.length)return;
-      T.sessions=Rules.addSession(T.sessions,sess);T.plans.push({date:sess.date,items:T.routine.filter(Rules.isActive).map(r=>({id:r.id,name:r.name,unit:r.unit,...Rules.nextPlan(r,T.sessions)}))});
-      save();dlg.close();dlg.onclick=null;draft={};render();toast('Session saved');if(dlg.dataset.timer==='1')startTimer();return}
-    const i=q[+b.dataset.q];if(b.dataset.qe)i.effort=b.dataset.qe;
+    date=$('#qDate').value||today();timerAfter=$('#qTimer').checked;
+    if(b.id==='qCancel'){dlg.close();dlg.onclick=null;return}
+    if(b.dataset.qb){qb=b.dataset.qb;draw();return}
+    if(b.dataset.qt==='start'){startTimer();draw();return}
+    if(b.dataset.qt==='skip'){stopTimer();draw();return}
+    if(b.id==='qSave'){const blocks=edited.size?[...edited]:[qb];let n=0;
+      for(const k of blocks){const T=S.tabs[k];const sess=Rules.buildQuickSession(date,Q[k]||build(k),notes[k]);if(!sess.entries.length)continue;
+        T.sessions=Rules.addSession(T.sessions,sess);T.plans.push({date,items:T.routine.filter(Rules.isActive).map(r=>({id:r.id,name:r.name,unit:r.unit,...Rules.nextPlan(r,T.sessions)}))});n++;}
+      if(!n)return;save();dlg.close();dlg.onclick=null;draft={};render();toast(n>1?n+' sessions saved':'Session saved');if(timerAfter)startTimer();return}
+    const i=Q[qb][+b.dataset.q];edited.add(qb);if(b.dataset.qe)i.effort=b.dataset.qe;
     else if(b.dataset.qf){const f=b.dataset.qf,st=f==='weight'?2.5:1;i[f]=Math.max(f==='reps'?1:0,Math.round((i[f]+(+b.dataset.qd)*st)*10)/10);}
     draw();};
 }
 // Rest timer
 let tEnd=0,tInt=null,actx;
-function startTimer(){stopTimer();tEnd=Date.now()+S.restSec*1e3;$('#timer').classList.remove('hidden');tick();tInt=setInterval(tick,250);
+function startTimer(){stopTimer();tEnd=Date.now()+S.restSec*1e3;$('#timer').classList.remove('hidden');document.querySelectorAll('.qtimer').forEach(x=>x.classList.remove('hidden'));tick();tInt=setInterval(tick,250);
   try{actx=actx||new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
-function tick(){const s=Math.max(0,Math.ceil((tEnd-Date.now())/1e3));$('#timerCount').textContent=s;if(s<=0){stopTimer();buzz()}}
-function stopTimer(){clearInterval(tInt);tInt=null;$('#timer').classList.add('hidden')}
+function tick(){const s=Math.max(0,Math.ceil((tEnd-Date.now())/1e3));$('#timerCount').textContent=s;document.querySelectorAll('.qTimerCount').forEach(x=>x.textContent=s);if(s<=0){stopTimer();buzz()}}
+function stopTimer(){clearInterval(tInt);tInt=null;$('#timer').classList.add('hidden');document.querySelectorAll('.qtimer').forEach(x=>x.classList.add('hidden'))}
 function buzz(){try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}
   try{if(!actx)return;const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=660;g.gain.setValueAtTime(0.0001,actx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.15,actx.currentTime+0.05);g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+0.6);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+0.65)}catch(e){}}
@@ -140,6 +161,12 @@ $('#absenceBtn').onclick=()=>{const dlg=$('#dlg');dlg.onclick=null;dlg.innerHTML
   <div class="mut" style="margin-top:8px">${S.absences.slice(-5).map(a=>a.date+' '+a.tag).join('<br>')}</div><button class="ghost" style="width:100%;margin-top:10px" id="absClose">Close</button>`;
   dlg.showModal();$('#absClose').onclick=()=>dlg.close();
   dlg.querySelectorAll('[data-tag]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();S.absences.push({date:$('#absDate').value,tag:b.dataset.tag});save();dlg.close();render()});};
+// Theme (default dark, persisted)
+const THEME_KEY=KEY+'.theme';
+function applyTheme(t){document.documentElement.dataset.theme=t;$('#themeBtn').textContent=t==='light'?'🌙':'☀️';$('#themeBtn').setAttribute('aria-label','Switch to '+(t==='light'?'dark':'light')+' theme');
+  document.querySelector('meta[name=theme-color]').content=t==='light'?'#f6f7f9':'#0f1115';}
+applyTheme(localStorage.getItem(THEME_KEY)==='light'?'light':'dark');
+$('#themeBtn').onclick=()=>{const t=document.documentElement.dataset.theme==='light'?'dark':'light';localStorage.setItem(THEME_KEY,t);applyTheme(t)};
 const sl=$('#restSlider');
 load().then(()=>{sl.value=S.restSec;$('#restVal').textContent=S.restSec;render()});
 sl.oninput=()=>{S.restSec=+sl.value;$('#restVal').textContent=sl.value;save();if(tInt){/*keep running*/}};
