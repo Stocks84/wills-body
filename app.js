@@ -27,7 +27,11 @@ function render(){
   $('#tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${k===cur}" data-tab="${k}">${l}</button>`).join('');
   let h='';
   if(T._example) h+=`<div class="banner"><span>Example routine – import your log</span><button data-act="import">Import</button></div>`;
-  for(const s of Rules.suggestions(cur,T.routine,T.sessions,T.dismissed))
+  h+=`<button class="primary" data-act="quick" style="margin:8px 0">⚡ Log whole session</button>`;
+  for(const c of Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed))
+    h+=`<div class="card sugg"><h3>🔁 Time to change this exercise</h3><div class="mut">${esc(c.reason)}</div>${c.alternatives.map(x=>`<div class="row" style="margin-top:8px"><span>${esc(x.name)}${x.source==='library'?'':' <span class=mut>(alt)</span>'}</span><button data-act="swap" data-from="${c.exerciseId}" data-n="${esc(x.name)}">Swap in</button><button class="ghost" data-act="dismiss" data-n="${esc(x.name)}" aria-label="Dismiss">✕</button></div>`).join('')}</div>`;
+  const stalledIds=new Set(Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed).map(c=>c.exerciseId));
+  for(const s of Rules.suggestions(cur,T.routine,T.sessions,T.dismissed).filter(s=>!stalledIds.has(s.exerciseId)))
     h+=`<div class="card sugg"><h3>💡 Try ${esc(s.exercise)}</h3><div class="mut">${esc(s.reason)}</div><div class="row" style="margin-top:8px">
       <button data-act="up" data-n="${esc(s.exercise)}" data-from="${s.exerciseId}">👍 ${Rules.activeSlots(T.routine)>=Rules.MAX_ACTIVE?'Swap in':'Add'}</button><button data-act="dismiss" data-n="${esc(s.exercise)}">✕ Dismiss</button></div></div>`;
   const snap=T.plans[T.plans.length-1];
@@ -63,6 +67,8 @@ document.addEventListener('click',e=>{
   else if(a==='log'){d.sets.push({reps:d.reps,weight:ex.unit==='kg'?d.weight:0,effort:d.effort});startTimer();}
   else if(a==='undo') d.sets.pop();
   else if(a==='up'){const n=b.dataset.n;T.routine=Rules.acceptSuggestion(T.routine,{exerciseId:b.dataset.from},{id:'ex-'+Rules.slug(n),name:n,targetSets:3,targetReps:cur==='bodyweight'?12:10,unit:cur==='bodyweight'?'bodyweight':'kg'});save();}
+  else if(a==='swap'){T.routine=Rules.swapExercise(T.routine,b.dataset.from,{name:b.dataset.n});delete draft[b.dataset.from];save();toast('Swapped in '+b.dataset.n);}
+  else if(a==='quick'){openQuick();return}
   else if(a==='toggle'){const r=T.routine.find(r=>r.id===b.dataset.ex);if(r.active===false){if(Rules.activeSlots(T.routine)>=Rules.MAX_ACTIVE){toast('Max 4 exercises – deactivate one first');return}r.active=true;}else r.active=false;save();}
   else if(a==='dismiss'){T.dismissed.push(b.dataset.n);save();}
   else if(a==='complete') complete();
@@ -78,6 +84,28 @@ function complete(){
   draft={}; save(); stopTimer(); toast('Session saved – next plan snapshotted');
 }
 function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#14532d;padding:12px 18px;border-radius:12px;z-index:20;font-weight:700';document.body.append(t);setTimeout(()=>t.remove(),2500)}
+// Quick log sheet
+function openQuick(){
+  const T=S.tabs[cur], exs=T.routine.filter(Rules.isActive), dlg=$('#dlg');
+  const q=exs.map(ex=>{const p=Rules.nextPlan(ex,T.sessions);return {ex,exerciseId:ex.id,sets:p.sets,reps:p.reps,weight:ex.unit==='kg'?p.weight:0,effort:'Good'}});
+  const draw=()=>{dlg.innerHTML=`<h3>Log whole session – ${TABS.find(t=>t[0]===cur)[1]}</h3>
+    <label class="mut">Date <input type="date" id="qDate" value="${dlg.dataset.date||today()}"></label>
+    ${q.map((i,k)=>`<div class="card"><h3>${esc(i.ex.name)}</h3>${qs(k,'sets','Sets',i.sets)}${qs(k,'reps',i.ex.unit==='min'?'Minutes':i.ex.unit==='m'?'Metres':'Reps',i.reps)}${i.ex.unit==='kg'?qs(k,'weight','Weight kg',i.weight):''}
+      <div class="eff">${['Ok','Good','Tough'].map(e=>`<button class="${i.effort===e?'on':''}" data-q="${k}" data-qe="${e}">${e}</button>`).join('')}</div></div>`).join('')}
+    <label class="row" style="margin:8px 0"><input type="checkbox" id="qTimer" ${dlg.dataset.timer==='1'?'checked':''} style="flex:0;width:28px;height:28px"> Start rest timer after saving</label>
+    <div class="row"><button class="ghost" id="qCancel">Cancel</button><button class="primary" id="qSave">Save session</button></div>`;};
+  const qs=(k,f,l,v)=>`<div class="step"><button data-q="${k}" data-qf="${f}" data-qd="-1">−</button><div class="v">${v}<small>${l}</small></div><button data-q="${k}" data-qf="${f}" data-qd="1">+</button></div>`;
+  dlg.dataset.date='';dlg.dataset.timer='0';draw();dlg.showModal();
+  dlg.onclick=ev=>{const b=ev.target.closest('button');if(!b)return;ev.stopPropagation();
+    dlg.dataset.date=$('#qDate').value;dlg.dataset.timer=$('#qTimer').checked?'1':'0';
+    if(b.id==='qCancel'){dlg.close();return}
+    if(b.id==='qSave'){const sess=Rules.buildQuickSession(dlg.dataset.date||today(),q);if(!sess.entries.length)return;
+      T.sessions=Rules.addSession(T.sessions,sess);T.plans.push({date:sess.date,items:T.routine.filter(Rules.isActive).map(r=>({id:r.id,name:r.name,unit:r.unit,...Rules.nextPlan(r,T.sessions)}))});
+      save();dlg.close();dlg.onclick=null;draft={};render();toast('Session saved');if(dlg.dataset.timer==='1')startTimer();return}
+    const i=q[+b.dataset.q];if(b.dataset.qe)i.effort=b.dataset.qe;
+    else if(b.dataset.qf){const f=b.dataset.qf,st=f==='weight'?2.5:1;i[f]=Math.max(f==='reps'?1:0,Math.round((i[f]+(+b.dataset.qd)*st)*10)/10);}
+    draw();};
+}
 // Rest timer
 let tEnd=0,tInt=null,actx;
 function startTimer(){stopTimer();tEnd=Date.now()+S.restSec*1e3;$('#timer').classList.remove('hidden');tick();tInt=setInterval(tick,250);
@@ -89,7 +117,7 @@ function buzz(){try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e)
     g.gain.exponentialRampToValueAtTime(0.15,actx.currentTime+0.05);g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+0.6);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+0.65)}catch(e){}}
 $('#skipBtn').onclick=stopTimer;
 // Import / export / absence dialogs
-function openImport(){const dlg=$('#dlg');dlg.innerHTML=`<h3>Import ${TABS.find(t=>t[0]===cur)[1]} log</h3>
+function openImport(){const dlg=$('#dlg');dlg.onclick=null;dlg.innerHTML=`<h3>Import ${TABS.find(t=>t[0]===cur)[1]} log</h3>
   <p class="mut">Paste JSON ({routine, sessions}) or CSV (date,exercise,set,reps,weight,effort), or pick a .json/.csv file. Replaces this tab's data.</p>
   <input type="file" id="impFile" accept=".json,.csv,application/json,text/csv"><textarea id="impTxt" placeholder="Paste here"></textarea>
   <div class="row" style="margin-top:8px"><button class="ghost" id="impCancel">Cancel</button><button class="primary" id="impGo">Import</button></div><div id="impErr" style="color:var(--bad)"></div>`;
@@ -107,7 +135,7 @@ function importText(txt){
   T._example=false;T.plans=[];save();
 }
 $('#exportBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));a.download='wills-body-backup-'+today()+'.json';a.click()};
-$('#absenceBtn').onclick=()=>{const dlg=$('#dlg');dlg.innerHTML=`<h3>Log absence</h3><p class="mut">Weeks with a work or holiday absence don't break your streak.</p>
+$('#absenceBtn').onclick=()=>{const dlg=$('#dlg');dlg.onclick=null;dlg.innerHTML=`<h3>Log absence</h3><p class="mut">Weeks with a work or holiday absence don't break your streak.</p>
   <input type="date" id="absDate" value="${today()}"><div class="row" style="margin-top:10px"><button data-tag="work">💼 Work</button><button data-tag="holiday">🏖 Holiday</button></div>
   <div class="mut" style="margin-top:8px">${S.absences.slice(-5).map(a=>a.date+' '+a.tag).join('<br>')}</div><button class="ghost" style="width:100%;margin-top:10px" id="absClose">Close</button>`;
   dlg.showModal();$('#absClose').onclick=()=>dlg.close();

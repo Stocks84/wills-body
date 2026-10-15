@@ -19,7 +19,8 @@ t('absence week skipped',()=>assert.equal(R.weeklyStreak(['2026-10-15','2026-10-
 t('other-tag absence does not skip',()=>assert.equal(R.weeklyStreak(['2026-10-15','2026-10-01'],[{date:'2026-10-07',tag:'sick'}],'2026-10-16'),1));
 t('current empty week does not break',()=>assert.equal(R.weeklyStreak(['2026-10-08','2026-10-01'],[],'2026-10-16'),2));
 t('csv parse',()=>{const r=R.parseCSV('date,exercise,set,reps,weight,effort\n2026-10-01,Curl,1,10,12,Good\n2026-10-01,Curl,2,9,12,Tough');assert.equal(r.sessions[0].entries[0].sets.length,2);assert.equal(r.names['ex-curl'],'Curl')});
-t('suggestions only from library',()=>{const s=R.suggestions('arms',[ex],['01','03','05'].map(d=>S('2026-10-'+d,'c',10,[9,9,9])),['Incline dumbbell curls']);assert.ok(s.length&&s.every(x=>R.LIBRARY.arms.includes(x.exercise)));assert.notEqual(s[0].exercise,'Incline dumbbell curls')});
+t('suggestions only from library',()=>{const s=R.suggestions('arms',[{...ex,name:'Curl'}],['01','03','05'].map(d=>S('2026-10-'+d,'c',10,[9,9,9])),['Incline dumbbell curls']);assert.ok(s.length&&s.every(x=>R.LIBRARY.arms.includes(x.exercise)));assert.notEqual(s[0]&&s[0].exercise,'Incline dumbbell curls')});
+t('suggestions match muscle',()=>{const fr={id:'f',name:'Strict DB Front Raises',targetSets:3,targetReps:10,unit:'kg'};const s=R.suggestions('shoulders',[fr],['01','03','05'].map(d=>S('2026-10-'+d,'f',6,[5,5,5])),[]);assert.deepEqual(s.map(x=>x.exercise),['Arnold press'])});
 const rr={id:'r',name:'Press',targetSets:3,targetReps:10,repMin:6,repMax:10,unit:'kg'};
 t('rep range: top+Good -> add weight',()=>{const p=R.nextPlan(rr,[S('2026-09-04','r',12,[10,10,10])]);assert.equal(p.weight,14.5);assert.equal(p.reps,6)});
 t('rep range: below top -> hold weight, add reps',()=>{const p=R.nextPlan(rr,[S('2026-09-25','r',14,[5,5,5],'Ok')]);assert.equal(p.weight,14);assert.equal(p.reps,6)});
@@ -33,4 +34,15 @@ t('group counts as one slot',()=>assert.equal(R.activeSlots([...rt.slice(0,3),{i
 t('inactive excluded from suggestions',()=>assert.equal(R.suggestions('arms',[{...ex,active:false}],['01','03','05'].map(d=>S('2026-10-'+d,'c',10,[9,9,9])),[]).length,0));
 t('mergeSeed keeps local sessions, replaces seeded',()=>{const stored={routine:[],seedDates:['2026-09-01'],sessions:[{date:'2026-09-01',entries:[1,2,3,4,5]},{date:'2026-10-10',entries:[],local:true},{date:'2026-10-12',entries:[]}]};
   const m=R.mergeSeed(stored,{seedVersion:2,routine:[],sessions:[{date:'2026-09-01',entries:[1,2,3,4]}]});assert.equal(m.sessions.length,3);assert.equal(m.sessions[0].entries.length,4);assert.equal(m.seedVersion,2)});
+t('stall: flat 3 sessions',()=>assert.ok(R.isStalled(ex,['01','03','05'].map(d=>S('2026-10-'+d,'c',10,[9,9,9])))));
+t('stall: reps up -> not stalled',()=>assert.ok(!R.isStalled(ex,[S('2026-10-01','c',10,[8,8,8]),S('2026-10-03','c',10,[9,9,9]),S('2026-10-05','c',10,[9,9,9])])));
+t('stall: weight up, reps down -> not stalled',()=>assert.ok(!R.isStalled(ex,[S('2026-10-01','c',10,[10,10,10]),S('2026-10-03','c',12.5,[6,6,6]),S('2026-10-05','c',12.5,[6,6,6])])));
+t('stall: declining counts',()=>assert.ok(R.isStalled(ex,[S('2026-10-01','c',10,[10,10,10]),S('2026-10-03','c',10,[9,9,9]),S('2026-10-05','c',10,[8,8,8])])));
+t('stall: <3 sessions -> no',()=>assert.ok(!R.isStalled(ex,[S('2026-10-01','c',10,[9,9,9]),S('2026-10-03','c',10,[9,9,9])])));
+t('alternatives: library first, same muscle',()=>{const a=R.alternatives('arms',{name:'Seated DB Hammer Curls'},[],[]);assert.deepEqual(a.map(x=>x.name),['Incline dumbbell curls'])});
+t('alternatives: fallback when library has none',()=>{const a=R.alternatives('chest-back',{name:'Face Pulls'},[],[]);assert.ok(a.length>=2&&a.every(x=>x.source==='alternative'))});
+t('alternatives: back gets 2 library picks',()=>assert.equal(R.alternatives('chest-back',{name:'T-Bar Row'},[],[]).length,2));
+t('swap keeps cap',()=>{const r=R.swapExercise(rt,'b',{name:'Lat pulldown'});assert.equal(R.activeSlots(r),4);assert.equal(r.find(x=>x.id==='b').active,false)});
+t('quick session + merge same date',()=>{const q=R.buildQuickSession('2026-10-16',[{exerciseId:'c',sets:3,reps:10,weight:12,effort:'Ok'},{exerciseId:'d',sets:0,reps:5}]);
+  assert.equal(q.entries.length,1);assert.equal(q.entries[0].sets.length,3);const m=R.addSession([S('2026-10-16','c',10,[8])],q);assert.equal(m.length,1);assert.equal(m[0].entries[0].sets.length,4)});
 console.log(`\n${n} tests passed`);

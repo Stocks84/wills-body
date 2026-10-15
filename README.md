@@ -39,7 +39,11 @@ Importing replaces that tab's sessions and clears the example banner.
 - **Android (Chrome):** open the URL → ⋮ menu → *Install app* / *Add to Home screen*.
 
 ## Updates & the service worker
-`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v4`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
+`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v5`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
 
 ## 4-exercise cap & seed versions
 Each tab has at most 4 active exercises (`active:false` = inactive/optional; exercises sharing a `group`, e.g. rowing time + distance, count as one). A 👍 on a suggestion when 4 are active swaps out the flagged exercise. Seed files carry `seedVersion`; when it increases, the app replaces seeded sessions and keeps sessions logged on the phone (`local:true`).
+
+## Quick log & stall cards
+- **⚡ Log whole session**: one sheet with the tab's active exercises prefilled from the next-session plan; +/- steppers, one effort tap each, optional date (default today) and optional rest timer; one Save.
+- **Stall rule**: an active exercise is stalled when, across its last 3 consecutive logged sessions, neither top weight nor total reps increased from one session to the next. A "Time to change this exercise" card offers 2–3 same-muscle alternatives (approved library first; small fallback map only when the library has none for that muscle). Swapping deactivates the stalled exercise, so the 4-cap holds.

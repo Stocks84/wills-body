@@ -76,7 +76,9 @@ function suggestions(tab, routine, sessions, dismissed){
   routine=routine.filter(isActive);
   const flags=routine.flatMap(ex=>detectPlateaus(ex,sessions)); if(!flags.length) return [];
   const have=new Set(routine.map(r=>slug(r.name))); const pool=(LIBRARY[tab]||[]).filter(n=>!have.has(slug(n))&&!(dismissed||[]).includes(n));
-  return flags.map((f,i)=>pool[i]?{...f, exercise:pool[i]}:null).filter(Boolean);
+  const used=new Set(), byId=Object.fromEntries(routine.map(r=>[r.id,r]));
+  return flags.map(f=>{const m=muscleOf((byId[f.exerciseId]||{}).name), pick=pool.find(n=>!used.has(n)&&LIB_MUSCLE[n]===m);
+    if(!pick) return null; used.add(pick); return {...f, exercise:pick};}).filter(Boolean);
 }
 // Seed migration: take the new seed's sessions, keep any phone-logged sessions (local:true or dates not in the seed).
 function mergeSeed(stored, seed){
@@ -87,6 +89,66 @@ function mergeSeed(stored, seed){
   for(const r of stored.routine||[]) if(!routine.some(x=>x.id===r.id)) routine.push({...r, active: activeSlots(routine)<MAX_ACTIVE && isActive(r) ? r.active : false});
   return {...stored, _example:!!seed._example, routine, sessions, seedVersion:seed.seedVersion||1, seedDates:[...seedDates]};
 }
-const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed};
+// Stall rule: last 3+ consecutive logged sessions of an exercise where neither top weight nor total reps
+// went up from one session to the next (each session <= previous on both).
+function isStalled(ex, sessions, n=3){
+  const h=history(ex.id,sessions); if(h.length<n) return false; const l=h.slice(-n);
+  for(let i=1;i<l.length;i++) if(l[i].weight>l[i-1].weight || l[i].totalReps>l[i-1].totalReps) return false;
+  return true;
+}
+const LIB_MUSCLE={'Incline dumbbell curls':'biceps','Cable rope pushdowns':'triceps','Wrist curls':'forearms','Machine chest fly':'chest',
+  'Single-arm dumbbell row':'back','Lat pulldown':'back','Arnold press':'delts-front','Cable lateral raises':'delts-side','Rear delt flyes':'delts-rear',
+  'Diamond push-ups':'chest','Bulgarian split squats':'legs','Towel rows':'back'};
+const FALLBACK={biceps:['Cable curls','Concentration curls'],triceps:['Overhead cable extension','Close-grip push-ups'],forearms:['Reverse cable curls','Farmer carries'],
+  chest:['Incline dumbbell press','Cable crossover'],back:['Seated cable row','Chest-supported row'],'delts-front':['Machine shoulder press','Landmine press'],
+  'delts-side':['Machine lateral raise','Lean-away lateral raise'],'delts-rear':['Reverse pec deck','Band pull-aparts'],legs:['Goblet squats','Step-ups'],
+  core:['Plank','Dead bug'],cardio:['Bike intervals','Incline treadmill walk']};
+function muscleOf(name){ const n=String(name).toLowerCase();
+  if(/rowing|stepmaster|row time|row distance/.test(n)) return 'cardio';
+  if(/wrist|reverse/.test(n)) return 'forearms';
+  if(/skull|tricep|pushdown|tricep dips/.test(n)) return 'triceps';
+  if(/curl/.test(n)) return 'biceps';
+  if(/face pull|rear delt/.test(n)) return 'delts-rear';
+  if(/lateral/.test(n)) return 'delts-side';
+  if(/shoulder press|arnold|front raise/.test(n)) return 'delts-front';
+  if(/bench|chest|pec|fly|push-up|dips/.test(n)) return 'chest';
+  if(/row|pull/.test(n)) return 'back';
+  if(/squat|leg|calf|lunge|abductor/.test(n)) return 'legs';
+  if(/abs|plank|core|back strength/.test(n)) return 'core';
+  return null; }
+function alternatives(tab, ex, routine, dismissed, max=3){
+  const m=muscleOf(ex.name); if(!m) return [];
+  const taken=new Set(routine.filter(isActive).map(r=>slug(r.name))), skip=new Set((dismissed||[]).map(slug));
+  const ok=n=>!taken.has(slug(n))&&!skip.has(slug(n))&&slug(n)!==slug(ex.name);
+  const lib=(LIBRARY[tab]||[]).filter(n=>LIB_MUSCLE[n]===m&&ok(n)).map(name=>({name,source:'library'}));
+  const fb=lib.length?[]:(FALLBACK[m]||[]).filter(ok).map(name=>({name,source:'alternative'}));
+  return [...lib,...fb].slice(0,max);
+}
+function plateauCards(tab, routine, sessions, dismissed){
+  return routine.filter(isActive).filter(ex=>!ex.noAutoProgress&&isStalled(ex,sessions))
+    .map(ex=>({exerciseId:ex.id,name:ex.name,reason:`${ex.name}: no increase in weight or total reps for 3 sessions`,alternatives:alternatives(tab,ex,routine,dismissed)}))
+    .filter(c=>c.alternatives.length);
+}
+// Always replace (keeps cap): old exercise (and its group) goes inactive, new one takes its slot.
+function swapExercise(routine, oldId, newEx){
+  const out=routine.map(r=>({...r})), old=out.find(r=>r.id===oldId); if(!old) return out;
+  const g=old.group||old.id; out.forEach(r=>{if((r.group||r.id)===g) r.active=false});
+  const have=out.find(r=>slug(r.name)===slug(newEx.name));
+  const tmpl={targetSets:old.targetSets,targetReps:old.repMax||old.targetReps,repMin:old.repMin,repMax:old.repMax,unit:old.unit==='m'||old.unit==='min'?old.unit:old.unit};
+  if(have) Object.assign(have,{active:true,replaces:oldId}); else out.push({id:'ex-'+slug(newEx.name),name:newEx.name,...tmpl,replaces:oldId});
+  return out;
+}
+// Quick log: items [{exerciseId, sets, reps, weight, effort}] -> session
+function buildQuickSession(date, items){
+  return {date, local:true, entries:items.filter(i=>i.sets>0).map(i=>({exerciseId:i.exerciseId,
+    sets:Array.from({length:i.sets},()=>({reps:i.reps,weight:i.weight||0,effort:i.effort||'Good'}))}))};
+}
+function addSession(sessions, sess){
+  const out=sessions.map(s=>({...s,entries:s.entries.map(e=>({...e,sets:[...e.sets]}))})), ex=out.find(s=>s.date===sess.date);
+  if(ex){ for(const en of sess.entries){const o=ex.entries.find(x=>x.exerciseId===en.exerciseId); o?o.sets.push(...en.sets):ex.entries.push(en)} ex.local=true; }
+  else out.push(sess);
+  return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+}
+const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);
