@@ -1,0 +1,20 @@
+{
+  "_example": true,
+  "routine": [
+    {
+      "id": "ex-bench",
+      "name": "Bench press",
+      "targetSets": 3,
+      "targetReps": 8,
+      "unit": "kg"
+    },
+    {
+      "id": "ex-row",
+      "name": "Seated cable row",
+      "targetSets": 3,
+      "targetReps": 10,
+      "unit": "kg"
+    }
+  ],
+  "sessions": []
+}

@@ -1,0 +1,20 @@
+{
+  "_example": true,
+  "routine": [
+    {
+      "id": "ex-curl",
+      "name": "Dumbbell curl",
+      "targetSets": 3,
+      "targetReps": 10,
+      "unit": "kg"
+    },
+    {
+      "id": "ex-tri",
+      "name": "Triceps pushdown",
+      "targetSets": 3,
+      "targetReps": 10,
+      "unit": "kg"
+    }
+  ],
+  "sessions": []
+}

@@ -1,0 +1,20 @@
+{
+  "_example": true,
+  "routine": [
+    {
+      "id": "ex-ohp",
+      "name": "Dumbbell shoulder press",
+      "targetSets": 3,
+      "targetReps": 8,
+      "unit": "kg"
+    },
+    {
+      "id": "ex-lat",
+      "name": "Lateral raise",
+      "targetSets": 3,
+      "targetReps": 12,
+      "unit": "kg"
+    }
+  ],
+  "sessions": []
+}

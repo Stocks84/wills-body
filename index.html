@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1115"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Will's Body">
+<title>Will's Body</title><link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css"></head><body>
+<header><h1>Will's Body</h1><div id="streak" class="streak"></div></header>
+<nav id="tabs" role="tablist"></nav>
+<main id="main"></main>
+<div class="toolbar"><button id="absenceBtn" class="ghost">Log absence</button><button id="exportBtn" class="ghost">Export backup</button></div>
+<div id="timer" class="timer hidden"><div class="count" id="timerCount">75</div>
+<label>Rest <span id="restVal">75</span>s <input type="range" id="restSlider" min="60" max="90" step="5"></label>
+<button id="skipBtn">Skip</button></div>
+<dialog id="dlg"></dialog>
+<script src="rules.js"></script><script src="app.js"></script></body></html>
