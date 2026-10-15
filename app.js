@@ -6,7 +6,7 @@ const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4)
 const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
 async function load(){
   try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
-  if(!S||S.version!==1){S={version:1,tabs:{},absences:[],restSec:75};
+  if(!S||S.version!==2){S={version:2,tabs:{},absences:[],restSec:75};
     for(const [k] of TABS){let d={_example:true,routine:[],sessions:[]};try{d=await (await fetch('data/'+k+'.json')).json()}catch(e){}
       S.tabs[k]={_example:!!d._example,routine:d.routine||[],sessions:d.sessions||[],plans:[],dismissed:[]};}
     save();}

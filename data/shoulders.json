@@ -1,20 +1,338 @@
 {
-  "_example": true,
+  "progression": "Hit the top of the rep range with Good effort, then add weight next session. Otherwise hold the weight and add reps.",
   "routine": [
     {
-      "id": "ex-ohp",
-      "name": "Dumbbell shoulder press",
+      "id": "ex-seated-db-shoulder-press",
+      "name": "Seated DB Shoulder Press",
       "targetSets": 3,
-      "targetReps": 8,
-      "unit": "kg"
+      "targetReps": 10,
+      "repMin": 6,
+      "repMax": 10,
+      "unit": "kg",
+      "targetWeight": 14
     },
     {
-      "id": "ex-lat",
-      "name": "Lateral raise",
+      "id": "ex-db-lateral-raises",
+      "name": "DB Lateral Raises",
+      "targetSets": 3,
+      "targetReps": 10,
+      "repMin": 6,
+      "repMax": 10,
+      "unit": "kg",
+      "targetWeight": 7
+    },
+    {
+      "id": "ex-cable-face-pulls",
+      "name": "Cable Face Pulls",
+      "targetSets": 3,
+      "targetReps": 15,
+      "repMin": 12,
+      "repMax": 15,
+      "unit": "kg",
+      "targetWeight": 40
+    },
+    {
+      "id": "ex-strict-db-front-raises",
+      "name": "Strict DB Front Raises",
+      "targetSets": 3,
+      "targetReps": 10,
+      "repMin": 6,
+      "repMax": 10,
+      "unit": "kg",
+      "targetWeight": 6
+    },
+    {
+      "id": "ex-machine-leg-press",
+      "name": "Machine Leg Press",
+      "targetSets": 3,
+      "targetReps": 10,
+      "repMin": 8,
+      "repMax": 10,
+      "unit": "kg",
+      "targetWeight": 45,
+      "optional": true
+    },
+    {
+      "id": "ex-machine-calf-raises",
+      "name": "Machine Calf Raises",
       "targetSets": 3,
       "targetReps": 12,
-      "unit": "kg"
+      "repMin": 8,
+      "repMax": 12,
+      "unit": "kg",
+      "targetWeight": 29,
+      "optional": true
+    },
+    {
+      "id": "ex-stepmaster",
+      "name": "StepMaster",
+      "targetSets": 1,
+      "targetReps": 10,
+      "repMin": 8,
+      "repMax": 10,
+      "unit": "min",
+      "optional": true
     }
   ],
-  "sessions": []
+  "sessions": [
+    {
+      "date": "2026-09-04",
+      "label": "Session 28",
+      "entries": [
+        {
+          "exerciseId": "ex-seated-db-shoulder-press",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 12,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 12,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 12,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-db-lateral-raises",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 6,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 6,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 6,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-cable-face-pulls",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 40,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-strict-db-front-raises",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 5,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 5,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 5,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-21",
+      "label": "Session 29",
+      "entries": [
+        {
+          "exerciseId": "ex-seated-db-shoulder-press",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 12,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 12,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 12,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-db-lateral-raises",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 6,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 6,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 6,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-cable-face-pulls",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 40,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-strict-db-front-raises",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 5,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 5,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 5,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-25",
+      "label": "Session 30",
+      "entries": [
+        {
+          "exerciseId": "ex-seated-db-shoulder-press",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 14,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 14,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 14,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-db-lateral-raises",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 7,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 7,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 7,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-cable-face-pulls",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 40,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-strict-db-front-raises",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 6,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 6,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 6,
+              "effort": "Good"
+            }
+          ]
+        }
+      ],
+      "note": "Legs and StepMaster skipped"
+    }
+  ]
 }

@@ -11,8 +11,13 @@ function history(exId, sessions){ // chronological summaries for one exercise
 function hitTarget(h, ex){ return h.sets.length>=ex.targetSets && h.sets.every(x=>(+x.reps||0)>=ex.targetReps); }
 function nextPlan(ex, sessions){
   const h=history(ex.id, sessions), last=h[h.length-1];
-  if(!last) return {sets:ex.targetSets, reps:ex.targetReps, weight:0, action:'start', note:'No sessions yet – pick a starting weight'};
+  if(!last) return {sets:ex.targetSets, reps:ex.repMin||ex.targetReps, weight:ex.targetWeight||0, action:'start', note:'No sessions yet – pick a starting weight'};
   const kg=ex.unit==='kg', base={sets:ex.targetSets, reps:ex.targetReps, weight:last.weight};
+  if(ex.repMax){ // rep-range rule: top of range with Good effort -> add weight; otherwise hold weight, add reps
+    const minR=Math.min(...last.sets.map(x=>+x.reps||0));
+    if(kg && minR>=ex.repMax && last.sets.every(x=>x.effort==='Good')) return {...base, reps:ex.repMin||ex.repMax, weight:round(last.weight+2.5,0.5), action:'increase', note:'Top of range with Good effort – add weight'};
+    return {...base, reps:Math.min(ex.repMax,minR+1), action:'repeat', note:'Hold weight, add reps'};
+  }
   if(hitTarget(last,ex) && !last.tough){
     if(kg) return {...base, weight:round(last.weight+2.5,0.5), action:'increase', note:'All reps hit – add 2.5 kg'};
     const maxReps=Math.max(...last.sets.map(x=>+x.reps||0));
