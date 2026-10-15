@@ -19,7 +19,7 @@ t('absence week skipped',()=>assert.equal(R.weeklyStreak(['2026-10-15','2026-10-
 t('other-tag absence does not skip',()=>assert.equal(R.weeklyStreak(['2026-10-15','2026-10-01'],[{date:'2026-10-07',tag:'sick'}],'2026-10-16'),1));
 t('current empty week does not break',()=>assert.equal(R.weeklyStreak(['2026-10-08','2026-10-01'],[],'2026-10-16'),2));
 t('csv parse',()=>{const r=R.parseCSV('date,exercise,set,reps,weight,effort\n2026-10-01,Curl,1,10,12,Good\n2026-10-01,Curl,2,9,12,Tough');assert.equal(r.sessions[0].entries[0].sets.length,2);assert.equal(r.names['ex-curl'],'Curl')});
-t('suggestions only from library',()=>{const s=R.suggestions('arms',[{...ex,name:'Curl'}],['01','03','05'].map(d=>S('2026-10-'+d,'c',10,[9,9,9])),['Incline dumbbell curls']);assert.ok(s.length&&s.every(x=>R.LIBRARY.arms.includes(x.exercise)));assert.notEqual(s[0]&&s[0].exercise,'Incline dumbbell curls')});
+t('suggestions only from library',()=>{const s=R.suggestions('arms',[{...ex,name:'Skull crushers'}],['01','03','05'].map(d=>S('2026-10-'+d,'c',10,[9,9,9])),['Incline dumbbell curls']);assert.ok(s.length&&s.every(x=>R.LIBRARY.arms.includes(x.exercise)));assert.notEqual(s[0]&&s[0].exercise,'Incline dumbbell curls')});
 t('suggestions match muscle',()=>{const fr={id:'f',name:'Strict DB Front Raises',targetSets:3,targetReps:10,unit:'kg'};const s=R.suggestions('shoulders',[fr],['01','03','05'].map(d=>S('2026-10-'+d,'f',6,[5,5,5])),[]);assert.deepEqual(s.map(x=>x.exercise),['Arnold press'])});
 const rr={id:'r',name:'Press',targetSets:3,targetReps:10,repMin:6,repMax:10,unit:'kg'};
 t('rep range: top+Good -> add weight',()=>{const p=R.nextPlan(rr,[S('2026-09-04','r',12,[10,10,10])]);assert.equal(p.weight,14.5);assert.equal(p.reps,6)});
