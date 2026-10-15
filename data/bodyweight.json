@@ -1,27 +1,3687 @@
 {
-  "_example": true,
+  "source": "Bodyweight + rowing spreadsheet (xlsx, Sessions sheet)",
+  "targetsNote": "Sheet has no explicit targets; targets = latest logged numbers (2026-09-04). Effort not recorded (null).",
   "routine": [
     {
-      "id": "ex-push",
+      "id": "ex-push-ups",
       "name": "Push-ups",
-      "targetSets": 3,
-      "targetReps": 12,
+      "targetSets": 1,
+      "targetReps": 55,
       "unit": "bodyweight"
     },
     {
-      "id": "ex-squat",
-      "name": "Bodyweight squats",
-      "targetSets": 3,
-      "targetReps": 15,
+      "id": "ex-squats",
+      "name": "Squats",
+      "targetSets": 1,
+      "targetReps": 25,
       "unit": "bodyweight"
     },
     {
-      "id": "ex-rowing",
-      "name": "Rowing machine",
+      "id": "ex-back-strength",
+      "name": "Back Strength",
+      "targetSets": 1,
+      "targetReps": 35,
+      "unit": "bodyweight"
+    },
+    {
+      "id": "ex-tricep-dips",
+      "name": "Tricep Dips",
+      "targetSets": 1,
+      "targetReps": 55,
+      "unit": "bodyweight"
+    },
+    {
+      "id": "ex-abs",
+      "name": "Abs",
+      "targetSets": 1,
+      "targetReps": 25,
+      "unit": "bodyweight"
+    },
+    {
+      "id": "ex-pull-ups",
+      "name": "Pull-ups",
+      "targetSets": 2,
+      "targetReps": 5,
+      "unit": "bodyweight"
+    },
+    {
+      "id": "ex-chest-dips",
+      "name": "Chest Dips",
+      "targetSets": 1,
+      "targetReps": 8,
+      "unit": "bodyweight"
+    },
+    {
+      "id": "ex-row-time",
+      "name": "Rowing (time)",
       "targetSets": 1,
       "targetReps": 20,
       "unit": "min"
+    },
+    {
+      "id": "ex-row-distance",
+      "name": "Rowing (distance)",
+      "targetSets": 1,
+      "targetReps": 3847,
+      "unit": "m",
+      "noAutoProgress": true
     }
   ],
-  "sessions": []
+  "sessions": [
+    {
+      "date": "2026-02-08",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "Baseline restart"
+    },
+    {
+      "date": "2026-02-09",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 13,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "Push 1x13 + 1x10"
+    },
+    {
+      "date": "2026-02-10",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "Added dips & pull-ups"
+    },
+    {
+      "date": "2026-02-18",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 13,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 13,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 13,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-02-19",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "First row"
+    },
+    {
+      "date": "2026-02-21",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 18,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 18,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 18,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 7,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "Added Back Strength"
+    },
+    {
+      "date": "2026-02-23",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 7,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1542,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-02-24",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 23,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 23,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 23,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 9,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1680,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-02-26",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1898,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-03-11",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 11,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 2115,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-03-12",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 28,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 28,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 28,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 12,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 2227,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-03-16",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 13,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 2401,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 33,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 33,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 33,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 14,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 2625,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-03-18",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 2832,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-03-19",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 38,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 38,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 38,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 16,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 3032,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-03-23",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 40,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 40,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 40,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 7,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 16,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 3032,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-03-25",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 42,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 42,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 42,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 7,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1874,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "Shorter row"
+    },
+    {
+      "date": "2026-03-29",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 44,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 44,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 44,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 7,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1975,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-03-30",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 46,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 46,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 46,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1971,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-03-31",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 48,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 48,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 48,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1009,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "Short row"
+    },
+    {
+      "date": "2026-04-01",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1910,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "50-rep milestone"
+    },
+    {
+      "date": "2026-04-02",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 52,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1976,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-04-07",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 54,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 9,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "Row skipped"
+    },
+    {
+      "date": "2026-04-08",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 58,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 9,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1927,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-04-09",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 60,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 9,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1922,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "60 push-ups"
+    },
+    {
+      "date": "2026-05-08",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1922,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "Comeback after break"
+    },
+    {
+      "date": "2026-05-11",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 2,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1922,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-05-27",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 2,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 969,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "Shorter row"
+    },
+    {
+      "date": "2026-05-28",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 18,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 13,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 18,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 18,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1543,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-03",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1543,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-05",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1543,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1543,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "After gap"
+    },
+    {
+      "date": "2026-06-24",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1543,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-07-01",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 33,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 33,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 7,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1543,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-07-02",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 7,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1543,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-08-25",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1543,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "After long break"
+    },
+    {
+      "date": "2026-08-26",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 30,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 3,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1868,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-08-27",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 40,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 40,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 3677,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-08-31",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 45,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 45,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 4,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 3777,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 50,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 7,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 1884,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ],
+      "note": "50-rep again"
+    },
+    {
+      "date": "2026-09-04",
+      "entries": [
+        {
+          "exerciseId": "ex-push-ups",
+          "sets": [
+            {
+              "reps": 55,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-squats",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-back-strength",
+          "sets": [
+            {
+              "reps": 35,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-tricep-dips",
+          "sets": [
+            {
+              "reps": 55,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abs",
+          "sets": [
+            {
+              "reps": 25,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-chest-dips",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-pull-ups",
+          "sets": [
+            {
+              "reps": 6,
+              "weight": 0,
+              "effort": null
+            },
+            {
+              "reps": 5,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-time",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-row-distance",
+          "sets": [
+            {
+              "reps": 3847,
+              "weight": 0,
+              "effort": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

@@ -10,9 +10,13 @@ async function load(){
     for(const [k] of TABS){let d={_example:true,routine:[],sessions:[]};try{d=await (await fetch('data/'+k+'.json')).json()}catch(e){}
       S.tabs[k]={_example:!!d._example,routine:d.routine||[],sessions:d.sessions||[],plans:[],dismissed:[]};}
     save();}
+  // Upgrade untouched example tabs to real seed data without wiping user logs
+  for(const [k] of TABS){const t=S.tabs[k];if(!t||!t._example||t.sessions.length)continue;
+    try{const d=await (await fetch('data/'+k+'.json',{cache:'no-cache'})).json();
+      if(!d._example){S.tabs[k]={_example:false,routine:d.routine||[],sessions:d.sessions||[],plans:[],dismissed:t.dismissed||[]};save();}}catch(e){}}
 }
 const unitLbl=u=>u==='kg'?'kg':u==='m'?'m':u==='min'?'min':'';
-function fmtSets(sets,u){return sets.map(x=>`<span class="chip">${x.reps}${u==='kg'?' × '+x.weight+'kg':u==='min'||u==='m'?' '+unitLbl(u):''} · ${x.effort}</span>`).join('')}
+function fmtSets(sets,u){return sets.map(x=>`<span class="chip">${x.reps}${u==='kg'?' × '+x.weight+'kg':u==='min'||u==='m'?' '+unitLbl(u):''} ${x.effort?' · '+x.effort:''}</span>`).join('')}
 function render(){
   const T=S.tabs[cur], allDates=Object.values(S.tabs).flatMap(t=>t.sessions.map(s=>s.date));
   $('#streak').textContent='🔥 '+Rules.weeklyStreak(allDates,S.absences,today())+' wk streak';

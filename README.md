@@ -39,4 +39,4 @@ Importing replaces that tab's sessions and clears the example banner.
 - **Android (Chrome):** open the URL → ⋮ menu → *Install app* / *Add to Home screen*.
 
 ## Updates & the service worker
-`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v2`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
+`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v3`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.

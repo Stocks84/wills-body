@@ -13,9 +13,10 @@ function nextPlan(ex, sessions){
   const h=history(ex.id, sessions), last=h[h.length-1];
   if(!last) return {sets:ex.targetSets, reps:ex.repMin||ex.targetReps, weight:ex.targetWeight||0, action:'start', note:'No sessions yet – pick a starting weight'};
   const kg=ex.unit==='kg', base={sets:ex.targetSets, reps:ex.targetReps, weight:last.weight};
+  if(ex.noAutoProgress) return {...base, reps:ex.targetReps, action:'repeat', note:'Tracked only – no auto progression'};
   if(ex.repMax){ // rep-range rule: top of range with Good effort -> add weight; otherwise hold weight, add reps
     const minR=Math.min(...last.sets.map(x=>+x.reps||0));
-    if(kg && minR>=ex.repMax && last.sets.every(x=>x.effort==='Good')) return {...base, reps:ex.repMin||ex.repMax, weight:round(last.weight+2.5,0.5), action:'increase', note:'Top of range with Good effort – add weight'};
+    if(kg && minR>=ex.repMax && last.sets.every(x=>x.effort==='Good')) return {...base, reps:ex.repMin||ex.repMax, weight:ex.assist?Math.max(0,round(last.weight-(ex.weightStep||2.5),0.5)):round(last.weight+(ex.weightStep||2.5),0.5), action:'increase', note:ex.assist?'Top of range with Good effort – reduce assist':'Top of range with Good effort – add weight'};
     return {...base, reps:Math.min(ex.repMax,minR+1), action:'repeat', note:'Hold weight, add reps'};
   }
   if(hitTarget(last,ex) && !last.tough){

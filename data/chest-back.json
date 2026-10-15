@@ -1,20 +1,507 @@
 {
-  "_example": true,
+  "source": "Chest & Back Workout Plan (docx, Routine V3, Oct 2026)",
+  "progression": "Hit 3×10 clean with Good → +2.5 kg; Ok/Tough → hold weight, chase reps. Assisted Pull-Ups: reduce assist only when 3×10 is solidly Good.",
   "routine": [
     {
-      "id": "ex-bench",
-      "name": "Bench press",
-      "targetSets": 3,
-      "targetReps": 8,
-      "unit": "kg"
-    },
-    {
-      "id": "ex-row",
-      "name": "Seated cable row",
+      "id": "ex-flat-db-bench-press",
+      "name": "Flat DB Bench Press",
       "targetSets": 3,
       "targetReps": 10,
-      "unit": "kg"
+      "repMin": 6,
+      "repMax": 10,
+      "unit": "kg",
+      "targetWeight": 22,
+      "weightNote": "22 kg per DB"
+    },
+    {
+      "id": "ex-t-bar-row",
+      "name": "T-Bar Row",
+      "targetSets": 3,
+      "targetReps": 10,
+      "repMin": 6,
+      "repMax": 10,
+      "unit": "kg",
+      "targetWeight": 30
+    },
+    {
+      "id": "ex-machine-chest-press",
+      "name": "Machine Chest Press",
+      "targetSets": 3,
+      "targetReps": 10,
+      "repMin": 8,
+      "repMax": 10,
+      "unit": "kg",
+      "targetWeight": 42.5,
+      "weightNote": "42.5–45 kg"
+    },
+    {
+      "id": "ex-assisted-pull-ups",
+      "name": "Assisted Pull-Ups",
+      "targetSets": 3,
+      "targetReps": 10,
+      "repMin": 8,
+      "repMax": 10,
+      "unit": "kg",
+      "targetWeight": 25,
+      "assist": true,
+      "weightNote": "25 kg assist (lower = harder)"
+    },
+    {
+      "id": "ex-pec-deck",
+      "name": "Pec Deck",
+      "targetSets": 3,
+      "targetReps": 12,
+      "repMin": 10,
+      "repMax": 12,
+      "unit": "kg",
+      "targetWeight": 30,
+      "weightNote": "30 kg per side"
+    },
+    {
+      "id": "ex-face-pulls",
+      "name": "Face Pulls",
+      "targetSets": 3,
+      "targetReps": 15,
+      "repMin": 12,
+      "repMax": 15,
+      "unit": "kg",
+      "targetWeight": 35,
+      "weightNote": "35–37.5 kg per side"
+    },
+    {
+      "id": "ex-stepmaster",
+      "name": "StepMaster",
+      "targetSets": 1,
+      "targetReps": 10,
+      "repMin": 10,
+      "repMax": 10,
+      "unit": "min",
+      "optional": true
     }
   ],
-  "sessions": []
+  "sessions": [
+    {
+      "date": "2026-09-02",
+      "entries": [
+        {
+          "exerciseId": "ex-flat-db-bench-press",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 20,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 20,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 20,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-t-bar-row",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 27.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 27.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 27.5,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-machine-chest-press",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 40,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-assisted-pull-ups",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 30,
+              "effort": "Tough"
+            },
+            {
+              "reps": 8,
+              "weight": 30,
+              "effort": "Tough"
+            },
+            {
+              "reps": 8,
+              "weight": 30,
+              "effort": "Tough"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-face-pulls",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entries": [
+        {
+          "exerciseId": "ex-flat-db-bench-press",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 20,
+              "effort": "Ok"
+            },
+            {
+              "reps": 10,
+              "weight": 20,
+              "effort": "Ok"
+            },
+            {
+              "reps": 10,
+              "weight": 20,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-t-bar-row",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 27.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 27.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 27.5,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-machine-chest-press",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 40,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-assisted-pull-ups",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 30,
+              "effort": "Ok"
+            },
+            {
+              "reps": 10,
+              "weight": 30,
+              "effort": "Ok"
+            },
+            {
+              "reps": 10,
+              "weight": 30,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-face-pulls",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-23",
+      "entries": [
+        {
+          "exerciseId": "ex-flat-db-bench-press",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 20,
+              "effort": "Ok"
+            },
+            {
+              "reps": 15,
+              "weight": 20,
+              "effort": "Ok"
+            },
+            {
+              "reps": 15,
+              "weight": 20,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-t-bar-row",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 30,
+              "effort": null,
+              "note": "T-Bar logged as 5 kg (typo — confirmed 30 kg); no effort recorded"
+            },
+            {
+              "reps": 5,
+              "weight": 30,
+              "effort": null,
+              "note": "T-Bar logged as 5 kg (typo — confirmed 30 kg); no effort recorded"
+            },
+            {
+              "reps": 5,
+              "weight": 30,
+              "effort": null,
+              "note": "T-Bar logged as 5 kg (typo — confirmed 30 kg); no effort recorded"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-machine-chest-press",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 42.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 42.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 42.5,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-assisted-pull-ups",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 25,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 25,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 25,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-face-pulls",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-28",
+      "entries": [
+        {
+          "exerciseId": "ex-flat-db-bench-press",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 22,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 22,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 22,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-t-bar-row",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 30,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 30,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 30,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-machine-chest-press",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 42.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 42.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 42.5,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-assisted-pull-ups",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 25,
+              "effort": "Ok"
+            },
+            {
+              "reps": 10,
+              "weight": 25,
+              "effort": "Ok"
+            },
+            {
+              "reps": 10,
+              "weight": 25,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-face-pulls",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

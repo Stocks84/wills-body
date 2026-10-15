@@ -1,20 +1,835 @@
 {
-  "_example": true,
+  "source": "Arm Workout Log & Progression Plan (md, compiled 2026-10-16)",
+  "progression": "When upper reps feel Good → add 2.5 kg (DBs/cables) or 5 kg (machines).",
   "routine": [
     {
-      "id": "ex-curl",
-      "name": "Dumbbell curl",
+      "id": "ex-ez-skull-crushers",
+      "name": "EZ-Bar Skull Crushers",
       "targetSets": 3,
-      "targetReps": 10,
-      "unit": "kg"
+      "targetReps": 12,
+      "repMin": 10,
+      "repMax": 12,
+      "unit": "kg",
+      "targetWeight": 20
     },
     {
-      "id": "ex-tri",
-      "name": "Triceps pushdown",
+      "id": "ex-seated-db-hammer-curls",
+      "name": "Seated DB Hammer Curls",
       "targetSets": 3,
+      "targetReps": 12,
+      "repMin": 10,
+      "repMax": 12,
+      "unit": "kg",
+      "targetWeight": 12
+    },
+    {
+      "id": "ex-cable-overhead-tricep-extensions",
+      "name": "Cable Overhead Tricep Extensions",
+      "targetSets": 3,
+      "targetReps": 15,
+      "repMin": 12,
+      "repMax": 15,
+      "unit": "kg",
+      "targetWeight": 40,
+      "weightNote": "40 kg (or 42.5–45 kg)"
+    },
+    {
+      "id": "ex-preacher-curl-machine",
+      "name": "Preacher Curl Machine",
+      "targetSets": 3,
+      "targetReps": 12,
+      "repMin": 8,
+      "repMax": 12,
+      "unit": "kg",
+      "targetWeight": 27.5,
+      "weightStep": 5
+    },
+    {
+      "id": "ex-reverse-ez-bar-curls",
+      "name": "Reverse EZ-Bar Curls",
+      "targetSets": 3,
+      "targetReps": 12,
+      "repMin": 8,
+      "repMax": 12,
+      "unit": "kg",
+      "targetWeight": 20
+    },
+    {
+      "id": "ex-abductor-inside",
+      "name": "Abductor Inside",
+      "targetSets": 3,
+      "targetReps": 12,
+      "repMin": 10,
+      "repMax": 12,
+      "unit": "kg",
+      "targetWeight": 40,
+      "optional": true,
+      "weightStep": 5
+    },
+    {
+      "id": "ex-abductor-outside",
+      "name": "Abductor Outside",
+      "targetSets": 3,
+      "targetReps": 12,
+      "repMin": 10,
+      "repMax": 12,
+      "unit": "kg",
+      "targetWeight": 35,
+      "optional": true,
+      "weightNote": "35–40 kg",
+      "weightStep": 5
+    },
+    {
+      "id": "ex-stepmaster",
+      "name": "StepMaster",
+      "targetSets": 1,
       "targetReps": 10,
-      "unit": "kg"
+      "repMin": 8,
+      "repMax": 10,
+      "unit": "min",
+      "optional": true
     }
   ],
-  "sessions": []
+  "sessions": [
+    {
+      "date": "2026-08-27",
+      "entries": [
+        {
+          "exerciseId": "ex-ez-skull-crushers",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 17.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 17.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 17.5,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-seated-db-hammer-curls",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 12,
+              "effort": "Tough"
+            },
+            {
+              "reps": 5,
+              "weight": 12,
+              "effort": "Tough"
+            },
+            {
+              "reps": 5,
+              "weight": 12,
+              "effort": "Tough"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-cable-overhead-tricep-extensions",
+          "sets": [
+            {
+              "reps": 12,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 12,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 12,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-preacher-curl-machine",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 25,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 25,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 25,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-reverse-ez-bar-curls",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 17.5,
+              "effort": "Ok"
+            },
+            {
+              "reps": 10,
+              "weight": 17.5,
+              "effort": "Ok"
+            },
+            {
+              "reps": 10,
+              "weight": 17.5,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abductor-inside",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abductor-outside",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-03",
+      "entries": [
+        {
+          "exerciseId": "ex-ez-skull-crushers",
+          "sets": [
+            {
+              "reps": 12,
+              "weight": 17.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 12,
+              "weight": 17.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 12,
+              "weight": 17.5,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-seated-db-hammer-curls",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 12,
+              "effort": "Ok"
+            },
+            {
+              "reps": 8,
+              "weight": 12,
+              "effort": "Ok"
+            },
+            {
+              "reps": 8,
+              "weight": 12,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-cable-overhead-tricep-extensions",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-preacher-curl-machine",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 25,
+              "effort": "Ok"
+            },
+            {
+              "reps": 8,
+              "weight": 25,
+              "effort": "Ok"
+            },
+            {
+              "reps": 8,
+              "weight": 25,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-reverse-ez-bar-curls",
+          "sets": [
+            {
+              "reps": 12,
+              "weight": 17.5,
+              "effort": "Ok"
+            },
+            {
+              "reps": 12,
+              "weight": 17.5,
+              "effort": "Ok"
+            },
+            {
+              "reps": 12,
+              "weight": 17.5,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abductor-inside",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abductor-outside",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-10",
+      "entries": [
+        {
+          "exerciseId": "ex-ez-skull-crushers",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 17.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 17.5,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 17.5,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-seated-db-hammer-curls",
+          "sets": [
+            {
+              "reps": 12,
+              "weight": 12,
+              "effort": "Ok"
+            },
+            {
+              "reps": 12,
+              "weight": 12,
+              "effort": "Ok"
+            },
+            {
+              "reps": 12,
+              "weight": 12,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-cable-overhead-tricep-extensions",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 40,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-preacher-curl-machine",
+          "sets": [
+            {
+              "reps": 12,
+              "weight": 25,
+              "effort": "Ok"
+            },
+            {
+              "reps": 12,
+              "weight": 25,
+              "effort": "Ok"
+            },
+            {
+              "reps": 12,
+              "weight": 25,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-reverse-ez-bar-curls",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 17.5,
+              "effort": "Ok"
+            },
+            {
+              "reps": 15,
+              "weight": 17.5,
+              "effort": "Ok"
+            },
+            {
+              "reps": 15,
+              "weight": 17.5,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abductor-inside",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abductor-outside",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-24",
+      "entries": [
+        {
+          "exerciseId": "ex-ez-skull-crushers",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 20,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 20,
+              "effort": "Good"
+            },
+            {
+              "reps": 5,
+              "weight": 20,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-seated-db-hammer-curls",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 14,
+              "effort": "Tough"
+            },
+            {
+              "reps": 5,
+              "weight": 14,
+              "effort": "Tough"
+            },
+            {
+              "reps": 5,
+              "weight": 14,
+              "effort": "Tough"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-cable-overhead-tricep-extensions",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 10,
+              "weight": 40,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-preacher-curl-machine",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 27.5,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 27.5,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 27.5,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-reverse-ez-bar-curls",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 20,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 20,
+              "effort": "Ok"
+            },
+            {
+              "reps": 5,
+              "weight": 20,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abductor-inside",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abductor-outside",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-30",
+      "entries": [
+        {
+          "exerciseId": "ex-ez-skull-crushers",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 20,
+              "effort": "Ok"
+            },
+            {
+              "reps": 10,
+              "weight": 20,
+              "effort": "Ok"
+            },
+            {
+              "reps": 10,
+              "weight": 20,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-seated-db-hammer-curls",
+          "sets": [
+            {
+              "reps": 5,
+              "weight": 14,
+              "effort": "Tough"
+            },
+            {
+              "reps": 5,
+              "weight": 14,
+              "effort": "Tough"
+            },
+            {
+              "reps": 5,
+              "weight": 14,
+              "effort": "Tough"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-cable-overhead-tricep-extensions",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 40,
+              "effort": "Good"
+            },
+            {
+              "reps": 15,
+              "weight": 40,
+              "effort": "Good"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-preacher-curl-machine",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 27.5,
+              "effort": "Ok"
+            },
+            {
+              "reps": 8,
+              "weight": 27.5,
+              "effort": "Ok"
+            },
+            {
+              "reps": 8,
+              "weight": 27.5,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-reverse-ez-bar-curls",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 20,
+              "effort": "Ok"
+            },
+            {
+              "reps": 8,
+              "weight": 20,
+              "effort": "Ok"
+            },
+            {
+              "reps": 8,
+              "weight": 20,
+              "effort": "Ok"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abductor-inside",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Ok",
+              "feelRaw": "Easy"
+            }
+          ]
+        },
+        {
+          "exerciseId": "ex-abductor-outside",
+          "sets": [
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            },
+            {
+              "reps": 8,
+              "weight": 35,
+              "effort": "Good"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

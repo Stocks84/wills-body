@@ -23,4 +23,7 @@ t('suggestions only from library',()=>{const s=R.suggestions('arms',[ex],['01','
 const rr={id:'r',name:'Press',targetSets:3,targetReps:10,repMin:6,repMax:10,unit:'kg'};
 t('rep range: top+Good -> add weight',()=>{const p=R.nextPlan(rr,[S('2026-09-04','r',12,[10,10,10])]);assert.equal(p.weight,14.5);assert.equal(p.reps,6)});
 t('rep range: below top -> hold weight, add reps',()=>{const p=R.nextPlan(rr,[S('2026-09-25','r',14,[5,5,5],'Ok')]);assert.equal(p.weight,14);assert.equal(p.reps,6)});
+t('assist: Good at top -> less assist',()=>assert.equal(R.nextPlan({...rr,assist:true},[S('2026-09-28','r',25,[10,10,10])]).weight,22.5));
+t('machine step 5kg',()=>assert.equal(R.nextPlan({...rr,weightStep:5},[S('2026-09-28','r',25,[10,10,10])]).weight,30));
+t('null effort never increases on range',()=>assert.equal(R.nextPlan(rr,[S('2026-09-28','r',25,[10,10,10],null)]).action,'repeat'));
 console.log(`\n${n} tests passed`);
