@@ -8,12 +8,16 @@ async function load(){
   try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
   if(!S||S.version!==2){S={version:2,tabs:{},absences:[],restSec:75};
     for(const [k] of TABS){let d={_example:true,routine:[],sessions:[]};try{d=await (await fetch('data/'+k+'.json')).json()}catch(e){}
-      S.tabs[k]={_example:!!d._example,routine:d.routine||[],sessions:d.sessions||[],plans:[],dismissed:[]};}
+      S.tabs[k]={_example:!!d._example,routine:d.routine||[],sessions:d.sessions||[],plans:[],dismissed:[],seedVersion:d.seedVersion||1,seedDates:(d.sessions||[]).map(s=>s.date)};}
     save();}
+  // Seed-version migration: replace seeded sessions with newer seed, keep phone-logged sessions
+  for(const [k] of TABS){const t=S.tabs[k];if(!t)continue;
+    try{const d=await (await fetch('data/'+k+'.json',{cache:'no-cache'})).json();
+      if((d.seedVersion||1)>(t.seedVersion||1)&&!d._example){S.tabs[k]=Rules.mergeSeed(t,d);save();}}catch(e){}}
   // Upgrade untouched example tabs to real seed data without wiping user logs
   for(const [k] of TABS){const t=S.tabs[k];if(!t||!t._example||t.sessions.length)continue;
     try{const d=await (await fetch('data/'+k+'.json',{cache:'no-cache'})).json();
-      if(!d._example){S.tabs[k]={_example:false,routine:d.routine||[],sessions:d.sessions||[],plans:[],dismissed:t.dismissed||[]};save();}}catch(e){}}
+      if(!d._example){S.tabs[k]={_example:false,routine:d.routine||[],sessions:d.sessions||[],plans:[],dismissed:t.dismissed||[],seedVersion:d.seedVersion||1,seedDates:(d.sessions||[]).map(s=>s.date)};save();}}catch(e){}}
 }
 const unitLbl=u=>u==='kg'?'kg':u==='m'?'m':u==='min'?'min':'';
 function fmtSets(sets,u){return sets.map(x=>`<span class="chip">${x.reps}${u==='kg'?' × '+x.weight+'kg':u==='min'||u==='m'?' '+unitLbl(u):''} ${x.effort?' · '+x.effort:''}</span>`).join('')}
@@ -25,16 +29,16 @@ function render(){
   if(T._example) h+=`<div class="banner"><span>Example routine – import your log</span><button data-act="import">Import</button></div>`;
   for(const s of Rules.suggestions(cur,T.routine,T.sessions,T.dismissed))
     h+=`<div class="card sugg"><h3>💡 Try ${esc(s.exercise)}</h3><div class="mut">${esc(s.reason)}</div><div class="row" style="margin-top:8px">
-      <button data-act="up" data-n="${esc(s.exercise)}">👍 Add</button><button data-act="dismiss" data-n="${esc(s.exercise)}">✕ Dismiss</button></div></div>`;
+      <button data-act="up" data-n="${esc(s.exercise)}" data-from="${s.exerciseId}">👍 ${Rules.activeSlots(T.routine)>=Rules.MAX_ACTIVE?'Swap in':'Add'}</button><button data-act="dismiss" data-n="${esc(s.exercise)}">✕ Dismiss</button></div></div>`;
   const snap=T.plans[T.plans.length-1];
   if(snap) h+=`<div class="card"><h3>Saved plan for next session</h3><div class="mut">Snapshot from ${snap.date}</div>${snap.items.map(i=>`<div>${esc(i.name)}: <span class="plan">${i.sets}×${i.reps}${i.unit==='kg'?' @ '+i.weight+'kg':''}</span></div>`).join('')}</div>`;
-  for(const ex of T.routine){
+  for(const ex of T.routine.filter(Rules.isActive)){
     const hist=Rules.history(ex.id,T.sessions), last=hist[hist.length-1], plan=Rules.nextPlan(ex,T.sessions);
     const d=draft[ex.id]||(draft[ex.id]={sets:[],reps:plan.reps,weight:plan.weight,effort:'Good',targetSets:plan.sets});
     const flags=Rules.detectPlateaus(ex,T.sessions);
     h+=`<div class="card"><h3>${esc(ex.name)}</h3><div class="mut">Routine: ${ex.targetSets} × ${ex.targetReps} ${unitLbl(ex.unit)}</div>
       <div class="mut">Last: ${last?last.date+'</div><div class="sets">'+fmtSets(last.sets,ex.unit):'none yet'}</div>
-      <div>Next: <span class="plan">${plan.sets}×${plan.reps}${ex.unit==='kg'?' @ '+plan.weight+'kg':''}</span> <span class="mut">${esc(plan.note)}</span></div>
+      <div><button class="ghost" style="float:right;min-height:40px" data-act="toggle" data-ex="${ex.id}" aria-label="Deactivate">✕</button>Next: <span class="plan">${plan.sets}×${plan.reps}${ex.unit==='kg'?' @ '+plan.weight+'kg':''}</span> <span class="mut">${esc(plan.note)}</span></div>
       ${flags.map(f=>`<div style="color:var(--warn)">⚠ ${esc(f.reason)}</div>`).join('')}
       ${stepper(ex.id,'targetSets','Sets',d.targetSets)}${stepper(ex.id,'reps',ex.unit==='min'?'Minutes':ex.unit==='m'?'Metres':'Reps',d.reps)}
       ${ex.unit==='kg'?stepper(ex.id,'weight','Weight kg',d.weight):''}
@@ -42,6 +46,8 @@ function render(){
       <button class="primary" data-act="log" data-ex="${ex.id}">Log set ${Math.min(d.sets.length+1,99)} of ${d.targetSets}</button>
       <div class="sets">${fmtSets(d.sets,ex.unit)}${d.sets.length?`<button data-act="undo" data-ex="${ex.id}">Undo</button>`:''}</div></div>`;
   }
+  const inactive=T.routine.filter(r=>!Rules.isActive(r));
+  if(inactive.length) h+=`<details class="card"><summary>Inactive / optional (${inactive.length}) – max 4 active</summary>${inactive.map(r=>`<div class="row" style="margin-top:6px"><span>${esc(r.name)}</span><button class="ghost" data-act="toggle" data-ex="${r.id}">Activate</button></div>`).join('')}</details>`;
   const any=T.routine.some(r=>draft[r.id]&&draft[r.id].sets.length);
   h+=`<button class="primary" data-act="complete" ${any?'':'disabled style="opacity:.4"'}>✅ Session complete</button>
     <div class="row" style="margin:12px 0"><button class="ghost" data-act="import">Import log</button></div>`;
@@ -56,7 +62,8 @@ document.addEventListener('click',e=>{
   else if(a==='eff') d.effort=b.dataset.v;
   else if(a==='log'){d.sets.push({reps:d.reps,weight:ex.unit==='kg'?d.weight:0,effort:d.effort});startTimer();}
   else if(a==='undo') d.sets.pop();
-  else if(a==='up'){const n=b.dataset.n;T.routine.push({id:'ex-'+Rules.slug(n),name:n,targetSets:3,targetReps:T.routine[0]&&T.routine[0].unit!=='kg'?12:10,unit:cur==='bodyweight'?'bodyweight':'kg'});save();}
+  else if(a==='up'){const n=b.dataset.n;T.routine=Rules.acceptSuggestion(T.routine,{exerciseId:b.dataset.from},{id:'ex-'+Rules.slug(n),name:n,targetSets:3,targetReps:cur==='bodyweight'?12:10,unit:cur==='bodyweight'?'bodyweight':'kg'});save();}
+  else if(a==='toggle'){const r=T.routine.find(r=>r.id===b.dataset.ex);if(r.active===false){if(Rules.activeSlots(T.routine)>=Rules.MAX_ACTIVE){toast('Max 4 exercises – deactivate one first');return}r.active=true;}else r.active=false;save();}
   else if(a==='dismiss'){T.dismissed.push(b.dataset.n);save();}
   else if(a==='complete') complete();
   else if(a==='import') openImport();
@@ -66,8 +73,8 @@ function complete(){
   const T=S.tabs[cur], entries=T.routine.filter(r=>draft[r.id]&&draft[r.id].sets.length).map(r=>({exerciseId:r.id,sets:draft[r.id].sets}));
   if(!entries.length) return;
   const date=today(), ex=T.sessions.find(s=>s.date===date);
-  if(ex){for(const en of entries){const o=ex.entries.find(x=>x.exerciseId===en.exerciseId);o?o.sets.push(...en.sets):ex.entries.push(en)}} else T.sessions.push({date,entries});
-  T.plans.push({date,items:T.routine.map(r=>({id:r.id,name:r.name,unit:r.unit,...Rules.nextPlan(r,T.sessions)}))});
+  if(ex){for(const en of entries){const o=ex.entries.find(x=>x.exerciseId===en.exerciseId);o?o.sets.push(...en.sets):ex.entries.push(en)}} else T.sessions.push({date,entries,local:true});
+  T.plans.push({date,items:T.routine.filter(Rules.isActive).map(r=>({id:r.id,name:r.name,unit:r.unit,...Rules.nextPlan(r,T.sessions)}))});
   draft={}; save(); stopTimer(); toast('Session saved – next plan snapshotted');
 }
 function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#14532d;padding:12px 18px;border-radius:12px;z-index:20;font-weight:700';document.body.append(t);setTimeout(()=>t.remove(),2500)}

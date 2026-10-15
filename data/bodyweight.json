@@ -17,27 +17,6 @@
       "unit": "bodyweight"
     },
     {
-      "id": "ex-back-strength",
-      "name": "Back Strength",
-      "targetSets": 1,
-      "targetReps": 35,
-      "unit": "bodyweight"
-    },
-    {
-      "id": "ex-tricep-dips",
-      "name": "Tricep Dips",
-      "targetSets": 1,
-      "targetReps": 55,
-      "unit": "bodyweight"
-    },
-    {
-      "id": "ex-abs",
-      "name": "Abs",
-      "targetSets": 1,
-      "targetReps": 25,
-      "unit": "bodyweight"
-    },
-    {
       "id": "ex-pull-ups",
       "name": "Pull-ups",
       "targetSets": 2,
@@ -45,18 +24,12 @@
       "unit": "bodyweight"
     },
     {
-      "id": "ex-chest-dips",
-      "name": "Chest Dips",
-      "targetSets": 1,
-      "targetReps": 8,
-      "unit": "bodyweight"
-    },
-    {
       "id": "ex-row-time",
       "name": "Rowing (time)",
       "targetSets": 1,
       "targetReps": 20,
-      "unit": "min"
+      "unit": "min",
+      "group": "rowing"
     },
     {
       "id": "ex-row-distance",
@@ -64,7 +37,40 @@
       "targetSets": 1,
       "targetReps": 3847,
       "unit": "m",
-      "noAutoProgress": true
+      "noAutoProgress": true,
+      "group": "rowing"
+    },
+    {
+      "id": "ex-back-strength",
+      "name": "Back Strength",
+      "targetSets": 1,
+      "targetReps": 35,
+      "unit": "bodyweight",
+      "active": false
+    },
+    {
+      "id": "ex-tricep-dips",
+      "name": "Tricep Dips",
+      "targetSets": 1,
+      "targetReps": 55,
+      "unit": "bodyweight",
+      "active": false
+    },
+    {
+      "id": "ex-abs",
+      "name": "Abs",
+      "targetSets": 1,
+      "targetReps": 25,
+      "unit": "bodyweight",
+      "active": false
+    },
+    {
+      "id": "ex-chest-dips",
+      "name": "Chest Dips",
+      "targetSets": 1,
+      "targetReps": 8,
+      "unit": "bodyweight",
+      "active": false
     }
   ],
   "sessions": [
@@ -164,26 +170,6 @@
           ]
         },
         {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -220,26 +206,6 @@
           ]
         },
         {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 13,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 13,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -269,26 +235,6 @@
           "sets": [
             {
               "reps": 5,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 15,
               "weight": 0,
               "effort": null
             }
@@ -341,36 +287,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 5,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 18,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 18,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -411,36 +327,6 @@
           "sets": [
             {
               "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 20,
               "weight": 0,
               "effort": null
             }
@@ -496,36 +382,6 @@
           "sets": [
             {
               "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 23,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 23,
               "weight": 0,
               "effort": null
             }
@@ -592,36 +448,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -676,36 +502,6 @@
           "sets": [
             {
               "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 25,
               "weight": 0,
               "effort": null
             }
@@ -772,36 +568,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 28,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 28,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -856,36 +622,6 @@
           "sets": [
             {
               "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 30,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 30,
               "weight": 0,
               "effort": null
             }
@@ -952,36 +688,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 33,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 33,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -1036,36 +742,6 @@
           "sets": [
             {
               "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 35,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 35,
               "weight": 0,
               "effort": null
             }
@@ -1132,36 +808,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 38,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 38,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -1222,36 +868,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 40,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 40,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -1306,36 +922,6 @@
           "sets": [
             {
               "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 42,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 42,
               "weight": 0,
               "effort": null
             }
@@ -1403,36 +989,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 44,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 44,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -1493,36 +1049,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 46,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 46,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -1577,36 +1103,6 @@
           "sets": [
             {
               "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 48,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 48,
               "weight": 0,
               "effort": null
             }
@@ -1674,36 +1170,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 50,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 50,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -1759,36 +1225,6 @@
           "sets": [
             {
               "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 50,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 50,
               "weight": 0,
               "effort": null
             }
@@ -1855,36 +1291,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 50,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 50,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -1920,36 +1326,6 @@
           "sets": [
             {
               "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 50,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 50,
               "weight": 0,
               "effort": null
             }
@@ -2010,36 +1386,6 @@
           "sets": [
             {
               "reps": 30,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 30,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 50,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 50,
               "weight": 0,
               "effort": null
             }
@@ -2107,46 +1453,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 5,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -2197,46 +1503,6 @@
           "sets": [
             {
               "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 5,
               "weight": 0,
               "effort": null
             }
@@ -2297,46 +1563,6 @@
           "sets": [
             {
               "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 5,
               "weight": 0,
               "effort": null
             }
@@ -2404,46 +1630,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 13,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 18,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 18,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 6,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -2498,46 +1684,6 @@
           "sets": [
             {
               "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 6,
               "weight": 0,
               "effort": null
             }
@@ -2604,46 +1750,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 6,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -2698,46 +1804,6 @@
           "sets": [
             {
               "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 6,
               "weight": 0,
               "effort": null
             }
@@ -2805,46 +1871,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 30,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 6,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -2899,46 +1925,6 @@
           "sets": [
             {
               "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 33,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 7,
               "weight": 0,
               "effort": null
             }
@@ -3005,46 +1991,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 30,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 35,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 7,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -3099,46 +2045,6 @@
           "sets": [
             {
               "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 30,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 30,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 3,
               "weight": 0,
               "effort": null
             }
@@ -3206,46 +2112,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 30,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 35,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 4,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -3300,46 +2166,6 @@
           "sets": [
             {
               "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 35,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 40,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 5,
               "weight": 0,
               "effort": null
             }
@@ -3406,46 +2232,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 35,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 45,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 20,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 6,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -3500,46 +2286,6 @@
           "sets": [
             {
               "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 35,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 50,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 7,
               "weight": 0,
               "effort": null
             }
@@ -3607,46 +2353,6 @@
           ]
         },
         {
-          "exerciseId": "ex-back-strength",
-          "sets": [
-            {
-              "reps": 35,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-tricep-dips",
-          "sets": [
-            {
-              "reps": 55,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-abs",
-          "sets": [
-            {
-              "reps": 25,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-chest-dips",
-          "sets": [
-            {
-              "reps": 8,
-              "weight": 0,
-              "effort": null
-            }
-          ]
-        },
-        {
           "exerciseId": "ex-pull-ups",
           "sets": [
             {
@@ -3683,5 +2389,6 @@
         }
       ]
     }
-  ]
+  ],
+  "seedVersion": 2
 }

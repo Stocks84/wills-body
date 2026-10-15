@@ -50,7 +50,8 @@
       "repMax": 10,
       "unit": "kg",
       "targetWeight": 45,
-      "optional": true
+      "optional": true,
+      "active": false
     },
     {
       "id": "ex-machine-calf-raises",
@@ -61,7 +62,8 @@
       "repMax": 12,
       "unit": "kg",
       "targetWeight": 29,
-      "optional": true
+      "optional": true,
+      "active": false
     },
     {
       "id": "ex-stepmaster",
@@ -71,7 +73,8 @@
       "repMin": 8,
       "repMax": 10,
       "unit": "min",
-      "optional": true
+      "optional": true,
+      "active": false
     }
   ],
   "sessions": [
@@ -334,5 +337,6 @@
       ],
       "note": "Legs and StepMaster skipped"
     }
-  ]
+  ],
+  "seedVersion": 2
 }

@@ -60,11 +60,33 @@ function parseCSV(text){ // date,exercise,set,reps,weight,effort
 }
 const LIBRARY={arms:['Incline dumbbell curls','Cable rope pushdowns','Wrist curls'],'chest-back':['Machine chest fly','Single-arm dumbbell row','Lat pulldown'],
   shoulders:['Arnold press','Cable lateral raises','Rear delt flyes'],bodyweight:['Diamond push-ups','Bulgarian split squats','Towel rows']};
+const MAX_ACTIVE=4;
+const isActive=r=>r.active!==false;
+function activeSlots(routine){ return new Set(routine.filter(isActive).map(r=>r.group||r.id)).size; }
+// Accept a library suggestion without exceeding MAX_ACTIVE: add, or swap out the flagged exercise (its whole group).
+function acceptSuggestion(routine, sugg, newEx){
+  const out=routine.map(r=>({...r})), have=out.find(r=>slug(r.name)===slug(newEx.name));
+  if(have&&isActive(have)) return out;
+  if(activeSlots(out)>=MAX_ACTIVE){ const f=out.find(r=>r.id===sugg.exerciseId&&isActive(r)) || out.filter(isActive).slice(-1)[0];
+    const g=f.group||f.id; out.forEach(r=>{if((r.group||r.id)===g) r.active=false}); newEx={...newEx, replaces:f.id}; }
+  if(have){ Object.assign(have,{active:true}); if(newEx.replaces) have.replaces=newEx.replaces; } else out.push({...newEx});
+  return out;
+}
 function suggestions(tab, routine, sessions, dismissed){
+  routine=routine.filter(isActive);
   const flags=routine.flatMap(ex=>detectPlateaus(ex,sessions)); if(!flags.length) return [];
   const have=new Set(routine.map(r=>slug(r.name))); const pool=(LIBRARY[tab]||[]).filter(n=>!have.has(slug(n))&&!(dismissed||[]).includes(n));
   return flags.map((f,i)=>pool[i]?{...f, exercise:pool[i]}:null).filter(Boolean);
 }
-const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug};
+// Seed migration: take the new seed's sessions, keep any phone-logged sessions (local:true or dates not in the seed).
+function mergeSeed(stored, seed){
+  const seedDates=new Set((seed.sessions||[]).map(s=>s.date)), oldSeed=new Set(stored.seedDates||[]);
+  const local=(stored.sessions||[]).filter(s=>s.local || (!seedDates.has(s.date) && !oldSeed.has(s.date)));
+  const sessions=[...(seed.sessions||[]), ...local].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+  let routine=(seed.routine||[]).map(r=>({...r}));
+  for(const r of stored.routine||[]) if(!routine.some(x=>x.id===r.id)) routine.push({...r, active: activeSlots(routine)<MAX_ACTIVE && isActive(r) ? r.active : false});
+  return {...stored, _example:!!seed._example, routine, sessions, seedVersion:seed.seedVersion||1, seedDates:[...seedDates]};
+}
+const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);

@@ -55,7 +55,8 @@
       "repMax": 12,
       "unit": "kg",
       "targetWeight": 30,
-      "weightNote": "30 kg per side"
+      "weightNote": "30 kg per side",
+      "active": false
     },
     {
       "id": "ex-face-pulls",
@@ -66,7 +67,8 @@
       "repMax": 15,
       "unit": "kg",
       "targetWeight": 35,
-      "weightNote": "35–37.5 kg per side"
+      "weightNote": "35–37.5 kg per side",
+      "active": false
     },
     {
       "id": "ex-stepmaster",
@@ -76,7 +78,8 @@
       "repMin": 10,
       "repMax": 10,
       "unit": "min",
-      "optional": true
+      "optional": true,
+      "active": false
     }
   ],
   "sessions": [
@@ -162,26 +165,6 @@
               "effort": "Tough"
             }
           ]
-        },
-        {
-          "exerciseId": "ex-face-pulls",
-          "sets": [
-            {
-              "reps": 5,
-              "weight": 35,
-              "effort": "Good"
-            },
-            {
-              "reps": 5,
-              "weight": 35,
-              "effort": "Good"
-            },
-            {
-              "reps": 5,
-              "weight": 35,
-              "effort": "Good"
-            }
-          ]
         }
       ]
     },
@@ -265,26 +248,6 @@
               "reps": 10,
               "weight": 30,
               "effort": "Ok"
-            }
-          ]
-        },
-        {
-          "exerciseId": "ex-face-pulls",
-          "sets": [
-            {
-              "reps": 8,
-              "weight": 35,
-              "effort": "Good"
-            },
-            {
-              "reps": 8,
-              "weight": 35,
-              "effort": "Good"
-            },
-            {
-              "reps": 8,
-              "weight": 35,
-              "effort": "Good"
             }
           ]
         }
@@ -375,26 +338,6 @@
               "effort": "Ok"
             }
           ]
-        },
-        {
-          "exerciseId": "ex-face-pulls",
-          "sets": [
-            {
-              "reps": 10,
-              "weight": 35,
-              "effort": "Good"
-            },
-            {
-              "reps": 10,
-              "weight": 35,
-              "effort": "Good"
-            },
-            {
-              "reps": 10,
-              "weight": 35,
-              "effort": "Good"
-            }
-          ]
         }
       ]
     },
@@ -480,28 +423,9 @@
               "effort": "Ok"
             }
           ]
-        },
-        {
-          "exerciseId": "ex-face-pulls",
-          "sets": [
-            {
-              "reps": 15,
-              "weight": 35,
-              "effort": "Good"
-            },
-            {
-              "reps": 15,
-              "weight": 35,
-              "effort": "Good"
-            },
-            {
-              "reps": 15,
-              "weight": 35,
-              "effort": "Good"
-            }
-          ]
         }
       ]
     }
-  ]
+  ],
+  "seedVersion": 2
 }

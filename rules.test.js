@@ -26,4 +26,11 @@ t('rep range: below top -> hold weight, add reps',()=>{const p=R.nextPlan(rr,[S(
 t('assist: Good at top -> less assist',()=>assert.equal(R.nextPlan({...rr,assist:true},[S('2026-09-28','r',25,[10,10,10])]).weight,22.5));
 t('machine step 5kg',()=>assert.equal(R.nextPlan({...rr,weightStep:5},[S('2026-09-28','r',25,[10,10,10])]).weight,30));
 t('null effort never increases on range',()=>assert.equal(R.nextPlan(rr,[S('2026-09-28','r',25,[10,10,10],null)]).action,'repeat'));
+const rt=['a','b','c','d'].map(id=>({id,name:id.toUpperCase(),targetSets:3,targetReps:10,unit:'kg'}));
+t('accept at cap swaps flagged one',()=>{const r=R.acceptSuggestion(rt,{exerciseId:'b'},{id:'ex-x',name:'X',targetSets:3,targetReps:10,unit:'kg'});assert.equal(R.activeSlots(r),4);assert.equal(r.find(x=>x.id==='b').active,false);assert.ok(r.find(x=>x.id==='ex-x'))});
+t('accept under cap adds',()=>{const r=R.acceptSuggestion(rt.slice(0,3),{exerciseId:'b'},{id:'ex-x',name:'X'});assert.equal(R.activeSlots(r),4)});
+t('group counts as one slot',()=>assert.equal(R.activeSlots([...rt.slice(0,3),{id:'t',group:'row'},{id:'m',group:'row'}]),4));
+t('inactive excluded from suggestions',()=>assert.equal(R.suggestions('arms',[{...ex,active:false}],['01','03','05'].map(d=>S('2026-10-'+d,'c',10,[9,9,9])),[]).length,0));
+t('mergeSeed keeps local sessions, replaces seeded',()=>{const stored={routine:[],seedDates:['2026-09-01'],sessions:[{date:'2026-09-01',entries:[1,2,3,4,5]},{date:'2026-10-10',entries:[],local:true},{date:'2026-10-12',entries:[]}]};
+  const m=R.mergeSeed(stored,{seedVersion:2,routine:[],sessions:[{date:'2026-09-01',entries:[1,2,3,4]}]});assert.equal(m.sessions.length,3);assert.equal(m.sessions[0].entries.length,4);assert.equal(m.seedVersion,2)});
 console.log(`\n${n} tests passed`);
