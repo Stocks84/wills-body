@@ -2,7 +2,7 @@
 
 Offline-first gym log PWA (vanilla HTML/CSS/JS, no build step). Four tabs: Arms, Chest & Back, Shoulders, Bodyweight (incl. rowing).
 
-Features: routine + last session + next-session plan per exercise; big +/- steppers and Ok/Good/Tough effort buttons; auto rest timer (60–90 s, default 75 s, vibrate + soft beep); plateau rules with suggestion cards from an approved library (👍 adds to routine, ✕ dismisses permanently); weekly streak (weeks with a *work* or *holiday* absence are skipped); one-tap **Session complete** that snapshots the next plan; import (JSON/CSV) and export backup. Data lives in `localStorage` under `willsBody.v1`.
+Features: routine + last session + next-session plan per exercise; big +/- steppers and Ok/Good/Tough effort buttons; auto rest timer (60–90 s, default 75 s, vibrate + soft beep); plateau rules with suggestion cards from an approved library (👍 adds to routine, ✕ dismisses permanently); weekly streak (weeks with a *work* or *holiday* absence are skipped); **▶ Start workout → ✓ Finish workout** (Finish saves, snapshots next targets, records, streak); import (JSON/CSV) and export backup. Data lives in `localStorage` under `willsBody.v1`.
 
 The seed files in `data/` are **example routines only** (`"_example": true`, no sessions). Import your real logs per tab.
 
@@ -39,13 +39,13 @@ Importing replaces that tab's sessions and clears the example banner.
 - **Android (Chrome):** open the URL → ⋮ menu → *Install app* / *Add to Home screen*.
 
 ## Updates & the service worker
-`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v9`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
+`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v10`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
 
 ## 4-exercise cap & seed versions
 Each tab has at most 4 active exercises (`active:false` = inactive/optional; exercises sharing a `group`, e.g. rowing time + distance, count as one). A 👍 on a suggestion when 4 are active swaps out the flagged exercise. Seed files carry `seedVersion`; when it increases, the app replaces seeded sessions and keeps sessions logged on the phone (`local:true`).
 
 ## Quick log & stall cards
-- **⚡ Log whole session** (only rows you touch – edit, Last time, effort tap or ✓ Done – are saved): one sheet with the tab's active exercises prefilled from the next-session plan; +/- steppers, one effort tap each, optional date (default today) and optional rest timer; one Save.
+- **▶ Start workout** (Quick log, steps: Pick block → Log sets → Finish) (only rows you touch – edit, Last time, effort tap or ✓ Done – are saved): one sheet with the tab's active exercises prefilled from the next-session plan; +/- steppers, one effort tap each, optional date (default today) and optional rest timer; one Save.
 - **Stall rule**: an active exercise is stalled when, across its last 3 consecutive logged sessions, neither top weight nor total reps increased from one session to the next. A "Time to change this exercise" card offers 2–3 same-muscle alternatives (approved library first; small fallback map only when the library has none for that muscle). Swapping deactivates the stalled exercise, so the 4-cap holds.
 
 ## Trends, notes, theme, multi-block quick log
@@ -66,3 +66,4 @@ Each tab has at most 4 active exercises (`active:false` = inactive/optional; exe
 - **This-week strip**: one cell per tab (sessions + kg volume/minutes this ISO week); tabs with no session are highlighted as neglected. Tap a cell to open that tab.
 - **📋 Copy session**: copies the in-progress session (or the most recent one) as plain text, e.g. `Seated DB Shoulder Press: 14kg x 5, 5, 5 (Ok)`, plus notes; falls back to a selectable text box if the clipboard is unavailable.
 - Rest timer auto-starts after every logged set on all five tabs.
+- One workout path: **▶ Start workout** opens the sheet; **✓ Finish workout** saves touched rows (plus any sets logged on cards), snapshots next targets, records and streak. Logging a set on a card shows a "Workout in progress · N sets · ✓ Finish workout" banner – the only other finish button.
