@@ -5,10 +5,10 @@
 <title>Will's Body</title><link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="styles.css"></head><body>
-<header><h1>Will's Body</h1><div class="row" style="flex:0;gap:8px"><div id="streak" class="streak"></div><button id="themeBtn" class="ghost">☀️</button></div></header>
+<header><h1>Will's Body</h1><div class="row" style="flex:0;gap:8px"><div id="streak" class="streak"></div><button id="stats" class="streak" aria-label="Workouts and completion"></button><button id="themeBtn" class="ghost">☀️</button></div></header>
 <nav id="tabs" role="tablist"></nav>
 <main id="main"></main>
-<div class="toolbar"><button id="absenceBtn" class="ghost">Log absence</button><button id="exportBtn" class="ghost">Export backup</button></div>
+<div class="toolbar"><button id="absenceBtn" class="ghost">Log absence</button><button id="reportBtn" class="ghost">Weekly report</button><button id="csvBtn" class="ghost">Export CSV</button><button id="exportBtn" class="ghost">Export JSON</button></div>
 <div id="timer" class="timer hidden"><div class="count" id="timerCount">75</div>
 <label>Rest <span id="restVal">75</span>s <input type="range" id="restSlider" min="60" max="90" step="5"></label>
 <button id="skipBtn">Skip</button></div>

@@ -39,7 +39,7 @@ Importing replaces that tab's sessions and clears the example banner.
 - **Android (Chrome):** open the URL → ⋮ menu → *Install app* / *Add to Home screen*.
 
 ## Updates & the service worker
-`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v6`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
+`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v7`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
 
 ## 4-exercise cap & seed versions
 Each tab has at most 4 active exercises (`active:false` = inactive/optional; exercises sharing a `group`, e.g. rowing time + distance, count as one). A 👍 on a suggestion when 4 are active swaps out the flagged exercise. Seed files carry `seedVersion`; when it increases, the app replaces seeded sessions and keeps sessions logged on the phone (`local:true`).
@@ -53,3 +53,12 @@ Each tab has at most 4 active exercises (`active:false` = inactive/optional; exe
 - Optional session `notes` (normal flow + Quick log, per block); shown in Session history. Seeded notes come verbatim from the source logs; phone-added notes (`notesLocal:true`) survive seed migrations.
 - ☀️/🌙 theme toggle (default dark, saved in `willsBody.v1.theme`).
 - Quick log block selector: switch Arms / Chest & Back / Shoulders / Bodyweight inside the sheet; edits per block are kept until Save, which saves each edited block as its own session. The rest timer keeps running and is shown in the sheet.
+
+## Equipment tab & stats
+- **Equipment** tab (Rowing machine, StepMaster, Treadmill, Bike), unit `level`: `weight` = resistance/level ("Level"), `reps` = minutes ("Min"). Added to existing phones automatically without touching other data.
+- Quick log rows show **↺ Last time** (tap to fill sets/reps/weight from the last session).
+- **New records** on save (top weight, best reps in a set, best weight×reps in a set – kg only for the last) are stored on the session as `records` and shown in a banner. A first-ever log is not a record.
+- **Weekly report** (Mon–Sun): sessions, sets, kg volume, cardio minutes, records. Auto card on Sundays (dismissible), on demand via *Weekly report*.
+- **💪 Workouts · %** next to the streak (tap: 7/30/90 days). Workout = one logged session (tab + date). Planned = `weeklyTarget` (default 3/week) × days/7, excluding days in ISO weeks with a work/holiday absence; % capped at 100.
+- Trends add an **Est. 1RM** line (Brzycki `w × 36 / (37 − reps)`), kg exercises only, using sets with 1–12 reps.
+- **Export CSV**: `date,exercise,set,reps,weight,effort,tab,unit,notes` (first 6 columns are re-importable per tab).

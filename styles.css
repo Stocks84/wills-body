@@ -3,8 +3,8 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:18px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:160px}
 header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}h1{font-size:24px;margin:0}
 .streak{background:var(--card);border-radius:999px;padding:8px 14px;font-weight:700}
-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 10px;position:sticky;top:0;background:var(--bg);z-index:5;padding-bottom:8px}
-nav button{min-height:56px;font-size:15px}nav button[aria-selected=true]{background:#22c55e;color:#04130a}
+nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:0 10px;position:sticky;top:0;background:var(--bg);z-index:5;padding-bottom:8px}
+nav button{min-height:56px;font-size:13px;padding:0 2px}nav button[aria-selected=true]{background:#22c55e;color:#04130a}
 button{min-height:48px;min-width:48px;border:0;border-radius:12px;background:var(--btn);color:var(--txt);font:inherit;font-weight:700;cursor:pointer}
 button.primary{background:#22c55e;color:#04130a;min-height:64px;width:100%;font-size:20px}button.ghost{background:transparent;border:2px solid var(--line)}
 main{padding:0 12px}.card{background:var(--card);border-radius:16px;padding:14px;margin:12px 0;border:1px solid var(--line)}
@@ -26,3 +26,10 @@ input[type=date],input[type=file]{font:inherit;color:var(--txt);background:var(-
 .qtimer{position:sticky;top:0;z-index:2;background:var(--tbar);border:2px solid var(--acc);border-radius:12px;padding:8px 12px;margin:8px 0;display:flex;gap:10px;align-items:center;font-size:20px}.qtimer b{font-size:30px;color:var(--acc)}
 .qtimer.hidden{display:none}.trend summary,details summary{min-height:48px;display:flex;align-items:center;cursor:pointer;font-weight:700}
 .hist{border-top:1px solid var(--line);padding:8px 0}.note{margin-top:4px;white-space:pre-wrap}
+
+header{flex-wrap:wrap;gap:8px}header .row{flex-wrap:wrap;justify-content:flex-end}.streak{font-size:15px;min-height:48px;display:flex;align-items:center}
+.tabhead{margin:6px 0}.tabhead h2{margin:0;font-size:22px}
+.toolbar{flex-wrap:wrap}.toolbar button{flex:1 1 40%}
+.record{border-color:var(--acc)}.report .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin:8px 0}
+.report .kpis b{display:block;font-size:24px}.report .kpis small{color:var(--mut)}
+.lastbtn{width:100%;margin:4px 0;font-size:15px}

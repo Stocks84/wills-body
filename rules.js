@@ -108,7 +108,7 @@ const FALLBACK={biceps:['Cable curls','Concentration curls'],triceps:['Overhead 
   'delts-side':['Machine lateral raise','Lean-away lateral raise'],'delts-rear':['Reverse pec deck','Band pull-aparts'],legs:['Goblet squats','Step-ups'],
   core:['Plank','Dead bug'],cardio:['Bike intervals','Incline treadmill walk']};
 function muscleOf(name){ const n=String(name).toLowerCase();
-  if(/rowing|stepmaster|row time|row distance/.test(n)) return 'cardio';
+  if(/rowing|stepmaster|row time|row distance|treadmill|bike/.test(n)) return 'cardio';
   if(/wrist|reverse/.test(n)) return 'forearms';
   if(/skull|tricep|pushdown|tricep dips/.test(n)) return 'triceps';
   if(/curl/.test(n)) return 'biceps';
@@ -153,6 +153,7 @@ function buildQuickSession(date, items, notes){
 function trendSeries(ex, sessions){
   const h=history(ex.id,sessions), dates=h.map(x=>x.date);
   if(ex.unit==='kg') return {dates, series:[{label:'Top weight (kg)',values:h.map(x=>x.weight)},{label:'Total reps',values:h.map(x=>x.totalReps)}]};
+  if(ex.unit==='level') return {dates, series:[{label:'Level',values:h.map(x=>x.weight)},{label:'Minutes',values:h.map(x=>x.totalReps)}]};
   const label=ex.unit==='min'?'Minutes':ex.unit==='m'?'Metres':'Total reps';
   return {dates, series:[{label,values:h.map(x=>x.totalReps)}]};
 }
@@ -168,6 +169,75 @@ function addSession(sessions, sess){
   else out.push(sess);
   return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
 }
-const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints};
+// ---- Units: one source of labels/steps for every tab ----
+function unitInfo(unit){
+  switch(unit){
+    case 'kg': return {reps:'Reps', weight:'Weight kg', wStep:2.5, short:'kg', hasWeight:true, strength:true};
+    case 'level': return {reps:'Min', weight:'Level', wStep:1, short:'min', hasWeight:true, strength:false};
+    case 'min': return {reps:'Min', weight:null, wStep:0, short:'min', hasWeight:false, strength:false};
+    case 'm': return {reps:'Metres', weight:null, wStep:0, short:'m', hasWeight:false, strength:false};
+    default: return {reps:'Reps', weight:null, wStep:0, short:'', hasWeight:false, strength:false};
+  }
+}
+function fmtSet(x, unit){ const u=unitInfo(unit);
+  if(unit==='kg') return `${x.reps} × ${x.weight}kg`; if(unit==='level') return `${x.reps} min @ L${x.weight}`;
+  return `${x.reps}${u.short?' '+u.short:''}`; }
+// "Last time" values for quick log
+function lastValues(ex, sessions){ const h=history(ex.id,sessions), l=h[h.length-1]; if(!l) return null;
+  return {date:l.date, sets:l.sets.length, reps:+l.sets[0].reps||0, weight:unitInfo(ex.unit).hasWeight?l.weight:0}; }
+// Brzycki e1RM; only kg exercises, reps 1..12, weight>0
+function brzycki(w, r){ return (r>=1&&r<=12&&w>0) ? Math.round(w*36/(37-r)*10)/10 : null; }
+function e1rmSeries(ex, sessions){ if(ex.unit!=='kg') return null;
+  const pts=history(ex.id,sessions).map(h=>({date:h.date,v:Math.max(-1,...h.sets.map(x=>brzycki(+x.weight,+x.reps)??-1))})).filter(p=>p.v>0);
+  return pts.length?pts:null; }
+// New records vs all sessions before this one (excluding same date). First-ever log is not a record.
+function detectRecords(ex, priorSessions, sets){
+  const prior=history(ex.id,priorSessions); if(!prior.length||!sets.length) return [];
+  const all=prior.flatMap(p=>p.sets), u=unitInfo(ex.unit), out=[];
+  const mx=(arr,f)=>Math.max(0,...arr.map(f));
+  const pw=mx(all,x=>+x.weight||0), nw=mx(sets,x=>+x.weight||0);
+  if(u.hasWeight&&nw>pw) out.push({exerciseId:ex.id,name:ex.name,type:'weight',value:nw,prev:pw});
+  const pr=mx(all,x=>+x.reps||0), nr=mx(sets,x=>+x.reps||0);
+  if(nr>pr) out.push({exerciseId:ex.id,name:ex.name,type:'reps',value:nr,prev:pr});
+  if(ex.unit==='kg'){const pv=mx(all,x=>(+x.weight||0)*(+x.reps||0)), nv=mx(sets,x=>(+x.weight||0)*(+x.reps||0));
+    if(nv>pv) out.push({exerciseId:ex.id,name:ex.name,type:'volume',value:nv,prev:pv});}
+  return out;
+}
+function sessionRecords(routine, sessions, sess){
+  const prior=sessions.filter(s=>s.date!==sess.date);
+  return sess.entries.flatMap(e=>{const ex=routine.find(r=>r.id===e.exerciseId);return ex?detectRecords(ex,prior,e.sets):[]});
+}
+// Weekly report for the ISO week containing `date` (Mon..Sun). tabs: {key:{routine,sessions}}
+function addDays(d,n){const x=new Date(d+'T00:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)}
+function weekBounds(date){const d=new Date(date+'T00:00:00Z'), dow=(d.getUTCDay()+6)%7, mon=addDays(date,-dow);return {start:mon,end:addDays(mon,6)}}
+function weeklyReport(tabs, date){
+  const {start,end}=weekBounds(date); const r={start,end,sessions:0,sets:0,volume:0,minutes:0,records:[],byTab:{}};
+  for(const [k,t] of Object.entries(tabs)){ for(const s of t.sessions||[]){ if(s.date<start||s.date>end) continue;
+    r.sessions++; r.byTab[k]=(r.byTab[k]||0)+1;
+    for(const e of s.entries){const ex=(t.routine||[]).find(x=>x.id===e.exerciseId)||{unit:'kg'};
+      for(const x of e.sets){r.sets++; if(ex.unit==='kg') r.volume+=(+x.weight||0)*(+x.reps||0); if(ex.unit==='min'||ex.unit==='level') r.minutes+=+x.reps||0;}}
+    for(const rec of s.records||[]) r.records.push({...rec,tab:k,date:s.date});}}
+  r.volume=Math.round(r.volume*10)/10; return r;
+}
+// Workouts & completion. A workout = one logged session (tab+date). Planned = weeklyTarget per week, prorated
+// to the window length, minus days in ISO weeks that contain a 'work'/'holiday' absence.
+function workoutStats(tabs, absences, today, days, weeklyTarget=3){
+  const from=addDays(today,-(days-1)); let done=0;
+  for(const t of Object.values(tabs)) for(const s of t.sessions||[]) if(s.date>=from&&s.date<=today) done++;
+  const awayWeeks=new Set((absences||[]).filter(a=>a.tag==='work'||a.tag==='holiday').map(a=>isoWeek(a.date)));
+  let activeDays=0; for(let i=0;i<days;i++){ if(!awayWeeks.has(isoWeek(addDays(from,i)))) activeDays++; }
+  const planned=Math.round(weeklyTarget*activeDays/7*10)/10;
+  return {days, done, planned, pct: planned>0?Math.min(100,Math.round(done/planned*100)):null};
+}
+// CSV export (re-importable per tab: first 6 columns match the import format)
+function csvCell(v){ v=v==null?'':String(v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+function toCSV(tabs){
+  const rows=[['date','exercise','set','reps','weight','effort','tab','unit','notes']];
+  for(const [k,t] of Object.entries(tabs)) for(const s of [...(t.sessions||[])].sort((a,b)=>a.date<b.date?-1:1)) for(const e of s.entries){
+    const ex=(t.routine||[]).find(x=>x.id===e.exerciseId)||{name:e.exerciseId,unit:''};
+    e.sets.forEach((x,i)=>rows.push([s.date,ex.name,i+1,x.reps,x.weight,x.effort||'',k,ex.unit,i===0&&e===s.entries[0]?s.notes||'':'']));}
+  return rows.map(r=>r.map(csvCell).join(',')).join('\n')+'\n';
+}
+const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);
