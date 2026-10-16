@@ -82,4 +82,6 @@ t('weekStrip neglected',()=>{const w=R.weekStrip({arms:{routine:[ex],sessions:[S
 t('sessionText format',()=>{const s={date:'2026-09-25',notes:'ran out of time',entries:[{exerciseId:'p',sets:[5,5,5].map(r=>({reps:r,weight:14,effort:'Ok'}))},{exerciseId:'b',sets:[{reps:10,weight:5},{reps:8,weight:6}]},{exerciseId:'pu',sets:[{reps:6,weight:0},{reps:5,weight:0}]}]};
   const txt=R.sessionText('Shoulders',[{id:'p',name:'Seated DB Shoulder Press',unit:'kg'},{id:'b',name:'Bike',unit:'level'},{id:'pu',name:'Pull-ups',unit:'bodyweight'}],s);
   assert.equal(txt,'2026-09-25 – Shoulders\nSeated DB Shoulder Press: 14kg x 5, 5, 5 (Ok)\nBike: Level 5 x 10 min; Level 6 x 8 min\nPull-ups: 6, 5\nNotes: ran out of time')});
+t('quick log saves only touched rows',()=>{const items=[{exerciseId:'a',sets:3,reps:10,weight:20,touched:true},{exerciseId:'b',sets:3,reps:10,weight:20},{exerciseId:'c',sets:1,reps:10,weight:5,touched:true}];
+  const q=R.buildQuickSession('2026-10-16',R.touchedItems(items));assert.deepEqual(q.entries.map(e=>e.exerciseId),['a','c']);assert.equal(R.touchedItems([]).length,0);assert.equal(R.touchedItems(undefined).length,0)});
 console.log(`\n${n} tests passed`);

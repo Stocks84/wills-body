@@ -132,7 +132,7 @@ function openQuick(){
     <div class="blocks">${TABS.map(([k,l])=>`<button data-qb="${k}" class="${k===qb?'on':''}">${l}${edited.has(k)?' •':''}</button>`).join('')}</div>
     <div class="qtimer ${tInt?'':'hidden'}">⏱ Rest <b class="qTimerCount">${tInt?$('#timerCount').textContent:''}</b>s <button data-qt="skip">Skip</button></div>
     <label class="mut">Date <input type="date" id="qDate" value="${date}"></label>
-    ${q.map((i,k)=>`<div class="card"><h3>${esc(i.ex.name)}</h3>${i.last?`<button class="ghost lastbtn" data-q="${k}" data-ql="1">↺ Last time ${i.last.date}: ${fmtPlan(i.last,i.ex.unit)}</button>`:'<div class="mut">No previous log</div>'}${qs(k,'sets','Sets',i.sets)}${qs(k,'reps',U(i.ex.unit).reps,i.reps)}${U(i.ex.unit).hasWeight?qs(k,'weight',U(i.ex.unit).weight,i.weight):''}
+    ${q.map((i,k)=>`<div class="card ${i.touched?'touched':''}"><button class="tick ${i.touched?'on':''}" data-q="${k}" data-qdone="1" aria-pressed="${!!i.touched}" aria-label="Mark ${esc(i.ex.name)} done">${i.touched?'✓ Done':'Done'}</button><h3>${esc(i.ex.name)}</h3>${i.last?`<button class="ghost lastbtn" data-q="${k}" data-ql="1">↺ Last time ${i.last.date}: ${fmtPlan(i.last,i.ex.unit)}</button>`:'<div class="mut">No previous log</div>'}${qs(k,'sets','Sets',i.sets)}${qs(k,'reps',U(i.ex.unit).reps,i.reps)}${U(i.ex.unit).hasWeight?qs(k,'weight',U(i.ex.unit).weight,i.weight):''}
       <div class="eff">${['Ok','Good','Tough'].map(e=>`<button class="${i.effort===e?'on':''}" data-q="${k}" data-qe="${e}">${e}</button>`).join('')}</div></div>`).join('')}
     <label class="mut" style="display:block">Notes for this block (optional)<textarea id="qNotes" rows="2" style="min-height:64px">${esc(notes[qb]||'')}</textarea></label>
     <div class="row" style="margin:8px 0"><button class="ghost" data-qt="start">⏱ Start rest</button><label class="row" style="flex:2"><input type="checkbox" id="qTimer" ${timerAfter?'checked':''} style="flex:0;width:28px;height:28px"> Timer after save</label></div>
@@ -146,10 +146,12 @@ function openQuick(){
     if(b.dataset.qt==='start'){startTimer();draw();return}
     if(b.dataset.qt==='skip'){stopTimer();draw();return}
     if(b.id==='qSave'){const blocks=edited.size?[...edited]:[qb];let n=0;
-      for(const k of blocks){const T=S.tabs[k];const sess=Rules.buildQuickSession(date,Q[k]||build(k),notes[k]);if(!sess.entries.length)continue;
+      for(const k of blocks){const T=S.tabs[k];const sess=Rules.buildQuickSession(date,Rules.touchedItems(Q[k]),notes[k]);if(!sess.entries.length)continue;
         const recs=Rules.sessionRecords(T.routine,T.sessions,sess);T.sessions=Rules.addSession(T.sessions,sess);storeRecords(k,date,recs);T.plans.push({date,items:T.routine.filter(Rules.isActive).map(r=>({id:r.id,name:r.name,unit:r.unit,...Rules.nextPlan(r,T.sessions)}))});n++;}
       if(!n)return;save();dlg.close();dlg.onclick=null;draft={};render();toast(n>1?n+' sessions saved':'Session saved');if(timerAfter)startTimer();return}
-    const i=Q[qb][+b.dataset.q];edited.add(qb);if(b.dataset.qe)i.effort=b.dataset.qe;
+    const i=Q[qb][+b.dataset.q];
+    if(b.dataset.qdone){i.touched=!i.touched;if(i.touched)edited.add(qb);else if(!Q[qb].some(x=>x.touched)&&!(notes[qb]||'').trim())edited.delete(qb);draw();return}
+    edited.add(qb);i.touched=true;if(b.dataset.qe)i.effort=b.dataset.qe;
     else if(b.dataset.ql&&i.last){i.sets=i.last.sets;i.reps=i.last.reps;i.weight=i.last.weight;}
     else if(b.dataset.qf){const f=b.dataset.qf,st=f==='weight'?U(i.ex.unit).wStep:1;i[f]=Math.max(f==='reps'?1:0,Math.round((i[f]+(+b.dataset.qd)*st)*10)/10);}
     draw();};

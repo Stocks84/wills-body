@@ -37,3 +37,4 @@ header{flex-wrap:wrap;gap:8px}header .row{flex-wrap:wrap;justify-content:flex-en
 .strip{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:8px 0}.strip .cell{display:flex;flex-direction:column;align-items:center;min-height:64px;padding:4px 2px;font-size:11px;border:2px solid transparent}
 .strip .cell b{font-size:20px}.strip .cell small{font-size:10px;color:var(--mut)}.strip .cur{border-color:var(--txt)}
 .strip .neglected{border:2px dashed var(--warn);color:var(--warn)}.strip .lvl1{background:color-mix(in srgb,var(--acc) 25%,var(--btn))}.strip .lvl2{background:color-mix(in srgb,var(--acc) 50%,var(--btn))}.strip .lvl3{background:color-mix(in srgb,var(--acc) 75%,var(--btn))}
+.tick{float:right;min-height:48px;padding:0 14px}.tick.on{background:#22c55e;color:#04130a}.card.touched{border-color:var(--acc)}

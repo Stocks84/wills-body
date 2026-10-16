@@ -142,6 +142,8 @@ function swapExercise(routine, oldId, newEx){
   if(have) Object.assign(have,{active:true,replaces:oldId}); else out.push({id:'ex-'+slug(newEx.name),name:newEx.name,...tmpl,replaces:oldId});
   return out;
 }
+// Quick log: only rows the user touched (edit, Last-time fill, effort tap or Done tick) are saved
+function touchedItems(items){ return (items||[]).filter(i=>i.touched); }
 // Quick log: items [{exerciseId, sets, reps, weight, effort}] -> session
 function buildQuickSession(date, items, notes){
   const out={date, local:true, entries:items.filter(i=>i.sets>0).map(i=>({exerciseId:i.exerciseId,
@@ -262,6 +264,6 @@ function sessionText(tabLabel, routine, session){
   if(session.notes) lines.push(`Notes: ${session.notes}`);
   return lines.join('\n');
 }
-const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,recentLast,weekStrip,sessionText};
+const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,recentLast,weekStrip,sessionText};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);
