@@ -1,5 +1,8 @@
 'use strict';
 const KEY='willsBody.v1', TABS=[['arms','Arms'],['chest-back','Chest & Back'],['shoulders','Shoulders'],['bodyweight','Bodyweight'],['equipment','Equipment']];
+const ICONS={arms:'💪','chest-back':'🏋️',shoulders:'🙆',bodyweight:'🤸',equipment:'🚴'};
+const SHY={Bodyweight:'Body&shy;weight',Equipment:'Equip&shy;ment',Shoulders:'Shoul&shy;ders'};
+const tabBtn=(k,l)=>`<span class="ti" aria-hidden="true">${ICONS[k]}</span><span class="tl">${SHY[l]||esc(l)}</span>`;
 let draftNotes={};
 let S, cur=localStorage.getItem(KEY+'.tab')||'arms', draft={}, ui={}; // draft: exId -> {sets:[], reps, weight, effort, targetSets}
 const $=s=>document.querySelector(s), esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -33,13 +36,16 @@ function render(){
   $('#streak').textContent='🔥 '+Rules.weeklyStreak(allDates,S.absences,today())+' wk streak';
   const st=Rules.workoutStats(S.tabs,S.absences,today(),S.statsWindow,S.weeklyTarget);
   $('#stats').textContent=`💪 ${st.done} in ${st.days}d${st.pct==null?'':' · '+st.pct+'%'}`; $('#stats').title=`${st.done} workouts / ${st.planned} planned (${S.weeklyTarget}/week, absence weeks excluded). Tap to change window.`;
-  $('#tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${k===cur}" data-tab="${k}">${l}</button>`).join('');
+  $('#tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${k===cur}" data-tab="${k}">${tabBtn(k,l)}</button>`).join('');
   let h='';
   const lastS=T.sessions[T.sessions.length-1], tabLabel=TABS.find(t=>t[0]===cur)[1];
   h+=`<div class="tabhead"><h2>${tabLabel}</h2><div class="mut">${Rules.activeSlots(T.routine)}/${Rules.MAX_ACTIVE} active · ${T.sessions.length} sessions · last ${lastS?lastS.date:'—'}</div></div>`;
   h+=`<div class="strip" aria-label="This week per tab">${Rules.weekStrip(S.tabs,TABS.map(t=>t[0]),today()).map(c=>{const l=TABS.find(t=>t[0]===c.tab)[1];
-    return `<button data-tab="${c.tab}" class="cell ${c.neglected?'neglected':'lvl'+Math.min(3,c.sessions)} ${c.tab===cur?'cur':''}" title="${l}: ${c.sessions} sessions, ${c.volume} kg, ${c.minutes} min"><span>${l}</span><b>${c.sessions}</b><small>${c.neglected?'neglected':c.volume?Math.round(c.volume)+' kg':c.minutes?c.minutes+' min':'done'}</small></button>`}).join('')}</div>`;
+    return `<button data-tab="${c.tab}" aria-label="${l}" class="cell ${c.neglected?'neglected':'lvl'+Math.min(3,c.sessions)} ${c.tab===cur?'cur':''}" title="${l}: ${c.sessions} sessions, ${c.volume} kg, ${c.minutes} min"><span>${SHY[l]||l}</span><b>${c.sessions}</b><small>${c.neglected?'neglected':c.volume?Math.round(c.volume)+' kg':c.minutes?c.minutes+' min':'done'}</small></button>`}).join('')}</div>`;
   h+=`<button class="ghost" data-act="copy" style="width:100%;margin:4px 0">📋 Copy session</button>`;
+  const dl=deloadFor(cur);
+  if(dl.due) h+=`<div class="card deload"><h3>🧘 Deload week due</h3><div class="help">${dl.weeks} training weeks since ${dl.anchor}. Do one lighter session at −20% weight to recover; it won't count for records or stall checks.</div>
+    <button class="primary" data-act="deload">Plan deload session</button><div class="row" style="margin-top:8px"><button class="ghost" data-act="dlsnooze">Snooze 1 week</button><button class="ghost" data-act="dlskip">Skip this cycle</button></div></div>`;
   if(lastRecords.length) h+=`<div class="card record"><h3>🏆 New record${lastRecords.length>1?'s':''}!</h3>${lastRecords.map(r=>`<div>${recTxt(r)}</div>`).join('')}<button class="ghost" data-act="recok" style="margin-top:8px;width:100%">Nice – dismiss</button></div>`;
   const wk=Rules.isoWeek(today());
   if(new Date().getDay()===0 && S.reportDismissed!==wk) h+=reportCard(true);
@@ -79,6 +85,7 @@ function render(){
   const hist=[...T.sessions].reverse();
   if(hist.length) h+=`<details class="card"><summary>Session history (${hist.length})</summary>${hist.map(s=>`<div class="hist"><b>${s.date}</b>${s.label?' · '+esc(s.label):''}<div class="mut">${s.entries.map(e=>{const r=T.routine.find(x=>x.id===e.exerciseId);return esc(r?r.name:e.exerciseId)+' '+e.sets.length+'×'+(e.sets[0]?e.sets[0].reps:'')+(e.sets[0]&&e.sets[0].weight?' @'+e.sets[0].weight+'kg':'')}).join(' · ')}</div>${s.notes?`<div class="note">📝 ${esc(s.notes)}</div>`:''}</div>`).join('')}</details>`;
   $('#main').innerHTML=h;
+  if(celebrate){celebrate=false;confetti();}
   const sn=$('#sessNotes'); if(sn) sn.oninput=()=>{draftNotes[cur]=sn.value};
 }
 function stepper(id,f,label,v){return `<div class="step"><button data-act="dec" data-ex="${id}" data-f="${f}" aria-label="less ${label}">−</button><div class="v">${v}<small>${label}</small></div><button data-act="inc" data-ex="${id}" data-f="${f}" aria-label="more ${label}">+</button></div>`}
@@ -96,6 +103,9 @@ document.addEventListener('click',e=>{
   else if(a==='swap'){T.routine=Rules.swapExercise(T.routine,b.dataset.from,{name:b.dataset.n});delete draft[b.dataset.from];save();toast('Swapped in '+b.dataset.n);}
   else if(a==='quick'){openQuick();return}
   else if(a==='recok'){lastRecords=[];}
+  else if(a==='deload'){openQuick({deload:cur});return}
+  else if(a==='dlsnooze'){S.deload=S.deload||{};S.deload[cur]={...(S.deload[cur]||{}),snoozeUntil:Rules.addDays(today(),7)};save();}
+  else if(a==='dlskip'){S.deload=S.deload||{};S.deload[cur]={...(S.deload[cur]||{}),skippedOn:today()};save();}
   else if(a==='report'){openReport();return}
   else if(a==='repok'){S.reportDismissed=Rules.isoWeek(today());save();}
   else if(a==='toggle'){const r=T.routine.find(r=>r.id===b.dataset.ex);if(r.active===false){if(Rules.activeSlots(T.routine)>=Rules.MAX_ACTIVE){toast('Max 4 exercises – deactivate one first');return}r.active=true;}else r.active=false;save();}
@@ -118,14 +128,21 @@ function trendHTML(ex,sessions){const t=Rules.trendSeries(ex,sessions);if(t.date
     <svg viewBox="0 0 280 48" width="100%" height="48" role="img" aria-label="${s.label} trend"><polyline fill="none" stroke="${i?'var(--acc2)':'var(--acc)'}" stroke-width="3" stroke-linejoin="round" points="${Rules.sparkPoints(s.values)}"/></svg>`).join('')}
     ${(()=>{const e=Rules.e1rmSeries(ex,sessions);return e&&e.length>=2?`<div class="mut">Est. 1RM (Brzycki, sets ≤12 reps): ${e[0].v} → ${e[e.length-1].v} kg</div><svg viewBox="0 0 280 48" width="100%" height="48" role="img" aria-label="Estimated 1RM trend"><polyline fill="none" stroke="var(--warn)" stroke-width="3" stroke-dasharray="6 4" points="${Rules.sparkPoints(e.map(p=>p.v))}"/></svg>`:''})()}
     <div class="mut">${t.dates[0]} → ${t.dates[t.dates.length-1]}</div></details>`;}
-let lastRecords=[];
-function storeRecords(k,date,recs){ if(!recs.length) return; const s=S.tabs[k].sessions.find(s=>s.date===date); s.records=(s.records||[]).concat(recs); lastRecords=lastRecords.concat(recs.map(r=>({...r,tab:k}))); }
+function deloadFor(k){const o=(S.deload||{})[k]||{};return Rules.deloadStatus(S.tabs[k].sessions,today(),o);}
+let lastRecords=[], celebrate=false;
+function storeRecords(k,date,recs){ if(!recs.length) return; const s=S.tabs[k].sessions.find(s=>s.date===date); s.records=(s.records||[]).concat(recs); celebrate=true; lastRecords=lastRecords.concat(recs.map(r=>({...r,tab:k}))); }
 const recTxt=r=>r.type==='weight'?`${esc(r.name)}: top weight ${r.value} (was ${r.prev})`:r.type==='reps'?`${esc(r.name)}: ${r.value} reps in a set (was ${r.prev})`:`${esc(r.name)}: ${r.value} kg×reps in a set (was ${r.prev})`;
+function confetti(){ if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const box=document.createElement('div');box.className='confetti';box.setAttribute('aria-hidden','true');
+  const cols=['#22c55e','#60a5fa','#f59e0b','#f472b6','#facc15'];
+  for(let i=0;i<40;i++){const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.background=cols[i%5];p.style.animationDelay=(Math.random()*0.4)+'s';p.style.transform=`rotate(${Math.random()*360}deg)`;box.append(p);}
+  document.body.append(box);setTimeout(()=>box.remove(),2200);}
 function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#14532d;color:#fff;padding:12px 18px;border-radius:12px;z-index:20;font-weight:700';document.body.append(t);setTimeout(()=>t.remove(),2500)}
 // Quick log sheet with block selector; per-block entries persist until Save
-function openQuick(){
-  const dlg=$('#dlg'), Q={}, edited=new Set(), notes={}; let qb=cur;
-  const build=k=>{const T=S.tabs[k];return T.routine.filter(Rules.isActive).map(ex=>{const p=Rules.nextPlan(ex,T.sessions);return {ex,exerciseId:ex.id,sets:p.sets,reps:p.reps,weight:U(ex.unit).hasWeight?p.weight:0,effort:'Good',last:Rules.lastValues(ex,T.sessions)}})};
+function openQuick(opts={}){
+  const dlg=$('#dlg'), Q={}, edited=new Set(), notes={}, deloadTabs=new Set(opts.deload?[opts.deload]:[]); let qb=opts.deload||cur;
+  const build=k=>{const T=S.tabs[k];return T.routine.filter(Rules.isActive).map(ex=>{const p=Rules.nextPlan(ex,T.sessions);const it={ex,exerciseId:ex.id,sets:p.sets,reps:p.reps,weight:U(ex.unit).hasWeight?p.weight:0,effort:'Good',last:Rules.lastValues(ex,T.sessions)};
+    if(deloadTabs.has(k)){const d=Rules.deloadPrefill(ex,T.sessions);if(d)Object.assign(it,d);}return it;})};
   const qs=(k,f,l,v)=>`<div class="step"><button data-q="${k}" data-qf="${f}" data-qd="-1">−</button><div class="v">${v}<small>${l}</small></div><button data-q="${k}" data-qf="${f}" data-qd="1">+</button></div>`;
   let date=today(), timerAfter=false;
   const draw=()=>{const q=Q[qb]||(Q[qb]=build(qb));
@@ -133,8 +150,9 @@ function openQuick(){
     dlg.innerHTML=`<h3>Workout</h3>
     <ol class="steps">${['Pick block','Log sets','Finish'].map((s,i)=>`<li class="${i+1===step?'now':i+1<step?'done':''}">${i+1}. ${s}</li>`).join('')}</ol>
     <div class="help">1 · Choose what you're training. You can switch blocks any time – your entries stay.</div>
-    <div class="blocks">${TABS.map(([k,l])=>`<button data-qb="${k}" class="${k===qb?'on':''}">${l}${edited.has(k)?' •':''}</button>`).join('')}</div>
+    <div class="blocks">${TABS.map(([k,l])=>`<button data-qb="${k}" class="${k===qb?'on':''}">${tabBtn(k,l)}${edited.has(k)?' •':''}</button>`).join('')}</div>
     <div class="qtimer ${tInt?'':'hidden'}">⏱ Rest <b class="qTimerCount">${tInt?$('#timerCount').textContent:''}</b>s <button data-qt="skip">Skip</button></div>
+    ${deloadTabs.has(qb)?'<div class="card deload"><b>🧘 Deload session</b> – prefilled at −20%. Saved as a deload: no records, ignored by stall checks.</div>':''}
     <div class="help">2 · Tap a row to change numbers. Only rows you touch get saved – tick Done to log a row as shown.</div>
     <label class="mut">Date <input type="date" id="qDate" value="${date}"></label>
     ${q.map((i,k)=>`<div class="card ${i.touched?'touched':''}"><button class="tick ${i.touched?'on':''}" data-q="${k}" data-qdone="1" aria-pressed="${!!i.touched}" aria-label="Mark ${esc(i.ex.name)} done">${i.touched?'✓ Done':'Done'}</button><h3>${esc(i.ex.name)}</h3>${i.last?`<button class="ghost lastbtn" data-q="${k}" data-ql="1">↺ Last time ${i.last.date}: ${fmtPlan(i.last,i.ex.unit)}</button>`:'<div class="mut">No previous log</div>'}${qs(k,'sets','Sets',i.sets)}${qs(k,'reps',U(i.ex.unit).reps,i.reps)}${U(i.ex.unit).hasWeight?qs(k,'weight',U(i.ex.unit).weight,i.weight):''}
@@ -153,7 +171,7 @@ function openQuick(){
     if(b.dataset.qt==='skip'){stopTimer();draw();return}
     if(b.id==='qSave'){const blocks=edited.size?[...edited]:[qb];let n=0;
       if(Rules.draftSetCount(draft)){complete(true);n++;}
-      for(const k of blocks){const T=S.tabs[k];const sess=Rules.buildQuickSession(date,Rules.touchedItems(Q[k]),notes[k]);if(!sess.entries.length)continue;
+      for(const k of blocks){const T=S.tabs[k];const sess=Rules.buildQuickSession(date,Rules.touchedItems(Q[k]),notes[k]);if(!sess.entries.length)continue;if(deloadTabs.has(k))sess.deload=true;
         const recs=Rules.sessionRecords(T.routine,T.sessions,sess);T.sessions=Rules.addSession(T.sessions,sess);storeRecords(k,date,recs);T.plans.push({date,items:T.routine.filter(Rules.isActive).map(r=>({id:r.id,name:r.name,unit:r.unit,...Rules.nextPlan(r,T.sessions)}))});n++;}
       if(!n)return;save();dlg.close();dlg.onclick=null;draft={};render();toast(n>1?n+' sessions saved':'Session saved');if(timerAfter)startTimer();return}
     const i=Q[qb][+b.dataset.q];
@@ -226,6 +244,7 @@ function applyTheme(t){document.documentElement.dataset.theme=t;$('#themeBtn').t
 applyTheme(localStorage.getItem(THEME_KEY)==='light'?'light':'dark');
 $('#themeBtn').onclick=()=>{const t=document.documentElement.dataset.theme==='light'?'dark':'light';localStorage.setItem(THEME_KEY,t);applyTheme(t)};
 const sl=$('#restSlider');
-load().then(()=>{sl.value=S.restSec;$('#restVal').textContent=S.restSec;render()});
+fetch('manifest.webmanifest').then(r=>r.json()).then(m=>{$('#ver').textContent="Will's Body v"+m.version}).catch(()=>{});
+load().then(()=>{document.body.classList.remove('loading');sl.value=S.restSec;$('#restVal').textContent=S.restSec;render()});
 sl.oninput=()=>{S.restSec=+sl.value;$('#restVal').textContent=sl.value;save();if(tInt){/*keep running*/}};
 if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));

@@ -2,7 +2,7 @@
 (function(root){
 const round = (x, step) => Math.round(x / step) * step;
 function history(exId, sessions){ // chronological summaries for one exercise
-  return [...sessions].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0)
+  return [...sessions].filter(s=>!s.deload).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0)
     .map(s=>{const e=(s.entries||[]).find(e=>e.exerciseId===exId); if(!e||!e.sets||!e.sets.length) return null;
       const w=Math.max(...e.sets.map(x=>+x.weight||0)), reps=e.sets.reduce((a,x)=>a+(+x.reps||0),0);
       return {date:s.date, sets:e.sets, weight:w, totalReps:reps, avgReps:reps/e.sets.length,
@@ -207,6 +207,7 @@ function detectRecords(ex, priorSessions, sets){
   return out;
 }
 function sessionRecords(routine, sessions, sess){
+  if(sess.deload) return [];
   const prior=sessions.filter(s=>s.date!==sess.date);
   return sess.entries.flatMap(e=>{const ex=routine.find(r=>r.id===e.exerciseId);return ex?detectRecords(ex,prior,e.sets):[]});
 }
@@ -265,6 +266,25 @@ function sessionText(tabLabel, routine, session){
   if(session.notes) lines.push(`Notes: ${session.notes}`);
   return lines.join('\n');
 }
-const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,draftSetCount,recentLast,weekStrip,sessionText};
+// ---- Deload reminder ----
+// Due when the tab has >= minWeeks distinct ISO training weeks since the anchor
+// (anchor = latest of: first session, last deload session, a skipped cycle), and not snoozed.
+function deloadStatus(sessions, today, opts={}){
+  const minWeeks=opts.minWeeks||6, ss=[...(sessions||[])].sort((a,b)=>a.date<b.date?-1:1);
+  if(!ss.length) return {due:false,weeks:0};
+  const lastDeload=ss.filter(s=>s.deload).map(s=>s.date).pop();
+  const anchor=[ss[0].date,lastDeload,opts.skippedOn].filter(Boolean).sort().pop();
+  const weeks=new Set(ss.filter(s=>!s.deload&&(s.date>anchor||(!lastDeload&&!opts.skippedOn&&s.date>=anchor))&&s.date<=today).map(s=>isoWeek(s.date))).size;
+  const snoozed=!!(opts.snoozeUntil&&today<opts.snoozeUntil);
+  return {due:weeks>=minWeeks&&!snoozed, weeks, anchor, snoozed};
+}
+function roundStep(x, step){ return step>0 ? Math.round(x/step)*step : Math.round(x); }
+// Deload prefill: -pct weight rounded to the unit's step; no-weight units reduce reps/minutes instead (min 1)
+function deloadPrefill(ex, sessions, pct=0.2){
+  const l=lastValues(ex,sessions); if(!l) return null; const u=unitInfo(ex.unit);
+  if(u.hasWeight&&l.weight>0) return {sets:l.sets, reps:l.reps, weight:Math.max(0,roundStep(l.weight*(1-pct),u.wStep))};
+  return {sets:l.sets, reps:Math.max(1,Math.round(l.reps*(1-pct))), weight:0};
+}
+const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,draftSetCount,deloadStatus,deloadPrefill,roundStep,recentLast,weekStrip,sessionText};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);

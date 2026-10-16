@@ -1,10 +1,10 @@
 :root{--bg:#0f1115;--card:#1a1d24;--line:#2a2f3a;--txt:#f3f4f6;--mut:#a1a7b3;--acc:#22c55e;--acc2:#60a5fa;--warn:#f59e0b;--bad:#ef4444;--btn:#2b313c;--chip:#252a33;--plan:#86efac;--ban-bg:#3b2f0b;--ban-txt:#fde68a;--on:#14532d;--input:#0b0d11;--tbar:#111827}
 [data-theme=light]{--bg:#f6f7f9;--card:#ffffff;--line:#cfd4dc;--txt:#0b0f17;--mut:#4b5563;--acc:#15803d;--acc2:#1d4ed8;--warn:#92400e;--bad:#b91c1c;--btn:#e5e7eb;--chip:#eef0f3;--plan:#166534;--ban-bg:#fef3c7;--ban-txt:#78350f;--on:#bbf7d0;--input:#ffffff;--tbar:#ffffff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:18px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:160px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:17.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-text-size-adjust:100%;padding-bottom:160px}
 header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}h1{font-size:24px;margin:0}
 .streak{background:var(--card);border-radius:999px;padding:8px 14px;font-weight:700}
 nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:0 10px;position:sticky;top:0;background:var(--bg);z-index:5;padding-bottom:8px}
-nav button{min-height:56px;font-size:13px;padding:0 2px}nav button[aria-selected=true]{background:#22c55e;color:#04130a}
+nav button{min-height:60px;min-width:0;font-size:13px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}nav button[aria-selected=true]{background:#22c55e;color:#04130a}
 button{min-height:48px;min-width:48px;border:0;border-radius:12px;background:var(--btn);color:var(--txt);font:inherit;font-weight:700;cursor:pointer}
 button.primary{background:#22c55e;color:#04130a;min-height:64px;width:100%;font-size:20px}button.ghost{background:transparent;border:2px solid var(--line)}
 main{padding:0 12px}.card{background:var(--card);border-radius:16px;padding:14px;margin:12px 0;border:1px solid var(--line)}
@@ -43,3 +43,24 @@ header{flex-wrap:wrap;gap:8px}header .row{flex-wrap:wrap;justify-content:flex-en
 .inprog{position:sticky;top:72px;z-index:4;background:var(--card);border:2px solid #22c55e;border-radius:16px;padding:10px;margin:8px 0;display:grid;gap:8px}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;list-style:none;padding:0;margin:8px 0}.steps li{text-align:center;padding:8px 2px;border-radius:10px;background:var(--btn);font-size:14px;font-weight:700}
 .steps li.now{background:#22c55e;color:#04130a}.steps li.done{outline:2px solid #22c55e}
+
+/* polish */
+button,input,textarea,select{font-family:inherit}
+button{white-space:normal;line-height:1.15;overflow-wrap:normal;word-break:normal;hyphens:manual}
+.ti{font-size:15px;line-height:1;opacity:.85}.tl{display:block;text-align:center;line-height:1.1}
+.blocks button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px}
+.strip .cell span{line-height:1.1;text-align:center}
+.mut{color:var(--mut)}h1{letter-spacing:-.01em}
+.deload{border-color:var(--acc2)}
+.record{animation:pop .6s ease-out}@keyframes pop{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.03);opacity:1}100%{transform:scale(1)}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:8px;height:14px;border-radius:2px;animation:fall 1.8s ease-in forwards}
+@keyframes fall{to{top:105%;transform:translateX(40px) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){.record{animation:none}.confetti{display:none}*{scroll-behavior:auto}}
+.foot{text-align:center;color:var(--mut);font-size:13px;padding:8px 0 16px}
+body.loading .toolbar,body.loading .foot{visibility:hidden}
+header{display:grid;grid-template-columns:1fr;gap:8px}header .row{display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:8px}
+.streak{white-space:nowrap;padding:6px 12px;font-size:15px}#themeBtn{margin-left:auto}
+nav button{font-size:12.5px}nav button,.blocks button,.strip .cell{min-width:56px}
+#stats{min-height:48px;height:auto}
+.streak{font-size:14.5px;padding:6px 10px}#stats{white-space:normal;flex:1 1 auto;min-width:0;text-align:left;line-height:1.15}#streak{flex:0 0 auto}#themeBtn{flex:0 0 48px}

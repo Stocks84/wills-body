@@ -39,7 +39,7 @@ Importing replaces that tab's sessions and clears the example banner.
 - **Android (Chrome):** open the URL → ⋮ menu → *Install app* / *Add to Home screen*.
 
 ## Updates & the service worker
-`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v10`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
+`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v11`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
 
 ## 4-exercise cap & seed versions
 Each tab has at most 4 active exercises (`active:false` = inactive/optional; exercises sharing a `group`, e.g. rowing time + distance, count as one). A 👍 on a suggestion when 4 are active swaps out the flagged exercise. Seed files carry `seedVersion`; when it increases, the app replaces seeded sessions and keeps sessions logged on the phone (`local:true`).
@@ -67,3 +67,9 @@ Each tab has at most 4 active exercises (`active:false` = inactive/optional; exe
 - **📋 Copy session**: copies the in-progress session (or the most recent one) as plain text, e.g. `Seated DB Shoulder Press: 14kg x 5, 5, 5 (Ok)`, plus notes; falls back to a selectable text box if the clipboard is unavailable.
 - Rest timer auto-starts after every logged set on all five tabs.
 - One workout path: **▶ Start workout** opens the sheet; **✓ Finish workout** saves touched rows (plus any sets logged on cards), snapshots next targets, records and streak. Logging a set on a card shows a "Workout in progress · N sets · ✓ Finish workout" banner – the only other finish button.
+
+## Polish (v1.11.0)
+- Version lives in `manifest.webmanifest` (`version: 1.<cache>.x`) and is shown in the footer; the minor number must equal the `wills-body-vN` cache in `sw.js` (enforced by a test). Bump both together.
+- **Deload reminder** per tab after 6 distinct training weeks since the first session / last deload / a skipped cycle. *Plan deload session* opens the workout sheet prefilled at −20% weight (rounded to the step; bodyweight/minutes reduce reps by 20%), saved with `deload:true` – excluded from records, stall/plateau checks and progression. *Snooze 1 week* or *Skip this cycle*.
+- New-record banner pops in with confetti (disabled under `prefers-reduced-motion`).
+- Inline splash skeleton in `index.html`; system UI font at 17.5px; tab icons; tab labels wrap to two lines instead of clipping.
