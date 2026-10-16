@@ -76,4 +76,10 @@ t('workoutStats completion',()=>{const tabs={arms:{sessions:[{date:'2026-10-16'}
 t('toCSV quoting + import roundtrip',()=>{const s1=S('2026-10-01','c',20,[10]);s1.notes='tired, "late"';const csv=R.toCSV({arms:{routine:[ex],sessions:[s1]}});
   assert.ok(csv.startsWith('date,exercise,set,reps,weight,effort,tab,unit,notes\n'));assert.ok(csv.includes('"tired, ""late"""'));
   const back=R.parseCSV(csv.split('\n').map(l=>l.split(',').slice(0,6).join(',')).join('\n'));assert.equal(back.sessions[0].entries[0].sets[0].weight,20)});
+t('recentLast 14 days',()=>{const ss=[S('2026-10-01','c',20,[10])];assert.ok(R.recentLast(ex,ss,'2026-10-15'));assert.equal(R.recentLast(ex,ss,'2026-10-16'),null);assert.equal(R.recentLast(ex,[],'2026-10-16'),null)});
+t('weekStrip neglected',()=>{const w=R.weekStrip({arms:{routine:[ex],sessions:[S('2026-10-13','c',20,[10])]},shoulders:{routine:[],sessions:[]}},['arms','shoulders','equipment'],'2026-10-16');
+  assert.deepEqual(w.map(x=>x.neglected),[false,true,true]);assert.equal(w[0].volume,200)});
+t('sessionText format',()=>{const s={date:'2026-09-25',notes:'ran out of time',entries:[{exerciseId:'p',sets:[5,5,5].map(r=>({reps:r,weight:14,effort:'Ok'}))},{exerciseId:'b',sets:[{reps:10,weight:5},{reps:8,weight:6}]},{exerciseId:'pu',sets:[{reps:6,weight:0},{reps:5,weight:0}]}]};
+  const txt=R.sessionText('Shoulders',[{id:'p',name:'Seated DB Shoulder Press',unit:'kg'},{id:'b',name:'Bike',unit:'level'},{id:'pu',name:'Pull-ups',unit:'bodyweight'}],s);
+  assert.equal(txt,'2026-09-25 – Shoulders\nSeated DB Shoulder Press: 14kg x 5, 5, 5 (Ok)\nBike: Level 5 x 10 min; Level 6 x 8 min\nPull-ups: 6, 5\nNotes: ran out of time')});
 console.log(`\n${n} tests passed`);

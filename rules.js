@@ -238,6 +238,30 @@ function toCSV(tabs){
     e.sets.forEach((x,i)=>rows.push([s.date,ex.name,i+1,x.reps,x.weight,x.effort||'',k,ex.unit,i===0&&e===s.entries[0]?s.notes||'':'']));}
   return rows.map(r=>r.map(csvCell).join(',')).join('\n')+'\n';
 }
-const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays};
+// Recent "same as last time": last values if trained within `days` days of today
+function recentLast(ex, sessions, today, days=14){ const l=lastValues(ex,sessions); if(!l) return null;
+  const diff=(new Date(today+'T00:00:00Z')-new Date(l.date+'T00:00:00Z'))/864e5; return diff>=0&&diff<=days?l:null; }
+// This week's strip: per tab sessions, kg volume, minutes; neglected = no session this ISO week
+function weekStrip(tabs, order, date){ const {start,end}=weekBounds(date);
+  return order.map(k=>{const t=tabs[k]||{sessions:[],routine:[]};let sessions=0,volume=0,minutes=0;
+    for(const s of t.sessions||[]){ if(s.date<start||s.date>end) continue; sessions++;
+      for(const e of s.entries){const ex=(t.routine||[]).find(x=>x.id===e.exerciseId)||{unit:'kg'};
+        for(const x of e.sets){ if(ex.unit==='kg') volume+=(+x.weight||0)*(+x.reps||0); if(ex.unit==='min'||ex.unit==='level') minutes+=+x.reps||0; }}}
+    return {tab:k,sessions,volume:Math.round(volume*10)/10,minutes,neglected:sessions===0};}); }
+// Plain-text session for pasting into a chat
+function fmtNum(n){ return String(Math.round(n*100)/100); }
+function sessionText(tabLabel, routine, session){
+  const lines=[`${session.date} – ${tabLabel}`];
+  for(const e of session.entries){ if(!e.sets.length) continue; const ex=routine.find(r=>r.id===e.exerciseId)||{name:e.exerciseId,unit:'kg'};
+    const groups=[]; for(const x of e.sets){const g=groups[groups.length-1]; if(g&&g.w===(+x.weight||0)) g.r.push(x.reps); else groups.push({w:+x.weight||0,r:[x.reps]});}
+    const suf=ex.unit==='min'||ex.unit==='level'?' min':ex.unit==='m'?' m':'';
+    const body=groups.map(g=>{const reps=g.r.join(', ')+suf;
+      if(ex.unit==='kg') return `${fmtNum(g.w)}kg x ${reps}`; if(ex.unit==='level') return `Level ${fmtNum(g.w)} x ${reps}`; return reps;}).join('; ');
+    const eff=[...new Set(e.sets.map(x=>x.effort).filter(Boolean))];
+    lines.push(`${ex.name}: ${body}${eff.length?' ('+eff.join('/')+')':''}`); }
+  if(session.notes) lines.push(`Notes: ${session.notes}`);
+  return lines.join('\n');
+}
+const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,recentLast,weekStrip,sessionText};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);

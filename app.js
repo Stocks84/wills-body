@@ -37,6 +37,9 @@ function render(){
   let h='';
   const lastS=T.sessions[T.sessions.length-1], tabLabel=TABS.find(t=>t[0]===cur)[1];
   h+=`<div class="tabhead"><h2>${tabLabel}</h2><div class="mut">${Rules.activeSlots(T.routine)}/${Rules.MAX_ACTIVE} active · ${T.sessions.length} sessions · last ${lastS?lastS.date:'—'}</div></div>`;
+  h+=`<div class="strip" aria-label="This week per tab">${Rules.weekStrip(S.tabs,TABS.map(t=>t[0]),today()).map(c=>{const l=TABS.find(t=>t[0]===c.tab)[1];
+    return `<button data-tab="${c.tab}" class="cell ${c.neglected?'neglected':'lvl'+Math.min(3,c.sessions)} ${c.tab===cur?'cur':''}" title="${l}: ${c.sessions} sessions, ${c.volume} kg, ${c.minutes} min"><span>${l}</span><b>${c.sessions}</b><small>${c.neglected?'neglected':c.volume?Math.round(c.volume)+' kg':c.minutes?c.minutes+' min':'done'}</small></button>`}).join('')}</div>`;
+  h+=`<button class="ghost" data-act="copy" style="width:100%;margin:4px 0">📋 Copy session</button>`;
   if(lastRecords.length) h+=`<div class="card record"><h3>🏆 New record${lastRecords.length>1?'s':''}!</h3>${lastRecords.map(r=>`<div>${recTxt(r)}</div>`).join('')}<button class="ghost" data-act="recok" style="margin-top:8px;width:100%">Nice – dismiss</button></div>`;
   const wk=Rules.isoWeek(today());
   if(new Date().getDay()===0 && S.reportDismissed!==wk) h+=reportCard(true);
@@ -59,6 +62,7 @@ function render(){
       <div><button class="ghost" style="float:right;min-height:40px" data-act="toggle" data-ex="${ex.id}" aria-label="Deactivate">✕</button>Next: <span class="plan">${fmtPlan(plan,ex.unit)}</span> <span class="mut">${esc(plan.note)}</span></div>
       ${trendHTML(ex,T.sessions)}
       ${flags.map(f=>`<div style="color:var(--warn)">⚠ ${esc(f.reason)}</div>`).join('')}
+      ${(()=>{const rl=Rules.recentLast(ex,T.sessions,today());return rl?`<button class="ghost lastbtn" data-act="fill" data-ex="${ex.id}">↺ Same as last time (${rl.date}): ${fmtPlan(rl,ex.unit)}</button>`:''})()}
       ${stepper(ex.id,'targetSets','Sets',d.targetSets)}${stepper(ex.id,'reps',U(ex.unit).reps,d.reps)}
       ${U(ex.unit).hasWeight?stepper(ex.id,'weight',U(ex.unit).weight,d.weight):''}
       <div class="eff">${['Ok','Good','Tough'].map(e=>`<button class="${d.effort===e?'on':''}" data-act="eff" data-ex="${ex.id}" data-v="${e}">${e}</button>`).join('')}</div>
@@ -83,6 +87,8 @@ document.addEventListener('click',e=>{
   const a=b.dataset.act, d=draft[b.dataset.ex], ex=T.routine.find(r=>r.id===b.dataset.ex);
   if(a==='inc'||a==='dec'){const f=b.dataset.f, st=f==='weight'?U(ex.unit).wStep:1, sg=a==='inc'?1:-1;d[f]=Math.max(f==='weight'?0:1,Math.round((d[f]+sg*st)*10)/10);}
   else if(a==='eff') d.effort=b.dataset.v;
+  else if(a==='fill'){const l=Rules.lastValues(ex,T.sessions);if(l){d.targetSets=l.sets;d.reps=l.reps;d.weight=l.weight;}}
+  else if(a==='copy'){copySession();return}
   else if(a==='log'){d.sets.push({reps:d.reps,weight:U(ex.unit).hasWeight?d.weight:0,effort:d.effort});startTimer();}
   else if(a==='undo') d.sets.pop();
   else if(a==='up'){const n=b.dataset.n;T.routine=Rules.acceptSuggestion(T.routine,{exerciseId:b.dataset.from},{id:'ex-'+Rules.slug(n),name:n,targetSets:3,targetReps:cur==='bodyweight'?12:10,unit:cur==='bodyweight'?'bodyweight':cur==='equipment'?'level':'kg'});save();}
@@ -148,6 +154,15 @@ function openQuick(){
     else if(b.dataset.qf){const f=b.dataset.qf,st=f==='weight'?U(i.ex.unit).wStep:1;i[f]=Math.max(f==='reps'?1:0,Math.round((i[f]+(+b.dataset.qd)*st)*10)/10);}
     draw();};
 }
+// Copy session as plain text (current draft if any sets logged, else most recent session)
+function copySession(){ const T=S.tabs[cur], label=TABS.find(t=>t[0]===cur)[1];
+  const entries=T.routine.filter(r=>draft[r.id]&&draft[r.id].sets.length).map(r=>({exerciseId:r.id,sets:draft[r.id].sets}));
+  const sess=entries.length?{date:today(),entries,notes:(draftNotes[cur]||'').trim()}:T.sessions[T.sessions.length-1];
+  if(!sess){toast('No session to copy yet');return}
+  const txt=Rules.sessionText(label,T.routine,sess);
+  const fallback=()=>{const dlg=$('#dlg');dlg.onclick=null;dlg.innerHTML=`<h3>Copy session</h3><p class="mut">Clipboard unavailable – select all and copy.</p><textarea id="copyTxt" readonly>${esc(txt)}</textarea><button class="primary" id="copyClose">Close</button>`;
+    dlg.showModal();const ta=$('#copyTxt');ta.focus();ta.select();try{document.execCommand('copy')}catch(e){}$('#copyClose').onclick=()=>dlg.close();};
+  if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(txt).then(()=>toast('Session copied'),fallback); else fallback(); }
 // Weekly report
 function reportCard(inline){const r=Rules.weeklyReport(S.tabs,today());
   return `<div class="card report"><h3>📅 Weekly report · ${r.start} → ${r.end}</h3>

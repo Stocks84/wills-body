@@ -39,7 +39,7 @@ Importing replaces that tab's sessions and clears the example banner.
 - **Android (Chrome):** open the URL → ⋮ menu → *Install app* / *Add to Home screen*.
 
 ## Updates & the service worker
-`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v7`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
+`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v8`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
 
 ## 4-exercise cap & seed versions
 Each tab has at most 4 active exercises (`active:false` = inactive/optional; exercises sharing a `group`, e.g. rowing time + distance, count as one). A 👍 on a suggestion when 4 are active swaps out the flagged exercise. Seed files carry `seedVersion`; when it increases, the app replaces seeded sessions and keeps sessions logged on the phone (`local:true`).
@@ -62,3 +62,7 @@ Each tab has at most 4 active exercises (`active:false` = inactive/optional; exe
 - **💪 Workouts · %** next to the streak (tap: 7/30/90 days). Workout = one logged session (tab + date). Planned = `weeklyTarget` (default 3/week) × days/7, excluding days in ISO weeks with a work/holiday absence; % capped at 100.
 - Trends add an **Est. 1RM** line (Brzycki `w × 36 / (37 − reps)`), kg exercises only, using sets with 1–12 reps.
 - **Export CSV**: `date,exercise,set,reps,weight,effort,tab,unit,notes` (first 6 columns are re-importable per tab).
+- **Same as last time**: exercise cards trained in the last 14 days show a one-tap fill with the last session's numbers (shared with Quick log's ↺ Last time).
+- **This-week strip**: one cell per tab (sessions + kg volume/minutes this ISO week); tabs with no session are highlighted as neglected. Tap a cell to open that tab.
+- **📋 Copy session**: copies the in-progress session (or the most recent one) as plain text, e.g. `Seated DB Shoulder Press: 14kg x 5, 5, 5 (Ok)`, plus notes; falls back to a selectable text box if the clipboard is unavailable.
+- Rest timer auto-starts after every logged set on all five tabs.

@@ -33,3 +33,7 @@ header{flex-wrap:wrap;gap:8px}header .row{flex-wrap:wrap;justify-content:flex-en
 .record{border-color:var(--acc)}.report .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin:8px 0}
 .report .kpis b{display:block;font-size:24px}.report .kpis small{color:var(--mut)}
 .lastbtn{width:100%;margin:4px 0;font-size:15px}
+
+.strip{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:8px 0}.strip .cell{display:flex;flex-direction:column;align-items:center;min-height:64px;padding:4px 2px;font-size:11px;border:2px solid transparent}
+.strip .cell b{font-size:20px}.strip .cell small{font-size:10px;color:var(--mut)}.strip .cur{border-color:var(--txt)}
+.strip .neglected{border:2px dashed var(--warn);color:var(--warn)}.strip .lvl1{background:color-mix(in srgb,var(--acc) 25%,var(--btn))}.strip .lvl2{background:color-mix(in srgb,var(--acc) 50%,var(--btn))}.strip .lvl3{background:color-mix(in srgb,var(--acc) 75%,var(--btn))}
