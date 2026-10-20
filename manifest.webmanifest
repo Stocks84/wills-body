@@ -4,8 +4,8 @@
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
- "background_color": "#0f1115",
- "theme_color": "#0f1115",
+ "background_color": "#131519",
+ "theme_color": "#131519",
  "description": "Offline gym log with progression and plateau alerts",
  "icons": [
   {
@@ -21,5 +21,5 @@
    "purpose": "any maskable"
   }
  ],
- "version": "1.11.0"
+ "version": "1.14.0"
 }
