@@ -154,3 +154,6 @@ html[data-shine=reduced] button.ghost{background:transparent}
 html[data-shine=reduced] button,html[data-shine=reduced] .card,html[data-shine=reduced] dialog,html[data-shine=reduced] .toast{border-width:2px}
 html[data-shine=reduced] .timer{background:var(--tbar);border-top:2px solid var(--rim)}html[data-shine=reduced] .timer.float{border:2px solid var(--rim)}
 html[data-shine=reduced] .toast{border-left-width:6px}
+/* v1.13.1 overlap fixes: toasts sit at top below tabs; in-progress banner flows with content */
+.toasts,.timer:not(.hidden)~.toasts,.timer.float:not(.hidden)~.toasts{top:calc(108px + env(safe-area-inset-top));bottom:auto}
+.inprog{position:relative;top:auto;z-index:1;margin:8px 0 14px}
