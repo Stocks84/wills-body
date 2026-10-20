@@ -1,20 +1,92 @@
 # Will's Body
 
-Offline-first gym log PWA (vanilla HTML/CSS/JS, no build step). Four tabs: Arms, Chest & Back, Shoulders, Bodyweight (incl. rowing).
+A mobile-first, offline-capable gym logging app (Progressive Web App) built with plain HTML, CSS and JavaScript: no framework, no build step, no backend. It plans each exercise's next session from your history, keeps the rest timer in reach, and stores everything privately on the device.
 
-Features: routine + last session + next-session plan per exercise; big +/- steppers and Ok/Good/Tough effort buttons; auto rest timer (60–90 s, default 75 s, vibrate + soft beep); plateau rules with suggestion cards from an approved library (👍 adds to routine, ✕ dismisses permanently); weekly streak (weeks with a *work* or *holiday* absence are skipped); **▶ Start workout → ✓ Finish workout** (Finish saves, snapshots next targets, records, streak); import (JSON/CSV) and export backup. Data lives in `localStorage` under `willsBody.v1`.
+**Live app:** https://stocks84.github.io/wills-body
 
-The seed files in `data/` are **example routines only** (`"_example": true`, no sessions). Import your real logs per tab.
+<p><img src="docs/screenshots/dark-theme.png" width="260" alt="Home screen in the metallic dark theme"> <img src="docs/screenshots/light-theme.png" width="260" alt="Home screen in the light theme"></p>
 
-## Progression rules
-- All sets hit target reps, no Tough → +2.5 kg (bodyweight / min / m: +1 rep or unit)
-- Target hit but Tough → repeat
-- Missed reps → repeat; 2 misses in a row → deload 5% (kg)
-- Plateau flags: reps drop after a weight increase; same weight & total reps 3 sessions; effort all "Ok" 3 sessions
+## Features
 
-Run tests: `node rules.test.js`
+### Floating rest timer pill
+The rest timer starts automatically after every logged set (60–90 s, default 75 s) and ends with a vibration and a soft beep. **−15s / +15s** adjust only the running countdown (your saved default is untouched) and **Skip** stops it. The pin button switches between a floating pill and a full-width docked bar; the choice is remembered.
 
-## Import schema
+<p><img src="docs/screenshots/timer-pill.png" width="260" alt="Floating timer pill with −15s, +15s, Skip and pin toggle"> <img src="docs/screenshots/timer-docked.png" width="260" alt="Timer docked as a full-width bar"></p>
+
+### Finished exercises fold away
+Once an exercise's target sets are logged, its card collapses to a single line (✓ name · 3/3 sets) so the next exercise is in view. Tap to reopen it.
+
+<img src="docs/screenshots/fold-finished.png" width="260" alt="A completed exercise folded to one line">
+
+### Reduce shine
+A header toggle replaces the metallic gradients with flat, high-contrast colours, in both themes. If you haven't chosen, it follows the system's *increase contrast* setting, and it applies before first paint so there's no flash.
+
+<img src="docs/screenshots/reduce-shine.png" width="260" alt="Reduce shine: flat high-contrast look">
+
+### Themed pop-up toasts
+Short confirmations ("Workout saved – next targets set", "Session copied"…) appear near the top in the app's own style, clear of the controls and timer. They're announced to screen readers through an `aria-live` region and fade out on their own.
+
+<img src="docs/screenshots/toast.png" width="260" alt="Themed toast near the top of the screen">
+
+### Cancel a workout by accident
+The *Workout in progress* banner has an **X** button. It asks *"Discard this workout? Sets logged in this session won't be saved."*. **Keep going** closes the prompt; **Discard** clears the unsaved sets and notes, stops the timer and returns to the home screen. Saved history is never touched.
+
+<p><img src="docs/screenshots/discard-banner.png" width="260" alt="Workout in progress banner with X button"> <img src="docs/screenshots/discard-confirm.png" width="260" alt="Discard confirm with Keep going and Discard"></p>
+
+### Metallic dark theme and light theme
+Dark by default, with brushed-metal gradients, rim highlights and chrome primary buttons. The light theme is one tap away in the header and is remembered; the browser theme colour follows it.
+
+### Line-icon set
+One consistent set of inline SVG stroke icons (24×24, `currentColor`) replaces emoji across tabs, buttons and cards, so icons follow the theme and stay crisp at any size.
+
+<img src="docs/screenshots/icons.png" width="260" alt="Header and tab bar with line icons">
+
+### Training logic and history
+- **Five tabs:** Arms, Chest & Back, Shoulders, Bodyweight, Equipment (cardio machines by level and minutes). At most 4 active exercises per tab.
+- **Next-session plan** per exercise from its history: all target reps hit → +2.5 kg (or +1 rep/unit); a Tough set → repeat; two misses in a row → 5% deload.
+- **Plateau and stall detection** with suggestion cards (swap in a same-muscle alternative from an approved library, or dismiss).
+- **Deload reminder** after 6 training weeks, with a pre-filled −20% session (snooze or skip a cycle).
+- **Start workout sheet:** logs several blocks in one go, pre-filled from the plan, with *Last time* one-tap fill and an optional date.
+- **Personal records** (top weight, best reps, best weight × reps) with a confetti banner (none under `prefers-reduced-motion`).
+- **Session history** with optional notes, **trend sparklines** and an estimated 1RM (Brzycki).
+- **Weekly streak** (work/holiday absences don't break it), **this-week strip** that highlights neglected tabs, workouts-vs-plan percentage, and a **weekly report**.
+
+<img src="docs/screenshots/weekly-report.png" width="260" alt="Weekly report dialog">
+
+### Data, offline and install
+- **Offline-first PWA:** a service worker caches the app shell under a versioned cache; it installs to the home screen on iOS and Android.
+- **Private by default:** all data lives in the browser's `localStorage`; nothing is sent anywhere.
+- **Import** JSON or CSV per tab; **export** JSON backup or CSV; **copy session** as plain text.
+- **Accessible:** labelled controls, `aria-pressed`/`aria-expanded` states, focus is kept on folding cards, and reduced motion is respected.
+
+## Tech stack
+- **HTML5, CSS3 (custom properties, `dialog`), vanilla ES2020 JavaScript:** no frameworks or dependencies.
+- **`rules.js`:** pure, DOM-free training logic (progression, plateaus, records, reports, CSV), shared by the app and the tests.
+- **`app.js`:** UI rendering, event delegation, timer, dialogs, preferences.
+- **Service worker (`sw.js`)** + **Web App Manifest** for offline use and installability.
+- **Web APIs:** `localStorage`, Clipboard, Vibration, Web Audio, `matchMedia` (contrast / reduced motion).
+- **Tests:** Node's built-in `assert` (`rules.test.js`), with no test framework.
+- **Hosting:** GitHub Pages from `main`.
+
+## Run locally
+```bash
+git clone https://github.com/Stocks84/wills-body.git
+cd wills-body
+python3 -m http.server 8000   # or: npx serve .
+# open http://localhost:8000
+```
+A local server is needed for the service worker and the `data/*.json` fetches.
+
+**Tests** (Node 18+):
+```bash
+node rules.test.js
+```
+
+## Versioning
+The version lives in `manifest.webmanifest` and is shown in the app footer. Its middle number must match the `wills-body-vN` cache name in `sw.js` (a test enforces this), so each release refreshes the offline cache.
+
+<details><summary>Import format</summary>
+
 JSON (one tab):
 ```json
 {
@@ -22,54 +94,8 @@ JSON (one tab):
   "sessions": [{"date":"2026-10-01","entries":[{"exerciseId":"ex-curl","sets":[{"reps":10,"weight":12,"effort":"Good"}]}]}]
 }
 ```
-`unit`: `kg` | `bodyweight` | `m` | `min` (for `m`/`min`, `reps` holds the metres/minutes). `effort`: `Ok` | `Good` | `Tough`. `routine` is optional on import (keeps the current one).
+`unit`: `kg` | `bodyweight` | `m` | `min` | `level`. `effort`: `Ok` | `Good` | `Tough`. CSV: `date,exercise,set,reps,weight,effort` (header optional). Importing replaces that tab's sessions.
+</details>
 
-CSV: `date,exercise,set,reps,weight,effort` (header optional). Exercises are matched by name → id `ex-<slug>`; unknown names become routine items (unit `kg` if any weight > 0, else `bodyweight`).
-
-Importing replaces that tab's sessions and clears the example banner.
-
-## Deploy to GitHub Pages
-1. Create a repo (e.g. `wills-body`) on GitHub.
-2. In this folder: `git init && git add . && git commit -m "Will's Body" && git branch -M main && git remote add origin https://github.com/<user>/wills-body.git && git push -u origin main`
-3. Repo **Settings → Pages → Build and deployment → Deploy from a branch → `main` / `(root)`** → Save.
-4. After ~1 min it's live at `https://<user>.github.io/<repo>/`. All paths are relative, so the subpath works as-is.
-
-## Install to home screen
-- **iPhone (Safari):** open the URL → Share → *Add to Home Screen*.
-- **Android (Chrome):** open the URL → ⋮ menu → *Install app* / *Add to Home screen*.
-
-## Updates & the service worker
-`sw.js` caches the app shell cache-first under a versioned cache (`wills-body-v11`). To ship an update, change files **and bump `CACHE`** in `sw.js`; on next visit the new worker installs, activates, and deletes old caches. Reload once (or close/reopen the app) to see the new version. Your data in localStorage is untouched — still use **Export backup** occasionally.
-
-## 4-exercise cap & seed versions
-Each tab has at most 4 active exercises (`active:false` = inactive/optional; exercises sharing a `group`, e.g. rowing time + distance, count as one). A 👍 on a suggestion when 4 are active swaps out the flagged exercise. Seed files carry `seedVersion`; when it increases, the app replaces seeded sessions and keeps sessions logged on the phone (`local:true`).
-
-## Quick log & stall cards
-- **▶ Start workout** (Quick log, steps: Pick block → Log sets → Finish) (only rows you touch – edit, Last time, effort tap or ✓ Done – are saved): one sheet with the tab's active exercises prefilled from the next-session plan; +/- steppers, one effort tap each, optional date (default today) and optional rest timer; one Save.
-- **Stall rule**: an active exercise is stalled when, across its last 3 consecutive logged sessions, neither top weight nor total reps increased from one session to the next. A "Time to change this exercise" card offers 2–3 same-muscle alternatives (approved library first; small fallback map only when the library has none for that muscle). Swapping deactivates the stalled exercise, so the 4-cap holds.
-
-## Trends, notes, theme, multi-block quick log
-- 📈 Trend on each exercise card: SVG sparklines of top weight + total reps (kg), reps only (bodyweight), minutes (rowing time) or metres (rowing distance).
-- Optional session `notes` (normal flow + Quick log, per block); shown in Session history. Seeded notes come verbatim from the source logs; phone-added notes (`notesLocal:true`) survive seed migrations.
-- ☀️/🌙 theme toggle (default dark, saved in `willsBody.v1.theme`).
-- Quick log block selector: switch Arms / Chest & Back / Shoulders / Bodyweight inside the sheet; edits per block are kept until Save, which saves each edited block as its own session. The rest timer keeps running and is shown in the sheet.
-
-## Equipment tab & stats
-- **Equipment** tab (Rowing machine, StepMaster, Treadmill, Bike), unit `level`: `weight` = resistance/level ("Level"), `reps` = minutes ("Min"). Added to existing phones automatically without touching other data.
-- Quick log rows show **↺ Last time** (tap to fill sets/reps/weight from the last session).
-- **New records** on save (top weight, best reps in a set, best weight×reps in a set – kg only for the last) are stored on the session as `records` and shown in a banner. A first-ever log is not a record.
-- **Weekly report** (Mon–Sun): sessions, sets, kg volume, cardio minutes, records. Auto card on Sundays (dismissible), on demand via *Weekly report*.
-- **💪 Workouts · %** next to the streak (tap: 7/30/90 days). Workout = one logged session (tab + date). Planned = `weeklyTarget` (default 3/week) × days/7, excluding days in ISO weeks with a work/holiday absence; % capped at 100.
-- Trends add an **Est. 1RM** line (Brzycki `w × 36 / (37 − reps)`), kg exercises only, using sets with 1–12 reps.
-- **Export CSV**: `date,exercise,set,reps,weight,effort,tab,unit,notes` (first 6 columns are re-importable per tab).
-- **Same as last time**: exercise cards trained in the last 14 days show a one-tap fill with the last session's numbers (shared with Quick log's ↺ Last time).
-- **This-week strip**: one cell per tab (sessions + kg volume/minutes this ISO week); tabs with no session are highlighted as neglected. Tap a cell to open that tab.
-- **📋 Copy session**: copies the in-progress session (or the most recent one) as plain text, e.g. `Seated DB Shoulder Press: 14kg x 5, 5, 5 (Ok)`, plus notes; falls back to a selectable text box if the clipboard is unavailable.
-- Rest timer auto-starts after every logged set on all five tabs.
-- One workout path: **▶ Start workout** opens the sheet; **✓ Finish workout** saves touched rows (plus any sets logged on cards), snapshots next targets, records and streak. Logging a set on a card shows a "Workout in progress · N sets · ✓ Finish workout" banner – the only other finish button.
-
-## Polish (v1.11.0)
-- Version lives in `manifest.webmanifest` (`version: 1.<cache>.x`) and is shown in the footer; the minor number must equal the `wills-body-vN` cache in `sw.js` (enforced by a test). Bump both together.
-- **Deload reminder** per tab after 6 distinct training weeks since the first session / last deload / a skipped cycle. *Plan deload session* opens the workout sheet prefilled at −20% weight (rounded to the step; bodyweight/minutes reduce reps by 20%), saved with `deload:true` – excluded from records, stall/plateau checks and progression. *Snooze 1 week* or *Skip this cycle*.
-- New-record banner pops in with confetti (disabled under `prefers-reduced-motion`).
-- Inline splash skeleton in `index.html`; system UI font at 17.5px; tab icons; tab labels wrap to two lines instead of clipping.
+---
+*This README is kept in sync with each version release: the feature list and screenshots are refreshed whenever a new version ships.*

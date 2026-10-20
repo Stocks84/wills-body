@@ -38,6 +38,8 @@ const ICONS={arms:'dumbbell','chest-back':'barbell',shoulders:'press',bodyweight
 const SHY={Bodyweight:'Body&shy;weight',Equipment:'Equip&shy;ment',Shoulders:'Shoul&shy;ders'};
 const tabBtn=(k,l)=>`<span class="ti" aria-hidden="true">${ic(ICONS[k])}</span><span class="tl">${SHY[l]||esc(l)}</span>`;
 let draftNotes={};
+// FEATURE · Fold finished exercises: once an exercise's target sets are logged today its card collapses to a one-line
+// summary button (✓ name · n/n sets) to keep the page short. Tapping re-expands it; nothing is saved to storage.
 // Fold state is UI-only and in-memory: cards fold once today's target sets are logged; tab/exId keys the user reopened
 const unfolded=new Set(); let focusAfter=null;
 const loggedToday=(T,id)=>T.sessions.filter(s=>s.date===today()).reduce((n,s)=>n+s.entries.filter(e=>e.exerciseId===id).reduce((m,e)=>m+e.sets.length,0),0);
@@ -103,6 +105,7 @@ function render(){
     const d=draft[ex.id]||(draft[ex.id]={sets:[],reps:plan.reps,weight:plan.weight,effort:'Good',targetSets:plan.sets});
     const flags=Rules.detectPlateaus(ex,T.sessions);
     const fk=cur+'/'+ex.id, nToday=d.sets.length+loggedToday(T,ex.id), allDone=d.targetSets>0&&nToday>=d.targetSets;
+    // Fold logic: allDone = today's logged sets ≥ target; a manual re-open (unfolded set) is remembered until the card is no longer complete
     if(!allDone) unfolded.delete(fk);
     if(allDone&&!unfolded.has(fk)){
       h+=`<button class="card folded" data-act="unfold" data-ex="${ex.id}" aria-expanded="false" aria-label="${esc(ex.name)}: all ${d.targetSets} sets logged today. Show details">${ic('checkc','ok')}<span class="fname">${esc(ex.name)}</span><span class="mut">${nToday}/${d.targetSets} sets</span>${ic('chevd')}</button>`;
@@ -140,6 +143,7 @@ document.addEventListener('click',e=>{
   else if(a==='eff') d.effort=b.dataset.v;
   else if(a==='fill'){const l=Rules.lastValues(ex,T.sessions);if(l){d.targetSets=l.sets;d.reps=l.reps;d.weight=l.weight;}}
   else if(a==='copy'){copySession();return}
+  // Fold / unfold toggles UI state only and restores keyboard focus to the same card
   else if(a==='unfold'||a==='fold'){const k=cur+'/'+b.dataset.ex,q=CSS.escape(b.dataset.ex);a==='unfold'?unfolded.add(k):unfolded.delete(k);focusAfter=`[data-act=${a==='unfold'?'fold':'unfold'}][data-ex="${q}"]`;}
   else if(a==='log'){d.sets.push({reps:d.reps,weight:U(ex.unit).hasWeight?d.weight:0,effort:d.effort});startTimer();focusAfter=`[data-ex="${CSS.escape(ex.id)}"]:is([data-act=unfold],[data-act=log])`;}
   else if(a==='undo') d.sets.pop();
@@ -159,6 +163,8 @@ document.addEventListener('click',e=>{
   else if(a==='import') openImport();
   else return; render();
 });
+// FEATURE · Discard workout: the X on the 'Workout in progress' banner opens a themed <dialog> confirm
+// ('Keep going' closes it, 'Discard' calls discardWorkout). Rules.discardDraft is pure and unit-tested.
 // Discard the in-progress workout: clears the unsaved draft + rest timer only; never touches saved history
 function confirmDiscard(){const dlg=$('#dlg');dlg.onclick=null;
   dlg.innerHTML=`<h3>Discard this workout?</h3><p class="mut">Sets logged in this session won't be saved.</p><div class="row" style="margin-top:12px"><button class="ghost" id="discKeep" autofocus>Keep going</button><button class="danger" id="discGo">${ic('x')} Discard</button></div>`;
@@ -188,6 +194,8 @@ function confetti(){ if(matchMedia('(prefers-reduced-motion: reduce)').matches) 
   const cols=['#22c55e','#60a5fa','#f59e0b','#f472b6','#facc15'];
   for(let i=0;i<40;i++){const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.background=cols[i%5];p.style.animationDelay=(Math.random()*0.4)+'s';p.style.transform=`rotate(${Math.random()*360}deg)`;box.append(p);}
   document.body.append(box);setTimeout(()=>box.remove(),2200);}
+// FEATURE · Toasts: short non-blocking messages styled per theme; announced by screen readers via aria-live,
+// capped at 3 visible, auto-dismiss after 2.5 s with a fade-out class.
 // Themed toasts in a polite live region; CSS lifts the stack above the rest timer when it's showing
 function toast(m){const box=$('#toasts'),t=document.createElement('div');t.className='toast';t.textContent=m;
   while(box.children.length>=3)box.firstElementChild.remove();box.append(t);
@@ -253,6 +261,9 @@ function reportCard(inline){const r=Rules.weeklyReport(S.tabs,today());
     ${r.records.map(x=>`<div>${ic('trophy')} ${recTxt(x)}</div>`).join('')}
     ${inline?'<button class="ghost" data-act="repok" style="width:100%;margin-top:8px">Dismiss until next week</button>':''}</div>`;}
 function openReport(){const dlg=$('#dlg');dlg.onclick=null;dlg.innerHTML=reportCard(false)+'<button class="primary" id="repClose">Close</button>';dlg.showModal();$('#repClose').onclick=()=>dlg.close();}
+// FEATURE · Rest timer pill: starts after each logged set; counts down from the saved rest (60–90 s),
+// −15s/+15s nudge only the running countdown, Skip stops it, and the pin toggles a floating pill vs a docked bar.
+// Uses a wall-clock end time (tEnd) so the count stays accurate if the tab is throttled; ends with vibrate + beep.
 // Rest timer
 let tEnd=0,tInt=null,actx;
 function startTimer(){stopTimer();tEnd=Date.now()+S.restSec*1e3;$('#timer').classList.remove('hidden');document.querySelectorAll('.qtimer').forEach(x=>x.classList.remove('hidden'));tick();tInt=setInterval(tick,250);
@@ -305,6 +316,8 @@ function applyTheme(t){document.documentElement.dataset.theme=t;$('#themeBtn').i
   document.querySelector('meta[name=theme-color]').content=t==='light'?'#e9ecf0':'#131519';}
 applyTheme(localStorage.getItem(THEME_KEY)==='light'?'light':'dark');
 $('#themeBtn').onclick=()=>{const t=document.documentElement.dataset.theme==='light'?'dark':'light';localStorage.setItem(THEME_KEY,t);applyTheme(t)};
+// FEATURE · Reduce shine: swaps the metallic gradients for flat, high-contrast colours via html[data-shine=reduced]
+// (CSS does the styling). An inline script in index.html applies it before first paint to avoid a flash.
 // Reduce shine: flat high-contrast look. Explicit choice saved in its own key; unset follows prefers-contrast: more
 const SHINE_KEY=KEY+'.reduceShine', hiContrast=matchMedia('(prefers-contrast: more)');
 function applyShine(){const v=localStorage.getItem(SHINE_KEY), on=v==null?hiContrast.matches:v==='1';
