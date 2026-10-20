@@ -1,13 +1,13 @@
 <!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0f1115"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#131519"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Will's Body">
 <title>Will's Body</title><link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-192.png">
-<style>html,body{background:#0f1115;color:#f3f4f6;margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
-html[data-theme=light],html[data-theme=light] body{background:#f6f7f9;color:#0b0f17}
-.sk{background:#1f232b;border-radius:14px;margin:12px;height:56px;animation:skp 1.2s ease-in-out infinite alternate}.sk.tall{height:220px}
-html[data-theme=light] .sk{background:#e5e7eb}@keyframes skp{from{opacity:.55}to{opacity:1}}
+<style>html,body{background:#131519;color:#eef1f5;margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+html[data-theme=light],html[data-theme=light] body{background:#e9ecf0;color:#0b0f17}
+.sk{background:linear-gradient(180deg,#2a2f37,#1f232a);border:1px solid #3a414c;border-radius:14px;margin:12px;height:56px;animation:skp 1.2s ease-in-out infinite alternate}.sk.tall{height:220px}
+html[data-theme=light] .sk{background:linear-gradient(180deg,#f3f5f7,#dde1e7);border-color:#c3c9d2}@keyframes skp{from{opacity:.55}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.sk{animation:none}}</style>
 <script>try{if(localStorage.getItem('willsBody.v1.theme')==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
 <link rel="stylesheet" href="styles.css"></head><body class="loading">
@@ -17,7 +17,7 @@ html[data-theme=light] .sk{background:#e5e7eb}@keyframes skp{from{opacity:.55}to
 <div class="toolbar"><button id="absenceBtn" class="ghost">Log absence</button><button id="reportBtn" class="ghost">Weekly report</button><button id="csvBtn" class="ghost">Export CSV</button><button id="exportBtn" class="ghost">Export JSON</button></div>
 <div id="timer" class="timer hidden"><div class="count" id="timerCount">75</div>
 <label>Rest <span id="restVal">75</span>s <input type="range" id="restSlider" min="60" max="90" step="5"></label>
-<button id="skipBtn">Skip</button></div>
+<button id="skipBtn">Skip</button><button id="floatBtn" class="pin" aria-pressed="false" aria-label="Float timer" title="Float timer">📌</button></div>
 <footer class="foot"><span id="ver">Will's Body</span></footer>
 <dialog id="dlg"></dialog>
 <script src="rules.js"></script><script src="app.js"></script></body></html>

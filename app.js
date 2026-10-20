@@ -209,6 +209,11 @@ function buzz(){try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e)
   try{if(!actx)return;const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=660;g.gain.setValueAtTime(0.0001,actx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.15,actx.currentTime+0.05);g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+0.6);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+0.65)}catch(e){}}
 $('#skipBtn').onclick=stopTimer;
+// Float timer preference (own key; never touches workout data)
+const FLOAT_KEY=KEY+'.timerFloat';
+function applyFloat(on){$('#timer').classList.toggle('float',on);$('#floatBtn').setAttribute('aria-pressed',on);$('#floatBtn').title=on?'Dock timer to full-width bar':'Float timer';}
+applyFloat(localStorage.getItem(FLOAT_KEY)==='1');
+$('#floatBtn').onclick=()=>{const on=!$('#timer').classList.contains('float');localStorage.setItem(FLOAT_KEY,on?'1':'0');applyFloat(on)};
 // Import / export / absence dialogs
 function openImport(){const dlg=$('#dlg');dlg.onclick=null;dlg.innerHTML=`<h3>Import ${TABS.find(t=>t[0]===cur)[1]} log</h3>
   <p class="mut">Paste JSON ({routine, sessions}) or CSV (date,exercise,set,reps,weight,effort), or pick a .json/.csv file. Replaces this tab's data.</p>
@@ -240,7 +245,7 @@ $('#absenceBtn').onclick=()=>{const dlg=$('#dlg');dlg.onclick=null;dlg.innerHTML
 // Theme (default dark, persisted)
 const THEME_KEY=KEY+'.theme';
 function applyTheme(t){document.documentElement.dataset.theme=t;$('#themeBtn').textContent=t==='light'?'🌙':'☀️';$('#themeBtn').setAttribute('aria-label','Switch to '+(t==='light'?'dark':'light')+' theme');
-  document.querySelector('meta[name=theme-color]').content=t==='light'?'#f6f7f9':'#0f1115';}
+  document.querySelector('meta[name=theme-color]').content=t==='light'?'#e9ecf0':'#131519';}
 applyTheme(localStorage.getItem(THEME_KEY)==='light'?'light':'dark');
 $('#themeBtn').onclick=()=>{const t=document.documentElement.dataset.theme==='light'?'dark':'light';localStorage.setItem(THEME_KEY,t);applyTheme(t)};
 const sl=$('#restSlider');
