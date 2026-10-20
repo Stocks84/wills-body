@@ -285,6 +285,8 @@ function deloadPrefill(ex, sessions, pct=0.2){
   if(u.hasWeight&&l.weight>0) return {sets:l.sets, reps:l.reps, weight:Math.max(0,roundStep(l.weight*(1-pct),u.wStep))};
   return {sets:l.sets, reps:Math.max(1,Math.round(l.reps*(1-pct))), weight:0};
 }
-const api={history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,draftSetCount,deloadStatus,deloadPrefill,roundStep,recentLast,weekStrip,sessionText};
+// Discard an unsaved draft: returns fresh draft/notes; never reads or writes sessions
+function discardDraft(draft,notes,tab){const n={...(notes||{})};delete n[tab];return {draft:{},notes:n};}
+const api={discardDraft,history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,draftSetCount,deloadStatus,deloadPrefill,roundStep,recentLast,weekStrip,sessionText};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);

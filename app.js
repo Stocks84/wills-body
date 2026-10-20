@@ -88,7 +88,7 @@ function render(){
   if(new Date().getDay()===0 && S.reportDismissed!==wk) h+=reportCard(true);
   if(T._example) h+=`<div class="banner"><span>Example routine – import your log</span><button data-act="import">Import</button></div>`;
   const nDraft=Rules.draftSetCount(draft);
-  if(nDraft) h+=`<div class="inprog"><div><b>Workout in progress · ${nDraft} set${nDraft>1?'s':''}</b><div class="help">Finish saves your workout and sets next time's targets.</div></div><button class="primary" data-act="complete">${ic('check')} Finish workout</button></div>`;
+  if(nDraft) h+=`<div class="inprog"><div><b>Workout in progress · ${nDraft} set${nDraft>1?'s':''}</b><div class="help">Finish saves your workout and sets next time's targets.</div></div><button class="ghost iconbtn inprog-x" data-act="discard" aria-label="Discard workout" title="Discard workout">${ic('x')}</button><button class="primary" data-act="complete">${ic('check')} Finish workout</button></div>`;
   else h+=`<button class="primary" data-act="quick" style="margin:8px 0">${ic('play')} Start workout</button><div class="help">Pick a block, log your sets, then Finish.</div>`;
   for(const c of Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed))
     h+=`<div class="card sugg"><h3>${ic('swap')} Time to change this exercise</h3><div class="mut">${esc(c.reason)}</div>${c.alternatives.map(x=>`<div class="row" style="margin-top:8px"><span>${esc(x.name)}${x.source==='library'?'':' <span class=mut>(alt)</span>'}</span><button data-act="swap" data-from="${c.exerciseId}" data-n="${esc(x.name)}">Swap in</button><button class="ghost" data-act="dismiss" data-n="${esc(x.name)}" aria-label="Dismiss">${ic('x')}</button></div>`).join('')}</div>`;
@@ -155,9 +155,16 @@ document.addEventListener('click',e=>{
   else if(a==='toggle'){const r=T.routine.find(r=>r.id===b.dataset.ex);if(r.active===false){if(Rules.activeSlots(T.routine)>=Rules.MAX_ACTIVE){toast('Max 4 exercises – deactivate one first');return}r.active=true;}else r.active=false;save();}
   else if(a==='dismiss'){T.dismissed.push(b.dataset.n);save();}
   else if(a==='complete') complete();
+  else if(a==='discard'){confirmDiscard();return}
   else if(a==='import') openImport();
   else return; render();
 });
+// Discard the in-progress workout: clears the unsaved draft + rest timer only; never touches saved history
+function confirmDiscard(){const dlg=$('#dlg');dlg.onclick=null;
+  dlg.innerHTML=`<h3>Discard this workout?</h3><p class="mut">Sets logged in this session won't be saved.</p><div class="row" style="margin-top:12px"><button class="ghost" id="discKeep" autofocus>Keep going</button><button class="danger" id="discGo">${ic('x')} Discard</button></div>`;
+  dlg.showModal();$('#discKeep').onclick=()=>dlg.close();
+  $('#discGo').onclick=()=>{dlg.close();discardWorkout();};}
+function discardWorkout(){const r=Rules.discardDraft(draft,draftNotes,cur);draft=r.draft;draftNotes=r.notes;stopTimer();render();scrollTo(0,0);toast('Workout discarded');}
 function complete(quiet){
   const T=S.tabs[cur], entries=T.routine.filter(r=>draft[r.id]&&draft[r.id].sets.length).map(r=>({exerciseId:r.id,sets:draft[r.id].sets}));
   if(!entries.length) return;

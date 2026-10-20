@@ -157,3 +157,9 @@ html[data-shine=reduced] .toast{border-left-width:6px}
 /* v1.13.1 overlap fixes: toasts sit at top below tabs; in-progress banner flows with content */
 .toasts,.timer:not(.hidden)~.toasts,.timer.float:not(.hidden)~.toasts{top:calc(108px + env(safe-area-inset-top));bottom:auto}
 .inprog{position:relative;top:auto;z-index:1;margin:8px 0 14px}
+.inprog{grid-template-columns:1fr auto}.inprog>.primary{grid-column:1/-1}
+.inprog-x{width:40px;height:40px;min-height:40px;padding:0;display:grid;place-items:center;border-radius:50%;align-self:start}
+.inprog-x svg{width:20px;height:20px}
+button.danger{background:#b91c1c;color:#fff;border:1px solid #ef4444}
+html[data-shine=reduced] button.danger{background:#000;color:#ff6b6b;border:2px solid #ff6b6b}
+html[data-shine=reduced][data-theme=light] button.danger{background:#fff;color:#b00000;border-color:#b00000}
