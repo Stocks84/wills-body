@@ -1,9 +1,46 @@
 'use strict';
 const KEY='willsBody.v1', TABS=[['arms','Arms'],['chest-back','Chest & Back'],['shoulders','Shoulders'],['bodyweight','Bodyweight'],['equipment','Equipment']];
-const ICONS={arms:'💪','chest-back':'🏋️',shoulders:'🙆',bodyweight:'🤸',equipment:'🚴'};
+// Inline stroke icon set (24×24, currentColor, decorative – labels live on the buttons)
+const IP={dumbbell:'<rect x="4" y="8" width="3" height="8" rx="1"/><rect x="17" y="8" width="3" height="8" rx="1"/><path d="M7 12h10M2 12h2M20 12h2"/>',
+  barbell:'<path d="M2 12h20M5 8v8M8 5v14M16 5v14M19 8v8"/>',
+  press:'<circle cx="12" cy="6" r="2"/><path d="M5 3l2.5 6h9L19 3M12 9v6M12 15l-3 6M12 15l3 6"/>',
+  jump:'<circle cx="12" cy="4.5" r="2"/><path d="M4 8l8 3 8-3M12 11v4M12 15l-5 6M12 15l5 6"/>',
+  bike:'<circle cx="6" cy="16" r="4"/><circle cx="18" cy="16" r="4"/><path d="M6 16l3.5-7H15l3 7M9.5 9L12 16H6M13 5h3l-1 4"/>',
+  flame:'<path d="M12 3c.5 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.4 1.3-3.9 2.5-5 .2 1.4.9 2.4 2 3 .2-3-.4-5.4.5-8z"/>',
+  pulse:'<path d="M3 12h4l3-7 4 14 3-7h4"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+  contrast:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
+  pin:'<path d="M9 3h6M10 3v6l-3 4v1h10v-1l-3-4V3M12 14v7"/>',
+  copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>',
+  leaf:'<path d="M5 20c0-9 5.5-15 15-15 0 9.5-6 15-15 15zM5 20l7-7"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0V4zM8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 13v5M8 21h8M10 18h4"/>',
+  swap:'<path d="M4 10a8 8 0 0 1 14-4l2 2M20 4v4h-4M20 14a8 8 0 0 1-14 4l-2-2M4 20v-4h4"/>',
+  bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  alert:'<path d="M12 3l10 18H2L12 3zM12 10v5M12 18h.01"/>',
+  undo:'<path d="M3 4v5h5"/><path d="M3.5 9a9 9 0 1 1 2.6 9.4"/>',
+  play:'<path d="M7 4l13 8-13 8V4z"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
+  checkc:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',
+  chevd:'<path d="M6 9l6 6 6-6"/>',chevu:'<path d="M6 15l6-6 6 6"/>',
+  trend:'<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',
+  note:'<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8l-5-5zM14 3v5h5M8 13h8M8 17h5"/>',
+  timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M10 2h4"/>',
+  briefcase:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18"/>',
+  umbrella:'<path d="M3 12a9 9 0 0 1 18 0H3zM12 12v7a2 2 0 0 0 4 0"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  calx:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'};
+const ic=(n,c='')=>`<svg class="ic${c?' '+c:''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${IP[n]}</svg>`;
+const ICONS={arms:'dumbbell','chest-back':'barbell',shoulders:'press',bodyweight:'jump',equipment:'bike'};
 const SHY={Bodyweight:'Body&shy;weight',Equipment:'Equip&shy;ment',Shoulders:'Shoul&shy;ders'};
-const tabBtn=(k,l)=>`<span class="ti" aria-hidden="true">${ICONS[k]}</span><span class="tl">${SHY[l]||esc(l)}</span>`;
+const tabBtn=(k,l)=>`<span class="ti" aria-hidden="true">${ic(ICONS[k])}</span><span class="tl">${SHY[l]||esc(l)}</span>`;
 let draftNotes={};
+// Fold state is UI-only and in-memory: cards fold once today's target sets are logged; tab/exId keys the user reopened
+const unfolded=new Set(); let focusAfter=null;
+const loggedToday=(T,id)=>T.sessions.filter(s=>s.date===today()).reduce((n,s)=>n+s.entries.filter(e=>e.exerciseId===id).reduce((m,e)=>m+e.sets.length,0),0);
 let S, cur=localStorage.getItem(KEY+'.tab')||'arms', draft={}, ui={}; // draft: exId -> {sets:[], reps, weight, effort, targetSets}
 const $=s=>document.querySelector(s), esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
@@ -33,44 +70,49 @@ const fmtPlan=(p,u)=>u==='kg'?`${p.sets}×${p.reps} @ ${p.weight}kg`:u==='level'
 function fmtSets(sets,u){return sets.map(x=>`<span class="chip">${Rules.fmtSet(x,u)}${x.effort?' · '+x.effort:''}</span>`).join('')}
 function render(){
   const T=S.tabs[cur], allDates=Object.values(S.tabs).flatMap(t=>t.sessions.map(s=>s.date));
-  $('#streak').textContent='🔥 '+Rules.weeklyStreak(allDates,S.absences,today())+' wk streak';
+  $('#streak').innerHTML=ic('flame')+' '+Rules.weeklyStreak(allDates,S.absences,today())+' wk streak';
   const st=Rules.workoutStats(S.tabs,S.absences,today(),S.statsWindow,S.weeklyTarget);
-  $('#stats').textContent=`💪 ${st.done} in ${st.days}d${st.pct==null?'':' · '+st.pct+'%'}`; $('#stats').title=`${st.done} workouts / ${st.planned} planned (${S.weeklyTarget}/week, absence weeks excluded). Tap to change window.`;
+  $('#stats').innerHTML=ic('pulse')+` ${st.done} in ${st.days}d${st.pct==null?'':' · '+st.pct+'%'}`; $('#stats').title=`${st.done} workouts / ${st.planned} planned (${S.weeklyTarget}/week, absence weeks excluded). Tap to change window.`;
   $('#tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${k===cur}" data-tab="${k}">${tabBtn(k,l)}</button>`).join('');
   let h='';
   const lastS=T.sessions[T.sessions.length-1], tabLabel=TABS.find(t=>t[0]===cur)[1];
   h+=`<div class="tabhead"><h2>${tabLabel}</h2><div class="mut">${Rules.activeSlots(T.routine)}/${Rules.MAX_ACTIVE} active · ${T.sessions.length} sessions · last ${lastS?lastS.date:'—'}</div></div>`;
   h+=`<div class="strip" aria-label="This week per tab">${Rules.weekStrip(S.tabs,TABS.map(t=>t[0]),today()).map(c=>{const l=TABS.find(t=>t[0]===c.tab)[1];
     return `<button data-tab="${c.tab}" aria-label="${l}" class="cell ${c.neglected?'neglected':'lvl'+Math.min(3,c.sessions)} ${c.tab===cur?'cur':''}" title="${l}: ${c.sessions} sessions, ${c.volume} kg, ${c.minutes} min"><span>${SHY[l]||l}</span><b>${c.sessions}</b><small>${c.neglected?'neglected':c.volume?Math.round(c.volume)+' kg':c.minutes?c.minutes+' min':'done'}</small></button>`}).join('')}</div>`;
-  h+=`<button class="ghost" data-act="copy" style="width:100%;margin:4px 0">📋 Copy session</button>`;
+  h+=`<button class="ghost" data-act="copy" style="width:100%;margin:4px 0">${ic('copy')} Copy session</button>`;
   const dl=deloadFor(cur);
-  if(dl.due) h+=`<div class="card deload"><h3>🧘 Deload week due</h3><div class="help">${dl.weeks} training weeks since ${dl.anchor}. Do one lighter session at −20% weight to recover; it won't count for records or stall checks.</div>
+  if(dl.due) h+=`<div class="card deload"><h3>${ic('leaf')} Deload week due</h3><div class="help">${dl.weeks} training weeks since ${dl.anchor}. Do one lighter session at −20% weight to recover; it won't count for records or stall checks.</div>
     <button class="primary" data-act="deload">Plan deload session</button><div class="row" style="margin-top:8px"><button class="ghost" data-act="dlsnooze">Snooze 1 week</button><button class="ghost" data-act="dlskip">Skip this cycle</button></div></div>`;
-  if(lastRecords.length) h+=`<div class="card record"><h3>🏆 New record${lastRecords.length>1?'s':''}!</h3>${lastRecords.map(r=>`<div>${recTxt(r)}</div>`).join('')}<button class="ghost" data-act="recok" style="margin-top:8px;width:100%">Nice – dismiss</button></div>`;
+  if(lastRecords.length) h+=`<div class="card record"><h3>${ic('trophy')} New record${lastRecords.length>1?'s':''}!</h3>${lastRecords.map(r=>`<div>${recTxt(r)}</div>`).join('')}<button class="ghost" data-act="recok" style="margin-top:8px;width:100%">Nice – dismiss</button></div>`;
   const wk=Rules.isoWeek(today());
   if(new Date().getDay()===0 && S.reportDismissed!==wk) h+=reportCard(true);
   if(T._example) h+=`<div class="banner"><span>Example routine – import your log</span><button data-act="import">Import</button></div>`;
   const nDraft=Rules.draftSetCount(draft);
-  if(nDraft) h+=`<div class="inprog"><div><b>Workout in progress · ${nDraft} set${nDraft>1?'s':''}</b><div class="help">Finish saves your workout and sets next time's targets.</div></div><button class="primary" data-act="complete">✓ Finish workout</button></div>`;
-  else h+=`<button class="primary" data-act="quick" style="margin:8px 0">▶ Start workout</button><div class="help">Pick a block, log your sets, then Finish.</div>`;
+  if(nDraft) h+=`<div class="inprog"><div><b>Workout in progress · ${nDraft} set${nDraft>1?'s':''}</b><div class="help">Finish saves your workout and sets next time's targets.</div></div><button class="primary" data-act="complete">${ic('check')} Finish workout</button></div>`;
+  else h+=`<button class="primary" data-act="quick" style="margin:8px 0">${ic('play')} Start workout</button><div class="help">Pick a block, log your sets, then Finish.</div>`;
   for(const c of Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed))
-    h+=`<div class="card sugg"><h3>🔁 Time to change this exercise</h3><div class="mut">${esc(c.reason)}</div>${c.alternatives.map(x=>`<div class="row" style="margin-top:8px"><span>${esc(x.name)}${x.source==='library'?'':' <span class=mut>(alt)</span>'}</span><button data-act="swap" data-from="${c.exerciseId}" data-n="${esc(x.name)}">Swap in</button><button class="ghost" data-act="dismiss" data-n="${esc(x.name)}" aria-label="Dismiss">✕</button></div>`).join('')}</div>`;
+    h+=`<div class="card sugg"><h3>${ic('swap')} Time to change this exercise</h3><div class="mut">${esc(c.reason)}</div>${c.alternatives.map(x=>`<div class="row" style="margin-top:8px"><span>${esc(x.name)}${x.source==='library'?'':' <span class=mut>(alt)</span>'}</span><button data-act="swap" data-from="${c.exerciseId}" data-n="${esc(x.name)}">Swap in</button><button class="ghost" data-act="dismiss" data-n="${esc(x.name)}" aria-label="Dismiss">${ic('x')}</button></div>`).join('')}</div>`;
   const stalledIds=new Set(Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed).map(c=>c.exerciseId));
   for(const s of Rules.suggestions(cur,T.routine,T.sessions,T.dismissed).filter(s=>!stalledIds.has(s.exerciseId)))
-    h+=`<div class="card sugg"><h3>💡 Try ${esc(s.exercise)}</h3><div class="mut">${esc(s.reason)}</div><div class="row" style="margin-top:8px">
-      <button data-act="up" data-n="${esc(s.exercise)}" data-from="${s.exerciseId}">👍 ${Rules.activeSlots(T.routine)>=Rules.MAX_ACTIVE?'Swap in':'Add'}</button><button data-act="dismiss" data-n="${esc(s.exercise)}">✕ Dismiss</button></div></div>`;
+    h+=`<div class="card sugg"><h3>${ic('bulb')} Try ${esc(s.exercise)}</h3><div class="mut">${esc(s.reason)}</div><div class="row" style="margin-top:8px">
+      <button data-act="up" data-n="${esc(s.exercise)}" data-from="${s.exerciseId}">${ic('plus')} ${Rules.activeSlots(T.routine)>=Rules.MAX_ACTIVE?'Swap in':'Add'}</button><button data-act="dismiss" data-n="${esc(s.exercise)}">${ic('x')} Dismiss</button></div></div>`;
   const snap=T.plans[T.plans.length-1];
   if(snap) h+=`<div class="card"><h3>Saved plan for next session</h3><div class="mut">Snapshot from ${snap.date}</div>${snap.items.map(i=>`<div>${esc(i.name)}: <span class="plan">${fmtPlan(i,i.unit)}</span></div>`).join('')}</div>`;
   for(const ex of T.routine.filter(Rules.isActive)){
     const hist=Rules.history(ex.id,T.sessions), last=hist[hist.length-1], plan=Rules.nextPlan(ex,T.sessions);
     const d=draft[ex.id]||(draft[ex.id]={sets:[],reps:plan.reps,weight:plan.weight,effort:'Good',targetSets:plan.sets});
     const flags=Rules.detectPlateaus(ex,T.sessions);
-    h+=`<div class="card"><h3>${esc(ex.name)}</h3><div class="mut">Routine: ${ex.targetSets} × ${ex.repMin&&ex.repMin!==ex.repMax?ex.repMin+'–':''}${ex.targetReps} ${U(ex.unit).reps.toLowerCase()}</div>
+    const fk=cur+'/'+ex.id, nToday=d.sets.length+loggedToday(T,ex.id), allDone=d.targetSets>0&&nToday>=d.targetSets;
+    if(!allDone) unfolded.delete(fk);
+    if(allDone&&!unfolded.has(fk)){
+      h+=`<button class="card folded" data-act="unfold" data-ex="${ex.id}" aria-expanded="false" aria-label="${esc(ex.name)}: all ${d.targetSets} sets logged today. Show details">${ic('checkc','ok')}<span class="fname">${esc(ex.name)}</span><span class="mut">${nToday}/${d.targetSets} sets</span>${ic('chevd')}</button>`;
+      continue;}
+    h+=`<div class="card">${allDone?`<button class="ghost foldbtn" data-act="fold" data-ex="${ex.id}" aria-expanded="true" aria-label="Fold ${esc(ex.name)}">${ic('chevu')}</button>`:''}<h3>${esc(ex.name)}</h3><div class="mut">Routine: ${ex.targetSets} × ${ex.repMin&&ex.repMin!==ex.repMax?ex.repMin+'–':''}${ex.targetReps} ${U(ex.unit).reps.toLowerCase()}</div>
       <div class="mut">Last: ${last?last.date+'</div><div class="sets">'+fmtSets(last.sets,ex.unit):'none yet'}</div>
-      <div><button class="ghost" style="float:right;min-height:40px" data-act="toggle" data-ex="${ex.id}" aria-label="Deactivate">✕</button>Next: <span class="plan">${fmtPlan(plan,ex.unit)}</span> <span class="mut">${esc(plan.note)}</span></div>
+      <div><button class="ghost" style="float:right;min-height:40px" data-act="toggle" data-ex="${ex.id}" aria-label="Deactivate">${ic('x')}</button>Next: <span class="plan">${fmtPlan(plan,ex.unit)}</span> <span class="mut">${esc(plan.note)}</span></div>
       ${trendHTML(ex,T.sessions)}
-      ${flags.map(f=>`<div style="color:var(--warn)">⚠ ${esc(f.reason)}</div>`).join('')}
-      ${(()=>{const rl=Rules.recentLast(ex,T.sessions,today());return rl?`<button class="ghost lastbtn" data-act="fill" data-ex="${ex.id}">↺ Same as last time (${rl.date}): ${fmtPlan(rl,ex.unit)}</button>`:''})()}
+      ${flags.map(f=>`<div style="color:var(--warn)">${ic('alert')} ${esc(f.reason)}</div>`).join('')}
+      ${(()=>{const rl=Rules.recentLast(ex,T.sessions,today());return rl?`<button class="ghost lastbtn" data-act="fill" data-ex="${ex.id}">${ic('undo')} Same as last time (${rl.date}): ${fmtPlan(rl,ex.unit)}</button>`:''})()}
       ${stepper(ex.id,'targetSets','Sets',d.targetSets)}${stepper(ex.id,'reps',U(ex.unit).reps,d.reps)}
       ${U(ex.unit).hasWeight?stepper(ex.id,'weight',U(ex.unit).weight,d.weight):''}
       <div class="eff">${['Ok','Good','Tough'].map(e=>`<button class="${d.effort===e?'on':''}" data-act="eff" data-ex="${ex.id}" data-v="${e}">${e}</button>`).join('')}</div>
@@ -83,9 +125,10 @@ function render(){
   if(any) h+=`<label class="mut" style="display:block;margin:8px 0">Workout notes (optional)<textarea id="sessNotes" rows="2" style="min-height:64px">${esc(draftNotes[cur]||'')}</textarea></label>`;
   h+=`<div class="row" style="margin:12px 0"><button class="ghost" data-act="import">Import log</button></div>`;
   const hist=[...T.sessions].reverse();
-  if(hist.length) h+=`<details class="card"><summary>Session history (${hist.length})</summary>${hist.map(s=>`<div class="hist"><b>${s.date}</b>${s.label?' · '+esc(s.label):''}<div class="mut">${s.entries.map(e=>{const r=T.routine.find(x=>x.id===e.exerciseId);return esc(r?r.name:e.exerciseId)+' '+e.sets.length+'×'+(e.sets[0]?e.sets[0].reps:'')+(e.sets[0]&&e.sets[0].weight?' @'+e.sets[0].weight+'kg':'')}).join(' · ')}</div>${s.notes?`<div class="note">📝 ${esc(s.notes)}</div>`:''}</div>`).join('')}</details>`;
+  if(hist.length) h+=`<details class="card"><summary>Session history (${hist.length})</summary>${hist.map(s=>`<div class="hist"><b>${s.date}</b>${s.label?' · '+esc(s.label):''}<div class="mut">${s.entries.map(e=>{const r=T.routine.find(x=>x.id===e.exerciseId);return esc(r?r.name:e.exerciseId)+' '+e.sets.length+'×'+(e.sets[0]?e.sets[0].reps:'')+(e.sets[0]&&e.sets[0].weight?' @'+e.sets[0].weight+'kg':'')}).join(' · ')}</div>${s.notes?`<div class="note">${ic('note')} ${esc(s.notes)}</div>`:''}</div>`).join('')}</details>`;
   $('#main').innerHTML=h;
   if(celebrate){celebrate=false;confetti();}
+  if(focusAfter){const f=document.querySelector(focusAfter);focusAfter=null;if(f)f.focus({preventScroll:true});}
   const sn=$('#sessNotes'); if(sn) sn.oninput=()=>{draftNotes[cur]=sn.value};
 }
 function stepper(id,f,label,v){return `<div class="step"><button data-act="dec" data-ex="${id}" data-f="${f}" aria-label="less ${label}">−</button><div class="v">${v}<small>${label}</small></div><button data-act="inc" data-ex="${id}" data-f="${f}" aria-label="more ${label}">+</button></div>`}
@@ -97,7 +140,8 @@ document.addEventListener('click',e=>{
   else if(a==='eff') d.effort=b.dataset.v;
   else if(a==='fill'){const l=Rules.lastValues(ex,T.sessions);if(l){d.targetSets=l.sets;d.reps=l.reps;d.weight=l.weight;}}
   else if(a==='copy'){copySession();return}
-  else if(a==='log'){d.sets.push({reps:d.reps,weight:U(ex.unit).hasWeight?d.weight:0,effort:d.effort});startTimer();}
+  else if(a==='unfold'||a==='fold'){const k=cur+'/'+b.dataset.ex,q=CSS.escape(b.dataset.ex);a==='unfold'?unfolded.add(k):unfolded.delete(k);focusAfter=`[data-act=${a==='unfold'?'fold':'unfold'}][data-ex="${q}"]`;}
+  else if(a==='log'){d.sets.push({reps:d.reps,weight:U(ex.unit).hasWeight?d.weight:0,effort:d.effort});startTimer();focusAfter=`[data-ex="${CSS.escape(ex.id)}"]:is([data-act=unfold],[data-act=log])`;}
   else if(a==='undo') d.sets.pop();
   else if(a==='up'){const n=b.dataset.n;T.routine=Rules.acceptSuggestion(T.routine,{exerciseId:b.dataset.from},{id:'ex-'+Rules.slug(n),name:n,targetSets:3,targetReps:cur==='bodyweight'?12:10,unit:cur==='bodyweight'?'bodyweight':cur==='equipment'?'level':'kg'});save();}
   else if(a==='swap'){T.routine=Rules.swapExercise(T.routine,b.dataset.from,{name:b.dataset.n});delete draft[b.dataset.from];save();toast('Swapped in '+b.dataset.n);}
@@ -124,7 +168,7 @@ function complete(quiet){
   storeRecords(cur,date,recs); draft={}; save(); if(!quiet){stopTimer(); toast('Workout saved – next targets set');}
 }
 function trendHTML(ex,sessions){const t=Rules.trendSeries(ex,sessions);if(t.dates.length<2)return '';
-  return `<details class="trend"><summary>📈 Trend (${t.dates.length} sessions)</summary>${t.series.map((s,i)=>`<div class="mut">${s.label}: ${s.values[0]} → ${s.values[s.values.length-1]}</div>
+  return `<details class="trend"><summary>${ic('trend')} Trend (${t.dates.length} sessions)</summary>${t.series.map((s,i)=>`<div class="mut">${s.label}: ${s.values[0]} → ${s.values[s.values.length-1]}</div>
     <svg viewBox="0 0 280 48" width="100%" height="48" role="img" aria-label="${s.label} trend"><polyline fill="none" stroke="${i?'var(--acc2)':'var(--acc)'}" stroke-width="3" stroke-linejoin="round" points="${Rules.sparkPoints(s.values)}"/></svg>`).join('')}
     ${(()=>{const e=Rules.e1rmSeries(ex,sessions);return e&&e.length>=2?`<div class="mut">Est. 1RM (Brzycki, sets ≤12 reps): ${e[0].v} → ${e[e.length-1].v} kg</div><svg viewBox="0 0 280 48" width="100%" height="48" role="img" aria-label="Estimated 1RM trend"><polyline fill="none" stroke="var(--warn)" stroke-width="3" stroke-dasharray="6 4" points="${Rules.sparkPoints(e.map(p=>p.v))}"/></svg>`:''})()}
     <div class="mut">${t.dates[0]} → ${t.dates[t.dates.length-1]}</div></details>`;}
@@ -137,7 +181,10 @@ function confetti(){ if(matchMedia('(prefers-reduced-motion: reduce)').matches) 
   const cols=['#22c55e','#60a5fa','#f59e0b','#f472b6','#facc15'];
   for(let i=0;i<40;i++){const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.background=cols[i%5];p.style.animationDelay=(Math.random()*0.4)+'s';p.style.transform=`rotate(${Math.random()*360}deg)`;box.append(p);}
   document.body.append(box);setTimeout(()=>box.remove(),2200);}
-function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#14532d;color:#fff;padding:12px 18px;border-radius:12px;z-index:20;font-weight:700';document.body.append(t);setTimeout(()=>t.remove(),2500)}
+// Themed toasts in a polite live region; CSS lifts the stack above the rest timer when it's showing
+function toast(m){const box=$('#toasts'),t=document.createElement('div');t.className='toast';t.textContent=m;
+  while(box.children.length>=3)box.firstElementChild.remove();box.append(t);
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),250)},2500)}
 // Quick log sheet with block selector; per-block entries persist until Save
 function openQuick(opts={}){
   const dlg=$('#dlg'), Q={}, edited=new Set(), notes={}, deloadTabs=new Set(opts.deload?[opts.deload]:[]); let qb=opts.deload||cur;
@@ -151,16 +198,16 @@ function openQuick(opts={}){
     <ol class="steps">${['Pick block','Log sets','Finish'].map((s,i)=>`<li class="${i+1===step?'now':i+1<step?'done':''}">${i+1}. ${s}</li>`).join('')}</ol>
     <div class="help">1 · Choose what you're training. You can switch blocks any time – your entries stay.</div>
     <div class="blocks">${TABS.map(([k,l])=>`<button data-qb="${k}" class="${k===qb?'on':''}">${tabBtn(k,l)}${edited.has(k)?' •':''}</button>`).join('')}</div>
-    <div class="qtimer ${tInt?'':'hidden'}">⏱ Rest <b class="qTimerCount">${tInt?$('#timerCount').textContent:''}</b>s <button data-qt="skip">Skip</button></div>
-    ${deloadTabs.has(qb)?'<div class="card deload"><b>🧘 Deload session</b> – prefilled at −20%. Saved as a deload: no records, ignored by stall checks.</div>':''}
+    <div class="qtimer ${tInt?'':'hidden'}">${ic('timer')} Rest <b class="qTimerCount">${tInt?$('#timerCount').textContent:''}</b>s <button data-qt="skip">Skip</button></div>
+    ${deloadTabs.has(qb)?'<div class="card deload"><b>'+ic('leaf')+' Deload session</b> – prefilled at −20%. Saved as a deload: no records, ignored by stall checks.</div>':''}
     <div class="help">2 · Tap a row to change numbers. Only rows you touch get saved – tick Done to log a row as shown.</div>
     <label class="mut">Date <input type="date" id="qDate" value="${date}"></label>
-    ${q.map((i,k)=>`<div class="card ${i.touched?'touched':''}"><button class="tick ${i.touched?'on':''}" data-q="${k}" data-qdone="1" aria-pressed="${!!i.touched}" aria-label="Mark ${esc(i.ex.name)} done">${i.touched?'✓ Done':'Done'}</button><h3>${esc(i.ex.name)}</h3>${i.last?`<button class="ghost lastbtn" data-q="${k}" data-ql="1">↺ Last time ${i.last.date}: ${fmtPlan(i.last,i.ex.unit)}</button>`:'<div class="mut">No previous log</div>'}${qs(k,'sets','Sets',i.sets)}${qs(k,'reps',U(i.ex.unit).reps,i.reps)}${U(i.ex.unit).hasWeight?qs(k,'weight',U(i.ex.unit).weight,i.weight):''}
+    ${q.map((i,k)=>`<div class="card ${i.touched?'touched':''}"><button class="tick ${i.touched?'on':''}" data-q="${k}" data-qdone="1" aria-pressed="${!!i.touched}" aria-label="Mark ${esc(i.ex.name)} done">${i.touched?ic('check')+' Done':'Done'}</button><h3>${esc(i.ex.name)}</h3>${i.last?`<button class="ghost lastbtn" data-q="${k}" data-ql="1">${ic('undo')} Last time ${i.last.date}: ${fmtPlan(i.last,i.ex.unit)}</button>`:'<div class="mut">No previous log</div>'}${qs(k,'sets','Sets',i.sets)}${qs(k,'reps',U(i.ex.unit).reps,i.reps)}${U(i.ex.unit).hasWeight?qs(k,'weight',U(i.ex.unit).weight,i.weight):''}
       <div class="eff">${['Ok','Good','Tough'].map(e=>`<button class="${i.effort===e?'on':''}" data-q="${k}" data-qe="${e}">${e}</button>`).join('')}</div></div>`).join('')}
     <label class="mut" style="display:block">Notes for this block (optional)<textarea id="qNotes" rows="2" style="min-height:64px">${esc(notes[qb]||'')}</textarea></label>
-    <div class="row" style="margin:8px 0"><button class="ghost" data-qt="start">⏱ Start rest</button><label class="row" style="flex:2"><input type="checkbox" id="qTimer" ${timerAfter?'checked':''} style="flex:0;width:28px;height:28px"> Timer after save</label></div>
+    <div class="row" style="margin:8px 0"><button class="ghost" data-qt="start">${ic('timer')} Start rest</button><label class="row" style="flex:2"><input type="checkbox" id="qTimer" ${timerAfter?'checked':''} style="flex:0;width:28px;height:28px"> Timer after save</label></div>
     <div class="help">3 · Finish saves your workout and sets next time's targets.</div>
-    <div class="row"><button class="ghost" id="qCancel">Close</button><button class="primary" id="qSave">✓ Finish workout${edited.size>1?' ('+edited.size+' blocks)':''}</button></div>`;
+    <div class="row"><button class="ghost" id="qCancel">Close</button><button class="primary" id="qSave">${ic('check')} Finish workout${edited.size>1?' ('+edited.size+' blocks)':''}</button></div>`;
     $('#qNotes').oninput=ev=>{notes[qb]=ev.target.value;if(ev.target.value.trim())edited.add(qb)};};
   draw();dlg.showModal();
   dlg.onclick=ev=>{const b=ev.target.closest('button');if(!b)return;ev.stopPropagation();
@@ -192,11 +239,11 @@ function copySession(){ const T=S.tabs[cur], label=TABS.find(t=>t[0]===cur)[1];
   if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(txt).then(()=>toast('Session copied'),fallback); else fallback(); }
 // Weekly report
 function reportCard(inline){const r=Rules.weeklyReport(S.tabs,today());
-  return `<div class="card report"><h3>📅 Weekly report · ${r.start} → ${r.end}</h3>
+  return `<div class="card report"><h3>${ic('calendar')} Weekly report · ${r.start} → ${r.end}</h3>
     <div class="kpis"><div><b>${r.sessions}</b><small>sessions</small></div><div><b>${r.sets}</b><small>sets</small></div><div><b>${r.volume.toLocaleString()}</b><small>kg volume</small></div><div><b>${r.records.length}</b><small>records</small></div></div>
     ${r.minutes?`<div class="mut">Cardio: ${r.minutes} min</div>`:''}
     <div class="mut">${TABS.filter(([k])=>r.byTab[k]).map(([k,l])=>l+' ×'+r.byTab[k]).join(' · ')||'No sessions yet this week'}</div>
-    ${r.records.map(x=>`<div>🏆 ${recTxt(x)}</div>`).join('')}
+    ${r.records.map(x=>`<div>${ic('trophy')} ${recTxt(x)}</div>`).join('')}
     ${inline?'<button class="ghost" data-act="repok" style="width:100%;margin-top:8px">Dismiss until next week</button>':''}</div>`;}
 function openReport(){const dlg=$('#dlg');dlg.onclick=null;dlg.innerHTML=reportCard(false)+'<button class="primary" id="repClose">Close</button>';dlg.showModal();$('#repClose').onclick=()=>dlg.close();}
 // Rest timer
@@ -209,6 +256,9 @@ function buzz(){try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e)
   try{if(!actx)return;const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=660;g.gain.setValueAtTime(0.0001,actx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.15,actx.currentTime+0.05);g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+0.6);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+0.65)}catch(e){}}
 $('#skipBtn').onclick=stopTimer;
+// ±15 s nudges the running countdown only; S.restSec (the saved default) is untouched
+const nudge=sec=>{if(!tInt)return;tEnd=Math.max(Date.now(),tEnd+sec*1e3);tick()};
+$('#tMinus').onclick=()=>nudge(-15);$('#tPlus').onclick=()=>nudge(15);
 // Float timer preference (own key; never touches workout data)
 const FLOAT_KEY=KEY+'.timerFloat';
 function applyFloat(on){$('#timer').classList.toggle('float',on);$('#floatBtn').setAttribute('aria-pressed',on);$('#floatBtn').title=on?'Dock timer to full-width bar':'Float timer';}
@@ -238,16 +288,26 @@ $('#reportBtn').onclick=()=>openReport();
 $('#stats').onclick=()=>{S.statsWindow=S.statsWindow===7?30:S.statsWindow===30?90:7;save();render();};
 $('#exportBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));a.download='wills-body-backup-'+today()+'.json';a.click()};
 $('#absenceBtn').onclick=()=>{const dlg=$('#dlg');dlg.onclick=null;dlg.innerHTML=`<h3>Log absence</h3><p class="mut">Weeks with a work or holiday absence don't break your streak.</p>
-  <input type="date" id="absDate" value="${today()}"><div class="row" style="margin-top:10px"><button data-tag="work">💼 Work</button><button data-tag="holiday">🏖 Holiday</button></div>
+  <input type="date" id="absDate" value="${today()}"><div class="row" style="margin-top:10px"><button data-tag="work">${ic('briefcase')} Work</button><button data-tag="holiday">${ic('umbrella')} Holiday</button></div>
   <div class="mut" style="margin-top:8px">${S.absences.slice(-5).map(a=>a.date+' '+a.tag).join('<br>')}</div><button class="ghost" style="width:100%;margin-top:10px" id="absClose">Close</button>`;
   dlg.showModal();$('#absClose').onclick=()=>dlg.close();
   dlg.querySelectorAll('[data-tag]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();S.absences.push({date:$('#absDate').value,tag:b.dataset.tag});save();dlg.close();render()});};
 // Theme (default dark, persisted)
 const THEME_KEY=KEY+'.theme';
-function applyTheme(t){document.documentElement.dataset.theme=t;$('#themeBtn').textContent=t==='light'?'🌙':'☀️';$('#themeBtn').setAttribute('aria-label','Switch to '+(t==='light'?'dark':'light')+' theme');
+function applyTheme(t){document.documentElement.dataset.theme=t;$('#themeBtn').innerHTML=ic(t==='light'?'moon':'sun');$('#themeBtn').setAttribute('aria-label','Switch to '+(t==='light'?'dark':'light')+' theme');
   document.querySelector('meta[name=theme-color]').content=t==='light'?'#e9ecf0':'#131519';}
 applyTheme(localStorage.getItem(THEME_KEY)==='light'?'light':'dark');
 $('#themeBtn').onclick=()=>{const t=document.documentElement.dataset.theme==='light'?'dark':'light';localStorage.setItem(THEME_KEY,t);applyTheme(t)};
+// Reduce shine: flat high-contrast look. Explicit choice saved in its own key; unset follows prefers-contrast: more
+const SHINE_KEY=KEY+'.reduceShine', hiContrast=matchMedia('(prefers-contrast: more)');
+function applyShine(){const v=localStorage.getItem(SHINE_KEY), on=v==null?hiContrast.matches:v==='1';
+  if(on)document.documentElement.dataset.shine='reduced';else delete document.documentElement.dataset.shine;
+  $('#shineBtn').setAttribute('aria-pressed',on);$('#shineBtn').title=on?'Restore shine':'Reduce shine';}
+$('#shineBtn').innerHTML=ic('contrast');applyShine();
+$('#shineBtn').onclick=()=>{localStorage.setItem(SHINE_KEY,document.documentElement.dataset.shine==='reduced'?'0':'1');applyShine()};
+hiContrast.addEventListener&&hiContrast.addEventListener('change',applyShine);
+$('#floatBtn').innerHTML=ic('pin');
+for(const [id,n] of [['absenceBtn','calx'],['reportBtn','calendar'],['csvBtn','download'],['exportBtn','download']])$('#'+id).insertAdjacentHTML('afterbegin',ic(n)+' ');
 const sl=$('#restSlider');
 fetch('manifest.webmanifest').then(r=>r.json()).then(m=>{$('#ver').textContent="Will's Body v"+m.version}).catch(()=>{});
 load().then(()=>{document.body.classList.remove('loading');sl.value=S.restSec;$('#restVal').textContent=S.restSec;render()});

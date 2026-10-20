@@ -114,3 +114,43 @@ textarea,input[type=date],input[type=file]{border-color:var(--rim);box-shadow:0 
 .timer.float{left:auto;right:calc(12px + env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom));grid-template-columns:auto auto auto;gap:6px;padding:4px 4px 4px 16px;border:1px solid var(--rim);border-radius:999px;box-shadow:var(--shade),0 10px 28px -10px rgba(0,0,0,.8)}
 .timer.float label{display:none}.timer.float .count{font-size:26px;min-width:2ch;text-align:right}.timer.float .count::after{content:"s";font-size:15px;font-weight:700;color:var(--mut);margin-left:1px}
 .timer.float button{min-height:44px;border-radius:999px}.timer.float #skipBtn{padding:0 14px}
+
+/* icons */
+.ic{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none;display:inline-block}
+.ti .ic{width:22px;height:22px;display:block}
+#themeBtn .ic,#shineBtn .ic,.timer .pin .ic{width:22px;height:22px;vertical-align:middle}
+#shineBtn{margin-left:auto;flex:0 0 48px;padding:0}#themeBtn{margin-left:0;padding:0}
+#shineBtn[aria-pressed=true]{background:var(--chrome);color:var(--chrome-txt)}
+
+/* folded exercise cards */
+.card.folded{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;padding:10px 14px;margin:8px 0;text-align:left;font-size:17px;color:var(--txt);border-color:color-mix(in srgb,var(--acc) 55%,var(--rim))}
+.card.folded .ic{width:22px;height:22px}.card.folded .ok{color:var(--acc)}
+.card.folded .fname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.card.folded .mut{white-space:nowrap;font-weight:600}
+.foldbtn{float:right;min-height:40px;min-width:44px;margin-left:6px;padding:0 10px}
+
+/* timer ±15 s (floating pill only) */
+.timer .adj{display:none}
+.timer.float{grid-template-columns:repeat(5,auto);max-width:calc(100vw - 24px)}
+.timer.float .adj{display:block;min-width:48px;padding:0 8px;font-size:15px;font-variant-numeric:tabular-nums}
+
+/* toasts */
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;flex-direction:column;align-items:center;gap:8px;width:min(92vw,440px);pointer-events:none;transition:bottom .2s}
+.timer:not(.hidden)~.toasts{bottom:calc(108px + env(safe-area-inset-bottom))}
+.timer.float:not(.hidden)~.toasts{bottom:calc(80px + env(safe-area-inset-bottom))}
+.toast{max-width:100%;background:var(--brush),var(--cardg);color:var(--txt);border:1px solid var(--rim);border-left:4px solid var(--acc);border-radius:14px;padding:12px 16px;font-weight:700;font-size:16px;box-shadow:var(--shade),0 12px 28px -12px rgba(0,0,0,.8);animation:tin .2s ease-out}
+.toast.out{opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){.toasts{transition:none}.toast{animation:none}.toast.out{transition:none}}
+
+/* reduce shine: flat, high-contrast, no textures/gradients/shadows (toggle or prefers-contrast: more) */
+html[data-shine=reduced]{--bg:#000;--card:#000;--line:#fff;--txt:#fff;--mut:#e2e2e2;--acc:#4ade80;--acc2:#93c5fd;--warn:#fbbf24;--bad:#fca5a5;--btn:#151515;--chip:#151515;--plan:#86efac;--ban-bg:#000;--ban-txt:#fde68a;--on:#0b3d1f;--input:#000;--tbar:#000;
+--bgrad:var(--bg);--cardg:var(--card);--btng:var(--btn);--chrome:#fff;--chrome-txt:#000;--brush:none;--hdrg:var(--bg);--edge:transparent;--rim:#fff;--shade:none;--navbg:var(--bg);--ring:#ffd400}
+html[data-shine=reduced][data-theme=light]{--bg:#fff;--card:#fff;--line:#000;--txt:#000;--mut:#1f1f1f;--acc:#166534;--acc2:#1e3a8a;--warn:#7c2d12;--bad:#991b1b;--btn:#f0f0f0;--chip:#f0f0f0;--plan:#14532d;--ban-bg:#fff;--ban-txt:#78350f;--on:#bbf7d0;--input:#fff;--tbar:#fff;--chrome:#000;--chrome-txt:#fff;--rim:#000;--ring:#1d4ed8}
+html[data-shine=reduced] *{box-shadow:none!important;text-shadow:none!important}
+html[data-shine=reduced] body::before{background:var(--bg)}
+html[data-shine=reduced] h1{background:none;-webkit-text-fill-color:currentColor;color:var(--txt)}
+html[data-shine=reduced] nav{-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-shine=reduced] button.ghost{background:transparent}
+html[data-shine=reduced] button,html[data-shine=reduced] .card,html[data-shine=reduced] dialog,html[data-shine=reduced] .toast{border-width:2px}
+html[data-shine=reduced] .timer{background:var(--tbar);border-top:2px solid var(--rim)}html[data-shine=reduced] .timer.float{border:2px solid var(--rim)}
+html[data-shine=reduced] .toast{border-left-width:6px}

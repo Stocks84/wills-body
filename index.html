@@ -8,16 +8,21 @@
 html[data-theme=light],html[data-theme=light] body{background:#e9ecf0;color:#0b0f17}
 .sk{background:linear-gradient(180deg,#2a2f37,#1f232a);border:1px solid #3a414c;border-radius:14px;margin:12px;height:56px;animation:skp 1.2s ease-in-out infinite alternate}.sk.tall{height:220px}
 html[data-theme=light] .sk{background:linear-gradient(180deg,#f3f5f7,#dde1e7);border-color:#c3c9d2}@keyframes skp{from{opacity:.55}to{opacity:1}}
-@media (prefers-reduced-motion:reduce){.sk{animation:none}}</style>
-<script>try{if(localStorage.getItem('willsBody.v1.theme')==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+@media (prefers-reduced-motion:reduce){.sk{animation:none}}
+html[data-shine=reduced],html[data-shine=reduced] body{background:#000;color:#fff}html[data-shine=reduced] .sk{background:#000;border-color:#fff;animation:none}
+html[data-shine=reduced][data-theme=light],html[data-shine=reduced][data-theme=light] body{background:#fff;color:#000}html[data-shine=reduced][data-theme=light] .sk{background:#fff;border-color:#000}</style>
+<script>(function(){try{var h=document.documentElement,r=localStorage.getItem('willsBody.v1.reduceShine');if(localStorage.getItem('willsBody.v1.theme')==='light')h.dataset.theme='light';
+if(r==='1'||(r==null&&matchMedia('(prefers-contrast: more)').matches))h.dataset.shine='reduced'}catch(e){}})()</script>
 <link rel="stylesheet" href="styles.css"></head><body class="loading">
-<header><h1>Will's Body</h1><div class="row" style="flex:0;gap:8px"><div id="streak" class="streak"></div><button id="stats" class="streak" aria-label="Workouts and completion"></button><button id="themeBtn" class="ghost">☀️</button></div></header>
+<header><h1>Will's Body</h1><div class="row" style="flex:0;gap:8px"><div id="streak" class="streak"></div><button id="stats" class="streak" aria-label="Workouts and completion"></button><button id="shineBtn" class="ghost" aria-label="Reduce shine" aria-pressed="false" title="Reduce shine"></button><button id="themeBtn" class="ghost" aria-label="Switch theme"></button></div></header>
 <nav id="tabs" role="tablist"></nav>
 <main id="main" aria-busy="true"><div class="sk" aria-label="Loading"></div><div class="sk tall"></div><div class="sk tall"></div></main>
 <div class="toolbar"><button id="absenceBtn" class="ghost">Log absence</button><button id="reportBtn" class="ghost">Weekly report</button><button id="csvBtn" class="ghost">Export CSV</button><button id="exportBtn" class="ghost">Export JSON</button></div>
 <div id="timer" class="timer hidden"><div class="count" id="timerCount">75</div>
 <label>Rest <span id="restVal">75</span>s <input type="range" id="restSlider" min="60" max="90" step="5"></label>
-<button id="skipBtn">Skip</button><button id="floatBtn" class="pin" aria-pressed="false" aria-label="Float timer" title="Float timer">📌</button></div>
+<button id="tMinus" class="adj" aria-label="15 seconds less">−15s</button><button id="tPlus" class="adj" aria-label="15 seconds more">+15s</button>
+<button id="skipBtn">Skip</button><button id="floatBtn" class="pin" aria-pressed="false" aria-label="Float timer" title="Float timer"></button></div>
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
 <footer class="foot"><span id="ver">Will's Body</span></footer>
 <dialog id="dlg"></dialog>
 <script src="rules.js"></script><script src="app.js"></script></body></html>
