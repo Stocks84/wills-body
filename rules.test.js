@@ -97,6 +97,10 @@ t('deload prefill -20% rounded to step',()=>{assert.deepEqual(R.deloadPrefill(ex
 t('deload sessions excluded from records',()=>assert.equal(R.sessionRecords([ex],[S('2026-10-01','c',10,[5])],{date:'2026-10-08',deload:true,entries:[{exerciseId:'c',sets:[{reps:20,weight:50}]}]}).length,0));
 t('deload sessions excluded from stall/plateau/plan',()=>{const ss=[S('2026-10-01','c',10,[9,9,9]),S('2026-10-03','c',10,[9,9,9]),D('2026-10-05','c',8,[9,9,9],{deload:true})];
   assert.equal(R.isStalled(ex,ss),false);assert.equal(R.history('c',ss).length,2);assert.equal(R.nextPlan(ex,ss).weight,9.5)});
+t('discardDraft clears draft and only this tab notes',()=>{const r=R.discardDraft({c:{sets:[{reps:5}]}},{arms:'x',shoulders:'y'},'arms');assert.deepEqual(r.draft,{});assert.deepEqual(r.notes,{shoulders:'y'})});
+t('discardDraft never mutates inputs or history',()=>{const sess=[S('2026-10-01','c',10,[10,10])],snap=JSON.stringify(sess),d={c:{sets:[{reps:5}]}},nt={arms:'x'};R.discardDraft(d,nt,'arms');assert.equal(JSON.stringify(sess),snap);assert.equal(d.c.sets.length,1);assert.equal(nt.arms,'x')});
+t('discardDraft handles missing notes',()=>assert.deepEqual(R.discardDraft({},undefined,'arms').notes,{}));
+t('app wires discard X with confirm copy',()=>{const a=require('fs').readFileSync(__dirname+'/app.js','utf8');assert.ok(a.includes('data-act="discard"')&&a.includes('Discard this workout?')&&a.includes("Sets logged in this session won't be saved.")&&a.includes('Keep going'));const fn=a.slice(a.indexOf('function discardWorkout'),a.indexOf('function complete('));assert.ok(fn.includes('stopTimer()')&&!/sessions|save\(/.test(fn))});
 t('manifest version in sync with SW cache',()=>{const fs=require('fs');const m=JSON.parse(fs.readFileSync(__dirname+'/manifest.webmanifest','utf8'));const c=fs.readFileSync(__dirname+'/sw.js','utf8').match(/wills-body-v(\d+)/)[1];
   assert.match(m.version,/^1\.\d+\.\d+$/);assert.equal(m.version.split('.')[1],c)});
 t('index.html has inline splash skeleton',()=>{const h=require('fs').readFileSync(__dirname+'/index.html','utf8');assert.ok(h.includes('<style>')&&h.includes('class="sk')&&h.includes('id="ver"'))});
