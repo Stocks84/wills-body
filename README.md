@@ -42,7 +42,10 @@ One consistent set of inline SVG stroke icons (24×24, `currentColor`) replaces 
 <img src="docs/screenshots/icons.png" width="260" alt="Header and tab bar with line icons">
 
 ### Training logic and history
-- **Five tabs:** Arms, Chest & Back, Shoulders, Bodyweight, Equipment (cardio machines by level and minutes). At most 4 active exercises per tab.
+- **Five tabs:** Arms, Chest & Back, Shoulders, Bodyweight, Equipment (cardio machines by level and minutes). **No cap** on how many exercises are active — add or deactivate freely per session.
+- **Typed steppers:** tap − / + or type reps, distance, and weight directly (mobile-friendly `inputmode`; − no longer triggers pinch-to-zoom).
+- **Combined Rowing card** on Bodyweight: one entry for distance (m) and time (min). Older time/distance logs still show under that card.
+- **Exercise library:** per-tab "Exercise library" card to add custom exercises (name, unit, targets) and pull from built-in suggestions; stored offline in `localStorage`.
 - **Next-session plan** per exercise from its history: all target reps hit → +2.5 kg (or +1 rep/unit); a Tough set → repeat; two misses in a row → 5% deload.
 - **Plateau and stall detection** with suggestion cards (swap in a same-muscle alternative from an approved library, or dismiss).
 - **Deload reminder** after 6 training weeks, with a pre-filled −20% session (snooze or skip a cycle).
@@ -84,6 +87,8 @@ node rules.test.js
 
 ## Versioning
 The version lives in `manifest.webmanifest` and is shown in the app footer. Its middle number must match the `wills-body-vN` cache name in `sw.js` (a test enforces this), so each release refreshes the offline cache.
+
+**1.16.0** — typed steppers (no pinch-zoom on −), unlimited active exercises, combined Bodyweight Rowing (distance + time), and a per-tab exercise library. Screenshots for these UI bits not re-captured this release; existing gallery still shows timer/fold/theme.
 
 <details><summary>Import format</summary>
 

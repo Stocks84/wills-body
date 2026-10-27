@@ -163,3 +163,15 @@ html[data-shine=reduced] .toast{border-left-width:6px}
 button.danger{background:#b91c1c;color:#fff;border:1px solid #ef4444}
 html[data-shine=reduced] button.danger{background:#000;color:#ff6b6b;border:2px solid #ff6b6b}
 html[data-shine=reduced][data-theme=light] button.danger{background:#fff;color:#b00000;border-color:#b00000}
+
+/* steppers: typed input + no double-tap zoom on −/+ */
+button,.step button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.step .v{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.step .step-in{width:100%;max-width:140px;background:var(--input);color:var(--txt);border:1px solid var(--rim);border-radius:10px;font:inherit;font-size:26px;font-weight:800;text-align:center;padding:6px 4px;min-height:48px;-moz-appearance:textfield;appearance:textfield}
+.step .step-in::-webkit-outer-spin-button,.step .step-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.step .v small{display:block;font-size:13px;color:var(--mut);font-weight:500}
+.libcard .lib-add{display:grid;gap:8px;margin-top:8px}
+.libcard .lib-add label{display:grid;gap:4px}
+.libcard input[type=text],.libcard input[type=number],.libcard select{font:inherit;color:var(--txt);background:var(--input);border:1px solid var(--rim);border-radius:8px;padding:10px;width:100%}
+.libcard select{min-height:48px}
+.lib-list .row button{flex:0 0 auto}

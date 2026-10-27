@@ -28,9 +28,10 @@ t('assist: Good at top -> less assist',()=>assert.equal(R.nextPlan({...rr,assist
 t('machine step 5kg',()=>assert.equal(R.nextPlan({...rr,weightStep:5},[S('2026-09-28','r',25,[10,10,10])]).weight,30));
 t('null effort never increases on range',()=>assert.equal(R.nextPlan(rr,[S('2026-09-28','r',25,[10,10,10],null)]).action,'repeat'));
 const rt=['a','b','c','d'].map(id=>({id,name:id.toUpperCase(),targetSets:3,targetReps:10,unit:'kg'}));
-t('accept at cap swaps flagged one',()=>{const r=R.acceptSuggestion(rt,{exerciseId:'b'},{id:'ex-x',name:'X',targetSets:3,targetReps:10,unit:'kg'});assert.equal(R.activeSlots(r),4);assert.equal(r.find(x=>x.id==='b').active,false);assert.ok(r.find(x=>x.id==='ex-x'))});
-t('accept under cap adds',()=>{const r=R.acceptSuggestion(rt.slice(0,3),{exerciseId:'b'},{id:'ex-x',name:'X'});assert.equal(R.activeSlots(r),4)});
+t('accept always adds without deactivating',()=>{const r=R.acceptSuggestion(rt,{exerciseId:'b'},{id:'ex-x',name:'X',targetSets:3,targetReps:10,unit:'kg'});assert.equal(R.activeSlots(r),5);assert.ok(r.find(x=>x.id==='b').active!==false);assert.ok(r.find(x=>x.id==='ex-x'))});
+t('accept under four still adds',()=>{const r=R.acceptSuggestion(rt.slice(0,3),{exerciseId:'b'},{id:'ex-x',name:'X'});assert.equal(R.activeSlots(r),4)});
 t('group counts as one slot',()=>assert.equal(R.activeSlots([...rt.slice(0,3),{id:'t',group:'row'},{id:'m',group:'row'}]),4));
+t('no active cap: can go past 4',()=>{let r=rt.map(x=>({...x})); for(const n of ['e','f','g']) r=R.acceptSuggestion(r,{exerciseId:'a'},{id:'ex-'+n,name:n.toUpperCase()}); assert.equal(R.activeSlots(r),7); assert.ok(R.MAX_ACTIVE>4)});
 t('inactive excluded from suggestions',()=>assert.equal(R.suggestions('arms',[{...ex,active:false}],['01','03','05'].map(d=>S('2026-10-'+d,'c',10,[9,9,9])),[]).length,0));
 t('mergeSeed keeps local sessions, replaces seeded',()=>{const stored={routine:[],seedDates:['2026-09-01'],sessions:[{date:'2026-09-01',entries:[1,2,3,4,5]},{date:'2026-10-10',entries:[],local:true},{date:'2026-10-12',entries:[]}]};
   const m=R.mergeSeed(stored,{seedVersion:2,routine:[],sessions:[{date:'2026-09-01',entries:[1,2,3,4]}]});assert.equal(m.sessions.length,3);assert.equal(m.sessions[0].entries.length,4);assert.equal(m.seedVersion,2)});
@@ -42,7 +43,7 @@ t('stall: <3 sessions -> no',()=>assert.ok(!R.isStalled(ex,[S('2026-10-01','c',1
 t('alternatives: library first, same muscle',()=>{const a=R.alternatives('arms',{name:'Seated DB Hammer Curls'},[],[]);assert.deepEqual(a.map(x=>x.name),['Incline dumbbell curls'])});
 t('alternatives: fallback when library has none',()=>{const a=R.alternatives('chest-back',{name:'Face Pulls'},[],[]);assert.ok(a.length>=2&&a.every(x=>x.source==='alternative'))});
 t('alternatives: back gets 2 library picks',()=>assert.equal(R.alternatives('chest-back',{name:'T-Bar Row'},[],[]).length,2));
-t('swap keeps cap',()=>{const r=R.swapExercise(rt,'b',{name:'Lat pulldown'});assert.equal(R.activeSlots(r),4);assert.equal(r.find(x=>x.id==='b').active,false)});
+t('swap deactivates old, activates new',()=>{const r=R.swapExercise(rt,'b',{name:'Lat pulldown'});assert.equal(R.activeSlots(r),4);assert.equal(r.find(x=>x.id==='b').active,false);assert.ok(r.find(x=>x.name==='Lat pulldown'||x.id==='ex-lat-pulldown'))});
 t('quick session + merge same date',()=>{const q=R.buildQuickSession('2026-10-16',[{exerciseId:'c',sets:3,reps:10,weight:12,effort:'Ok'},{exerciseId:'d',sets:0,reps:5}]);
   assert.equal(q.entries.length,1);assert.equal(q.entries[0].sets.length,3);const m=R.addSession([S('2026-10-16','c',10,[8])],q);assert.equal(m.length,1);assert.equal(m[0].entries[0].sets.length,4)});
 t('trend kg: weight+reps',()=>{const r=R.trendSeries(ex,[S('2026-10-01','c',10,[10,10,10]),S('2026-10-03','c',12.5,[8,8,8])]);assert.deepEqual(r.series[0].values,[10,12.5]);assert.deepEqual(r.series[1].values,[30,24])});
@@ -104,4 +105,27 @@ t('app wires discard X with confirm copy',()=>{const a=require('fs').readFileSyn
 t('manifest version in sync with SW cache',()=>{const fs=require('fs');const m=JSON.parse(fs.readFileSync(__dirname+'/manifest.webmanifest','utf8'));const c=fs.readFileSync(__dirname+'/sw.js','utf8').match(/wills-body-v(\d+)/)[1];
   assert.match(m.version,/^1\.\d+\.\d+$/);assert.equal(m.version.split('.')[1],c)});
 t('index.html has inline splash skeleton',()=>{const h=require('fs').readFileSync(__dirname+'/index.html','utf8');assert.ok(h.includes('<style>')&&h.includes('class="sk')&&h.includes('id="ver"'))});
+
+t('unitInfo rowing dual',()=>{const u=R.unitInfo('rowing');assert.equal(u.reps,'Distance m');assert.equal(u.weight,'Time min');assert.ok(u.hasWeight);assert.ok(u.dual)});
+t('fmtSet rowing',()=>assert.equal(R.fmtSet({reps:3847,weight:20},'rowing'),'3847 m · 20 min'));
+t('migrateCombinedRowing merges pair',()=>{const tab={routine:[{id:'ex-push-ups',name:'Push-ups'},{id:'ex-row-time',name:'Rowing (time)',targetReps:20,unit:'min',group:'rowing'},{id:'ex-row-distance',name:'Rowing (distance)',targetReps:3000,unit:'m',group:'rowing',noAutoProgress:true}],sessions:[]};
+  const m=R.migrateCombinedRowing(tab); assert.ok(!m.routine.some(r=>r.id==='ex-row-time'||r.id==='ex-row-distance'));
+  const row=m.routine.find(r=>r.id==='ex-rowing'); assert.ok(row); assert.equal(row.unit,'rowing'); assert.deepEqual(row.legacyIds,['ex-row-time','ex-row-distance']); assert.equal(row.targetWeight,20); assert.equal(row.targetReps,3000)});
+t('history merges legacy rowing on same date',()=>{const ex={id:'ex-rowing',unit:'rowing',legacyIds:['ex-row-time','ex-row-distance']};
+  const ss=[{date:'2026-02-23',entries:[{exerciseId:'ex-row-time',sets:[{reps:8,weight:0,effort:null}]},{exerciseId:'ex-row-distance',sets:[{reps:1542,weight:0,effort:null}]}]}];
+  const h=R.history(ex,ss); assert.equal(h.length,1); assert.equal(h[0].sets[0].reps,1542); assert.equal(h[0].sets[0].weight,8); assert.equal(h[0].totalReps,1542); assert.equal(h[0].weight,8)});
+t('trend rowing dual series',()=>{const ex={id:'ex-rowing',unit:'rowing',legacyIds:['ex-row-time','ex-row-distance']};
+  const ss=[{date:'2026-02-23',entries:[{exerciseId:'ex-row-time',sets:[{reps:8,weight:0}]},{exerciseId:'ex-row-distance',sets:[{reps:1542,weight:0}]}]}];
+  const tr=R.trendSeries(ex,ss); assert.deepEqual(tr.series.map(s=>s.label),['Distance (m)','Time (min)']); assert.deepEqual(tr.series[0].values,[1542]); assert.deepEqual(tr.series[1].values,[8])});
+t('custom library add/remove/routine',()=>{let lib=R.addLibraryEntry({},'arms','Spider curls'); assert.deepEqual(lib.arms,['Spider curls']);
+  lib=R.addLibraryEntry(lib,'arms','Spider curls'); assert.equal(lib.arms.length,1);
+  lib=R.removeLibraryEntry(lib,'arms','Spider curls'); assert.deepEqual(lib.arms,[]);
+  const ex=R.makeCustomExercise('Spider curls',{unit:'kg',targetSets:3,targetReps:10}); assert.equal(ex.id,'ex-spider-curls');
+  const r=R.addExerciseToRoutine([{id:'a',name:'A',active:true}],ex); assert.equal(R.activeSlots(r),2); assert.ok(r.find(x=>x.id==='ex-spider-curls').custom)});
+t('libraryFor merges custom',()=>assert.ok(R.libraryFor('arms',{arms:['Spider curls']}).includes('Spider curls')));
+t('app: typed steppers + no max-4 toast + library UI',()=>{const a=require('fs').readFileSync(__dirname+'/app.js','utf8');
+  assert.ok(a.includes('step-in')&&a.includes('inputmode=')&&a.includes('data-act="libadd"'));
+  assert.ok(!a.includes('Max 4 exercises')); assert.ok(a.includes('Exercise library')); assert.ok(a.includes('migrateCombinedRowing'));
+  assert.ok(require('fs').readFileSync(__dirname+'/styles.css','utf8').includes('touch-action:manipulation'))});
+
 console.log(`\n${n} tests passed`);

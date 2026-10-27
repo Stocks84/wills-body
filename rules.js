@@ -1,19 +1,32 @@
 // Pure rules: progression, plateau detection, streaks, CSV parsing. Works in browser (window.Rules) and Node (module.exports).
 (function(root){
 const round = (x, step) => Math.round(x / step) * step;
-function history(exId, sessions){ // chronological summaries for one exercise
+function exKey(exOrId){ return typeof exOrId==='string' ? {id:exOrId, legacyIds:[]} : {id:exOrId.id, legacyIds:exOrId.legacyIds||[]}; }
+function resolveSets(entries, id){ // prefer combined id; else merge legacy rowing time+distance into one set
+  const comb=(entries||[]).find(e=>e.exerciseId===id);
+  if(comb&&comb.sets&&comb.sets.length) return comb.sets;
+  const timeE=(entries||[]).find(e=>e.exerciseId==='ex-row-time');
+  const distE=(entries||[]).find(e=>e.exerciseId==='ex-row-distance');
+  if(timeE||distE){ const mins=timeE&&timeE.sets[0]?+timeE.sets[0].reps||0:0;
+    const metres=distE&&distE.sets[0]?+distE.sets[0].reps||0:0;
+    const effort=(timeE&&timeE.sets[0]&&timeE.sets[0].effort)||(distE&&distE.sets[0]&&distE.sets[0].effort)||null;
+    return [{reps:metres, weight:mins, effort}]; }
+  const first=(entries||[]).find(e=>e.sets&&e.sets.length); return first?first.sets:null; }
+function history(exOrId, sessions){ // chronological summaries; accepts id string or exercise with legacyIds
+  const {id, legacyIds}=exKey(exOrId), ids=new Set([id, ...legacyIds]);
   return [...sessions].filter(s=>!s.deload).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0)
-    .map(s=>{const e=(s.entries||[]).find(e=>e.exerciseId===exId); if(!e||!e.sets||!e.sets.length) return null;
-      const w=Math.max(...e.sets.map(x=>+x.weight||0)), reps=e.sets.reduce((a,x)=>a+(+x.reps||0),0);
-      return {date:s.date, sets:e.sets, weight:w, totalReps:reps, avgReps:reps/e.sets.length,
-        allOk:e.sets.every(x=>x.effort==='Ok'), tough:e.sets.some(x=>x.effort==='Tough')};}).filter(Boolean);
+    .map(s=>{const ents=(s.entries||[]).filter(e=>ids.has(e.exerciseId)); const sets=resolveSets(ents,id);
+      if(!sets||!sets.length) return null;
+      const w=Math.max(...sets.map(x=>+x.weight||0)), reps=sets.reduce((a,x)=>a+(+x.reps||0),0);
+      return {date:s.date, sets, weight:w, totalReps:reps, avgReps:reps/sets.length,
+        allOk:sets.every(x=>x.effort==='Ok'), tough:sets.some(x=>x.effort==='Tough')};}).filter(Boolean);
 }
 function hitTarget(h, ex){ return h.sets.length>=ex.targetSets && h.sets.every(x=>(+x.reps||0)>=ex.targetReps); }
 function nextPlan(ex, sessions){
-  const h=history(ex.id, sessions), last=h[h.length-1];
+  const h=history(ex, sessions), last=h[h.length-1];
   if(!last) return {sets:ex.targetSets, reps:ex.repMin||ex.targetReps, weight:ex.targetWeight||0, action:'start', note:'No sessions yet – pick a starting weight'};
   const kg=ex.unit==='kg', base={sets:ex.targetSets, reps:ex.targetReps, weight:last.weight};
-  if(ex.noAutoProgress) return {...base, reps:ex.targetReps, action:'repeat', note:'Tracked only – no auto progression'};
+  if(ex.noAutoProgress) return {...base, reps:last.totalReps||ex.targetReps, weight:last.weight, action:'repeat', note:'Tracked only – no auto progression'};
   if(ex.repMax){ // rep-range rule: top of range with Good effort -> add weight; otherwise hold weight, add reps
     const minR=Math.min(...last.sets.map(x=>+x.reps||0));
     if(kg && minR>=ex.repMax && last.sets.every(x=>x.effort==='Good')) return {...base, reps:ex.repMin||ex.repMax, weight:ex.assist?Math.max(0,round(last.weight-(ex.weightStep||2.5),0.5)):round(last.weight+(ex.weightStep||2.5),0.5), action:'increase', note:ex.assist?'Top of range with Good effort – reduce assist':'Top of range with Good effort – add weight'};
@@ -30,7 +43,7 @@ function nextPlan(ex, sessions){
   return {...base, action:'repeat', note:'Missed reps – repeat this weight'};
 }
 function detectPlateaus(ex, sessions){
-  const h=history(ex.id, sessions), out=[], n=h.length;
+  const h=history(ex, sessions), out=[], n=h.length;
   if(n>=2){const a=h[n-2], b=h[n-1]; if(b.weight>a.weight && b.avgReps<a.avgReps) out.push({type:'reps-drop', exerciseId:ex.id, reason:`${ex.name}: reps dropped after the weight jump to ${b.weight}`});}
   if(n>=3){const l=h.slice(-3);
     if(l.every(x=>x.weight===l[0].weight && x.totalReps===l[0].totalReps)) out.push({type:'stuck', exerciseId:ex.id, reason:`${ex.name}: same weight and reps for 3 sessions`});
@@ -60,22 +73,20 @@ function parseCSV(text){ // date,exercise,set,reps,weight,effort
 }
 const LIBRARY={arms:['Incline dumbbell curls','Cable rope pushdowns','Wrist curls'],'chest-back':['Machine chest fly','Single-arm dumbbell row','Lat pulldown'],
   shoulders:['Arnold press','Cable lateral raises','Rear delt flyes'],bodyweight:['Diamond push-ups','Bulgarian split squats','Towel rows']};
-const MAX_ACTIVE=4;
+const MAX_ACTIVE=Infinity; // no hard cap – activate as many as you want
 const isActive=r=>r.active!==false;
 function activeSlots(routine){ return new Set(routine.filter(isActive).map(r=>r.group||r.id)).size; }
-// Accept a library suggestion without exceeding MAX_ACTIVE: add, or swap out the flagged exercise (its whole group).
+// Accept a library suggestion: activate existing match, or append. Never auto-deactivates others.
 function acceptSuggestion(routine, sugg, newEx){
   const out=routine.map(r=>({...r})), have=out.find(r=>slug(r.name)===slug(newEx.name));
   if(have&&isActive(have)) return out;
-  if(activeSlots(out)>=MAX_ACTIVE){ const f=out.find(r=>r.id===sugg.exerciseId&&isActive(r)) || out.filter(isActive).slice(-1)[0];
-    const g=f.group||f.id; out.forEach(r=>{if((r.group||r.id)===g) r.active=false}); newEx={...newEx, replaces:f.id}; }
-  if(have){ Object.assign(have,{active:true}); if(newEx.replaces) have.replaces=newEx.replaces; } else out.push({...newEx});
+  if(have){ Object.assign(have,{active:true}); } else out.push({...newEx, active:true});
   return out;
 }
-function suggestions(tab, routine, sessions, dismissed){
+function suggestions(tab, routine, sessions, dismissed, custom){
   routine=routine.filter(isActive);
   const flags=routine.flatMap(ex=>detectPlateaus(ex,sessions)); if(!flags.length) return [];
-  const have=new Set(routine.map(r=>slug(r.name))); const pool=(LIBRARY[tab]||[]).filter(n=>!have.has(slug(n))&&!(dismissed||[]).includes(n));
+  const have=new Set(routine.map(r=>slug(r.name))); const pool=libraryFor(tab,custom).filter(n=>!have.has(slug(n))&&!(dismissed||[]).includes(n));
   const used=new Set(), byId=Object.fromEntries(routine.map(r=>[r.id,r]));
   return flags.map(f=>{const m=muscleOf((byId[f.exerciseId]||{}).name), pick=pool.find(n=>!used.has(n)&&LIB_MUSCLE[n]===m);
     if(!pick) return null; used.add(pick); return {...f, exercise:pick};}).filter(Boolean);
@@ -90,13 +101,13 @@ function mergeSeed(stored, seed){
   const localDates=new Set(local.map(s=>s.date));
   const sessions=[...seeded.filter(s=>!localDates.has(s.date)), ...local].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
   let routine=(seed.routine||[]).map(r=>({...r}));
-  for(const r of stored.routine||[]) if(!routine.some(x=>x.id===r.id)) routine.push({...r, active: activeSlots(routine)<MAX_ACTIVE && isActive(r) ? r.active : false});
+  for(const r of stored.routine||[]) if(!routine.some(x=>x.id===r.id)) routine.push({...r});
   return {...stored, _example:!!seed._example, routine, sessions, seedVersion:seed.seedVersion||1, seedDates:[...seedDates]};
 }
 // Stall rule: last 3+ consecutive logged sessions of an exercise where neither top weight nor total reps
 // went up from one session to the next (each session <= previous on both).
 function isStalled(ex, sessions, n=3){
-  const h=history(ex.id,sessions); if(h.length<n) return false; const l=h.slice(-n);
+  const h=history(ex,sessions); if(h.length<n) return false; const l=h.slice(-n);
   for(let i=1;i<l.length;i++) if(l[i].weight>l[i-1].weight || l[i].totalReps>l[i-1].totalReps) return false;
   return true;
 }
@@ -120,20 +131,20 @@ function muscleOf(name){ const n=String(name).toLowerCase();
   if(/squat|leg|calf|lunge|abductor/.test(n)) return 'legs';
   if(/abs|plank|core|back strength/.test(n)) return 'core';
   return null; }
-function alternatives(tab, ex, routine, dismissed, max=3){
+function alternatives(tab, ex, routine, dismissed, max=3, custom){
   const m=muscleOf(ex.name); if(!m) return [];
   const taken=new Set(routine.filter(isActive).map(r=>slug(r.name))), skip=new Set((dismissed||[]).map(slug));
   const ok=n=>!taken.has(slug(n))&&!skip.has(slug(n))&&slug(n)!==slug(ex.name);
-  const lib=(LIBRARY[tab]||[]).filter(n=>LIB_MUSCLE[n]===m&&ok(n)).map(name=>({name,source:'library'}));
+  const lib=libraryFor(tab,custom).filter(n=>(LIB_MUSCLE[n]===m||!LIB_MUSCLE[n])&&ok(n)).map(name=>({name,source:'library'}));
   const fb=lib.length?[]:(FALLBACK[m]||[]).filter(ok).map(name=>({name,source:'alternative'}));
   return [...lib,...fb].slice(0,max);
 }
-function plateauCards(tab, routine, sessions, dismissed){
+function plateauCards(tab, routine, sessions, dismissed, custom){
   return routine.filter(isActive).filter(ex=>!ex.noAutoProgress&&isStalled(ex,sessions))
-    .map(ex=>({exerciseId:ex.id,name:ex.name,reason:`${ex.name}: no increase in weight or total reps for 3 sessions`,alternatives:alternatives(tab,ex,routine,dismissed)}))
+    .map(ex=>({exerciseId:ex.id,name:ex.name,reason:`${ex.name}: no increase in weight or total reps for 3 sessions`,alternatives:alternatives(tab,ex,routine,dismissed,3,custom)}))
     .filter(c=>c.alternatives.length);
 }
-// Always replace (keeps cap): old exercise (and its group) goes inactive, new one takes its slot.
+// Always replace: old exercise (and its group) goes inactive, new one takes its slot.
 function swapExercise(routine, oldId, newEx){
   const out=routine.map(r=>({...r})), old=out.find(r=>r.id===oldId); if(!old) return out;
   const g=old.group||old.id; out.forEach(r=>{if((r.group||r.id)===g) r.active=false});
@@ -154,9 +165,10 @@ function buildQuickSession(date, items, notes){
 }
 // Trend series for sparklines: kg -> weight + reps; bodyweight -> reps; min -> minutes; m -> metres
 function trendSeries(ex, sessions){
-  const h=history(ex.id,sessions), dates=h.map(x=>x.date);
+  const h=history(ex,sessions), dates=h.map(x=>x.date);
   if(ex.unit==='kg') return {dates, series:[{label:'Top weight (kg)',values:h.map(x=>x.weight)},{label:'Total reps',values:h.map(x=>x.totalReps)}]};
   if(ex.unit==='level') return {dates, series:[{label:'Level',values:h.map(x=>x.weight)},{label:'Minutes',values:h.map(x=>x.totalReps)}]};
+  if(ex.unit==='rowing') return {dates, series:[{label:'Distance (m)',values:h.map(x=>x.totalReps)},{label:'Time (min)',values:h.map(x=>x.weight)}]};
   const label=ex.unit==='min'?'Minutes':ex.unit==='m'?'Metres':'Total reps';
   return {dates, series:[{label,values:h.map(x=>x.totalReps)}]};
 }
@@ -179,23 +191,25 @@ function unitInfo(unit){
     case 'level': return {reps:'Min', weight:'Level', wStep:1, short:'min', hasWeight:true, strength:false};
     case 'min': return {reps:'Min', weight:null, wStep:0, short:'min', hasWeight:false, strength:false};
     case 'm': return {reps:'Metres', weight:null, wStep:0, short:'m', hasWeight:false, strength:false};
+    case 'rowing': return {reps:'Distance m', weight:'Time min', wStep:1, short:'m', hasWeight:true, strength:false, dual:true};
     default: return {reps:'Reps', weight:null, wStep:0, short:'', hasWeight:false, strength:false};
   }
 }
 function fmtSet(x, unit){ const u=unitInfo(unit);
   if(unit==='kg') return `${x.reps} × ${x.weight}kg`; if(unit==='level') return `${x.reps} min @ L${x.weight}`;
+  if(unit==='rowing') return `${x.reps} m · ${x.weight} min`;
   return `${x.reps}${u.short?' '+u.short:''}`; }
 // "Last time" values for quick log
-function lastValues(ex, sessions){ const h=history(ex.id,sessions), l=h[h.length-1]; if(!l) return null;
+function lastValues(ex, sessions){ const h=history(ex,sessions), l=h[h.length-1]; if(!l) return null;
   return {date:l.date, sets:l.sets.length, reps:+l.sets[0].reps||0, weight:unitInfo(ex.unit).hasWeight?l.weight:0}; }
 // Brzycki e1RM; only kg exercises, reps 1..12, weight>0
 function brzycki(w, r){ return (r>=1&&r<=12&&w>0) ? Math.round(w*36/(37-r)*10)/10 : null; }
 function e1rmSeries(ex, sessions){ if(ex.unit!=='kg') return null;
-  const pts=history(ex.id,sessions).map(h=>({date:h.date,v:Math.max(-1,...h.sets.map(x=>brzycki(+x.weight,+x.reps)??-1))})).filter(p=>p.v>0);
+  const pts=history(ex,sessions).map(h=>({date:h.date,v:Math.max(-1,...h.sets.map(x=>brzycki(+x.weight,+x.reps)??-1))})).filter(p=>p.v>0);
   return pts.length?pts:null; }
 // New records vs all sessions before this one (excluding same date). First-ever log is not a record.
 function detectRecords(ex, priorSessions, sets){
-  const prior=history(ex.id,priorSessions); if(!prior.length||!sets.length) return [];
+  const prior=history(ex,priorSessions); if(!prior.length||!sets.length) return [];
   const all=prior.flatMap(p=>p.sets), u=unitInfo(ex.unit), out=[];
   const mx=(arr,f)=>Math.max(0,...arr.map(f));
   const pw=mx(all,x=>+x.weight||0), nw=mx(sets,x=>+x.weight||0);
@@ -219,7 +233,7 @@ function weeklyReport(tabs, date){
   for(const [k,t] of Object.entries(tabs)){ for(const s of t.sessions||[]){ if(s.date<start||s.date>end) continue;
     r.sessions++; r.byTab[k]=(r.byTab[k]||0)+1;
     for(const e of s.entries){const ex=(t.routine||[]).find(x=>x.id===e.exerciseId)||{unit:'kg'};
-      for(const x of e.sets){r.sets++; if(ex.unit==='kg') r.volume+=(+x.weight||0)*(+x.reps||0); if(ex.unit==='min'||ex.unit==='level') r.minutes+=+x.reps||0;}}
+      for(const x of e.sets){r.sets++; if(ex.unit==='kg') r.volume+=(+x.weight||0)*(+x.reps||0); if(ex.unit==='min'||ex.unit==='level') r.minutes+=+x.reps||0; if(ex.unit==='rowing') r.minutes+=+x.weight||0;}}
     for(const rec of s.records||[]) r.records.push({...rec,tab:k,date:s.date});}}
   r.volume=Math.round(r.volume*10)/10; return r;
 }
@@ -250,7 +264,7 @@ function weekStrip(tabs, order, date){ const {start,end}=weekBounds(date);
   return order.map(k=>{const t=tabs[k]||{sessions:[],routine:[]};let sessions=0,volume=0,minutes=0;
     for(const s of t.sessions||[]){ if(s.date<start||s.date>end) continue; sessions++;
       for(const e of s.entries){const ex=(t.routine||[]).find(x=>x.id===e.exerciseId)||{unit:'kg'};
-        for(const x of e.sets){ if(ex.unit==='kg') volume+=(+x.weight||0)*(+x.reps||0); if(ex.unit==='min'||ex.unit==='level') minutes+=+x.reps||0; }}}
+        for(const x of e.sets){ if(ex.unit==='kg') volume+=(+x.weight||0)*(+x.reps||0); if(ex.unit==='min'||ex.unit==='level') minutes+=+x.reps||0; if(ex.unit==='rowing') minutes+=+x.weight||0; }}}
     return {tab:k,sessions,volume:Math.round(volume*10)/10,minutes,neglected:sessions===0};}); }
 // Plain-text session for pasting into a chat
 function fmtNum(n){ return String(Math.round(n*100)/100); }
@@ -260,7 +274,8 @@ function sessionText(tabLabel, routine, session){
     const groups=[]; for(const x of e.sets){const g=groups[groups.length-1]; if(g&&g.w===(+x.weight||0)) g.r.push(x.reps); else groups.push({w:+x.weight||0,r:[x.reps]});}
     const suf=ex.unit==='min'||ex.unit==='level'?' min':ex.unit==='m'?' m':'';
     const body=groups.map(g=>{const reps=g.r.join(', ')+suf;
-      if(ex.unit==='kg') return `${fmtNum(g.w)}kg x ${reps}`; if(ex.unit==='level') return `Level ${fmtNum(g.w)} x ${reps}`; return reps;}).join('; ');
+      if(ex.unit==='kg') return `${fmtNum(g.w)}kg x ${reps}`; if(ex.unit==='level') return `Level ${fmtNum(g.w)} x ${reps}`;
+      if(ex.unit==='rowing') return `${g.r.join(', ')} m · ${fmtNum(g.w)} min`; return reps;}).join('; ');
     const eff=[...new Set(e.sets.map(x=>x.effort).filter(Boolean))];
     lines.push(`${ex.name}: ${body}${eff.length?' ('+eff.join('/')+')':''}`); }
   if(session.notes) lines.push(`Notes: ${session.notes}`);
@@ -285,8 +300,53 @@ function deloadPrefill(ex, sessions, pct=0.2){
   if(u.hasWeight&&l.weight>0) return {sets:l.sets, reps:l.reps, weight:Math.max(0,roundStep(l.weight*(1-pct),u.wStep))};
   return {sets:l.sets, reps:Math.max(1,Math.round(l.reps*(1-pct))), weight:0};
 }
+
+// Combine Bodyweight "Rowing (time)" + "Rowing (distance)" into one card; keep legacy session entries readable via legacyIds.
+const ROW_TIME='ex-row-time', ROW_DIST='ex-row-distance', ROW_COMBINED='ex-rowing';
+const ROW_TEMPLATE={id:ROW_COMBINED,name:'Rowing',targetSets:1,targetReps:3847,targetWeight:20,unit:'rowing',noAutoProgress:true,legacyIds:[ROW_TIME,ROW_DIST]};
+function migrateCombinedRowing(tab){
+  if(!tab||!Array.isArray(tab.routine)) return tab;
+  const oldT=tab.routine.find(r=>r.id===ROW_TIME), oldD=tab.routine.find(r=>r.id===ROW_DIST);
+  const hasOld=!!(oldT||oldD), hasNew=tab.routine.some(r=>r.id===ROW_COMBINED);
+  if(!hasOld&&hasNew){ // ensure legacyIds present
+    return {...tab, routine:tab.routine.map(r=>r.id===ROW_COMBINED?{...r,legacyIds:r.legacyIds||[ROW_TIME,ROW_DIST],unit:r.unit||'rowing'}:r)}; }
+  if(!hasOld) return tab;
+  const wasActive=[oldT,oldD].some(r=>r&&isActive(r));
+  const idx=Math.max(0, tab.routine.findIndex(r=>r.id===ROW_TIME||r.id===ROW_DIST));
+  let routine=tab.routine.filter(r=>r.id!==ROW_TIME&&r.id!==ROW_DIST);
+  if(!routine.some(r=>r.id===ROW_COMBINED)){
+    const combined={...ROW_TEMPLATE,
+      targetReps:oldD&&oldD.targetReps!=null?oldD.targetReps:ROW_TEMPLATE.targetReps,
+      targetWeight:oldT&&oldT.targetReps!=null?oldT.targetReps:ROW_TEMPLATE.targetWeight,
+      active:wasActive};
+    routine=[...routine.slice(0,idx), combined, ...routine.slice(idx)];
+  } else routine=routine.map(r=>r.id===ROW_COMBINED?{...r,legacyIds:[ROW_TIME,ROW_DIST],unit:'rowing',active:r.active!==false?r.active:wasActive}:r);
+  return {...tab, routine};
+}
+// Custom exercise library (per-tab names the user adds); merged with built-in LIBRARY for suggestions.
+function libraryFor(tab, custom){ const base=LIBRARY[tab]||[], extra=(custom&&custom[tab])||[];
+  const seen=new Set(base.map(slug)); return [...base, ...extra.filter(n=>n&&!seen.has(slug(n)))]; }
+function addLibraryEntry(custom, tab, name){
+  const n=String(name||'').trim(); if(!n) return custom||{};
+  const out={...(custom||{})}; const list=[...(out[tab]||[])];
+  if(list.some(x=>slug(x)===slug(n))||(LIBRARY[tab]||[]).some(x=>slug(x)===slug(n))) return out;
+  out[tab]=[...list,n]; return out;
+}
+function removeLibraryEntry(custom, tab, name){
+  const out={...(custom||{})}; out[tab]=(out[tab]||[]).filter(x=>slug(x)!==slug(name)); return out;
+}
+function makeCustomExercise(name, opts={}){
+  const unit=opts.unit||'kg', id='ex-'+slug(name);
+  return {id, name:String(name).trim(), targetSets:opts.targetSets||3, targetReps:opts.targetReps||(unit==='bodyweight'?12:10),
+    unit, active:true, custom:true, ...(opts.noAutoProgress?{noAutoProgress:true}:{})};
+}
+function addExerciseToRoutine(routine, ex){
+  const out=routine.map(r=>({...r})), have=out.find(r=>r.id===ex.id||slug(r.name)===slug(ex.name));
+  if(have){ Object.assign(have,{active:true, name:ex.name, unit:ex.unit||have.unit}); return out; }
+  out.push({...ex, active:true}); return out;
+}
 // Discard an unsaved draft: returns fresh draft/notes; never reads or writes sessions
 function discardDraft(draft,notes,tab){const n={...(notes||{})};delete n[tab];return {draft:{},notes:n};}
-const api={discardDraft,history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,draftSetCount,deloadStatus,deloadPrefill,roundStep,recentLast,weekStrip,sessionText};
+const api={discardDraft,history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,draftSetCount,deloadStatus,deloadPrefill,roundStep,recentLast,weekStrip,sessionText,migrateCombinedRowing,libraryFor,addLibraryEntry,removeLibraryEntry,makeCustomExercise,addExerciseToRoutine,exKey,resolveSets,ROW_COMBINED,ROW_TIME,ROW_DIST};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);

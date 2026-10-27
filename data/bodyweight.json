@@ -1,6 +1,6 @@
 {
   "source": "Bodyweight + rowing spreadsheet (xlsx, Sessions sheet)",
-  "targetsNote": "Sheet has no explicit targets; targets = latest logged numbers (2026-09-04). Effort not recorded (null).",
+  "targetsNote": "Sheet has no explicit targets; targets = latest logged numbers (2026-09-04). Effort not recorded (null). Rowing time+distance merged into one exercise (unit=rowing: reps=metres, weight=minutes); legacy session ids kept.",
   "routine": [
     {
       "id": "ex-push-ups",
@@ -24,21 +24,17 @@
       "unit": "bodyweight"
     },
     {
-      "id": "ex-row-time",
-      "name": "Rowing (time)",
-      "targetSets": 1,
-      "targetReps": 20,
-      "unit": "min",
-      "group": "rowing"
-    },
-    {
-      "id": "ex-row-distance",
-      "name": "Rowing (distance)",
+      "id": "ex-rowing",
+      "name": "Rowing",
       "targetSets": 1,
       "targetReps": 3847,
-      "unit": "m",
+      "targetWeight": 20,
+      "unit": "rowing",
       "noAutoProgress": true,
-      "group": "rowing"
+      "legacyIds": [
+        "ex-row-time",
+        "ex-row-distance"
+      ]
     },
     {
       "id": "ex-back-strength",
@@ -2390,5 +2386,5 @@
       ]
     }
   ],
-  "seedVersion": 3
+  "seedVersion": 4
 }

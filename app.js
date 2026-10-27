@@ -57,7 +57,7 @@ async function load(){
   for(const [k] of TABS){ if(S.tabs[k]) continue; let d={routine:[],sessions:[]};
     try{d=await (await fetch('data/'+k+'.json',{cache:'no-cache'})).json()}catch(e){}
     S.tabs[k]={_example:!!d._example,routine:d.routine||[],sessions:d.sessions||[],plans:[],dismissed:[],seedVersion:d.seedVersion||1,seedDates:(d.sessions||[]).map(s=>s.date)}; save(); }
-  S.weeklyTarget=S.weeklyTarget||3; S.statsWindow=S.statsWindow||30;
+  S.weeklyTarget=S.weeklyTarget||3; S.statsWindow=S.statsWindow||30; S.customLibrary=S.customLibrary||{};
   // Seed-version migration: replace seeded sessions with newer seed, keep phone-logged sessions
   for(const [k] of TABS){const t=S.tabs[k];if(!t)continue;
     try{const d=await (await fetch('data/'+k+'.json',{cache:'no-cache'})).json();
@@ -66,9 +66,12 @@ async function load(){
   for(const [k] of TABS){const t=S.tabs[k];if(!t||!t._example||t.sessions.length)continue;
     try{const d=await (await fetch('data/'+k+'.json',{cache:'no-cache'})).json();
       if(!d._example){S.tabs[k]={_example:false,routine:d.routine||[],sessions:d.sessions||[],plans:[],dismissed:t.dismissed||[],seedVersion:d.seedVersion||1,seedDates:(d.sessions||[]).map(s=>s.date)};save();}}catch(e){}}
+  // Combine Bodyweight rowing time+distance into one card (legacy session ids kept via legacyIds)
+  for(const [k] of TABS){const t=S.tabs[k];if(!t)continue; const m=Rules.migrateCombinedRowing(t);
+    if(m!==t && JSON.stringify(m.routine)!==JSON.stringify(t.routine)){S.tabs[k]=m;save();}}
 }
 const U=Rules.unitInfo;
-const fmtPlan=(p,u)=>u==='kg'?`${p.sets}×${p.reps} @ ${p.weight}kg`:u==='level'?`${p.sets}× ${p.reps} min @ L${p.weight}`:`${p.sets}×${p.reps}${U(u).short?' '+U(u).short:''}`;
+const fmtPlan=(p,u)=>u==='kg'?`${p.sets}×${p.reps} @ ${p.weight}kg`:u==='level'?`${p.sets}× ${p.reps} min @ L${p.weight}`:u==='rowing'?`${p.sets}× ${p.reps} m · ${p.weight} min`:`${p.sets}×${p.reps}${U(u).short?' '+U(u).short:''}`;
 function fmtSets(sets,u){return sets.map(x=>`<span class="chip">${Rules.fmtSet(x,u)}${x.effort?' · '+x.effort:''}</span>`).join('')}
 function render(){
   const T=S.tabs[cur], allDates=Object.values(S.tabs).flatMap(t=>t.sessions.map(s=>s.date));
@@ -78,7 +81,7 @@ function render(){
   $('#tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${k===cur}" data-tab="${k}">${tabBtn(k,l)}</button>`).join('');
   let h='';
   const lastS=T.sessions[T.sessions.length-1], tabLabel=TABS.find(t=>t[0]===cur)[1];
-  h+=`<div class="tabhead"><h2>${tabLabel}</h2><div class="mut">${Rules.activeSlots(T.routine)}/${Rules.MAX_ACTIVE} active · ${T.sessions.length} sessions · last ${lastS?lastS.date:'—'}</div></div>`;
+  h+=`<div class="tabhead"><h2>${tabLabel}</h2><div class="mut">${Rules.activeSlots(T.routine)} active · ${T.sessions.length} sessions · last ${lastS?lastS.date:'—'}</div></div>`;
   h+=`<div class="strip" aria-label="This week per tab">${Rules.weekStrip(S.tabs,TABS.map(t=>t[0]),today()).map(c=>{const l=TABS.find(t=>t[0]===c.tab)[1];
     return `<button data-tab="${c.tab}" aria-label="${l}" class="cell ${c.neglected?'neglected':'lvl'+Math.min(3,c.sessions)} ${c.tab===cur?'cur':''}" title="${l}: ${c.sessions} sessions, ${c.volume} kg, ${c.minutes} min"><span>${SHY[l]||l}</span><b>${c.sessions}</b><small>${c.neglected?'neglected':c.volume?Math.round(c.volume)+' kg':c.minutes?c.minutes+' min':'done'}</small></button>`}).join('')}</div>`;
   h+=`<button class="ghost" data-act="copy" style="width:100%;margin:4px 0">${ic('copy')} Copy session</button>`;
@@ -92,12 +95,12 @@ function render(){
   const nDraft=Rules.draftSetCount(draft);
   if(nDraft) h+=`<div class="inprog"><div><b>Workout in progress · ${nDraft} set${nDraft>1?'s':''}</b><div class="help">Finish saves your workout and sets next time's targets.</div></div><button class="ghost iconbtn inprog-x" data-act="discard" aria-label="Discard workout" title="Discard workout">${ic('x')}</button><button class="primary" data-act="complete">${ic('check')} Finish workout</button></div>`;
   else h+=`<button class="primary" data-act="quick" style="margin:8px 0">${ic('play')} Start workout</button><div class="help">Pick a block, log your sets, then Finish.</div>`;
-  for(const c of Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed))
+  for(const c of Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed,S.customLibrary))
     h+=`<div class="card sugg"><h3>${ic('swap')} Time to change this exercise</h3><div class="mut">${esc(c.reason)}</div>${c.alternatives.map(x=>`<div class="row" style="margin-top:8px"><span>${esc(x.name)}${x.source==='library'?'':' <span class=mut>(alt)</span>'}</span><button data-act="swap" data-from="${c.exerciseId}" data-n="${esc(x.name)}">Swap in</button><button class="ghost" data-act="dismiss" data-n="${esc(x.name)}" aria-label="Dismiss">${ic('x')}</button></div>`).join('')}</div>`;
   const stalledIds=new Set(Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed).map(c=>c.exerciseId));
-  for(const s of Rules.suggestions(cur,T.routine,T.sessions,T.dismissed).filter(s=>!stalledIds.has(s.exerciseId)))
+  for(const s of Rules.suggestions(cur,T.routine,T.sessions,T.dismissed,S.customLibrary).filter(s=>!stalledIds.has(s.exerciseId)))
     h+=`<div class="card sugg"><h3>${ic('bulb')} Try ${esc(s.exercise)}</h3><div class="mut">${esc(s.reason)}</div><div class="row" style="margin-top:8px">
-      <button data-act="up" data-n="${esc(s.exercise)}" data-from="${s.exerciseId}">${ic('plus')} ${Rules.activeSlots(T.routine)>=Rules.MAX_ACTIVE?'Swap in':'Add'}</button><button data-act="dismiss" data-n="${esc(s.exercise)}">${ic('x')} Dismiss</button></div></div>`;
+      <button data-act="up" data-n="${esc(s.exercise)}" data-from="${s.exerciseId}">${ic('plus')} Add</button><button data-act="dismiss" data-n="${esc(s.exercise)}">${ic('x')} Dismiss</button></div></div>`;
   const snap=T.plans[T.plans.length-1];
   if(snap) h+=`<div class="card"><h3>Saved plan for next session</h3><div class="mut">Snapshot from ${snap.date}</div>${snap.items.map(i=>`<div>${esc(i.name)}: <span class="plan">${fmtPlan(i,i.unit)}</span></div>`).join('')}</div>`;
   for(const ex of T.routine.filter(Rules.isActive)){
@@ -123,18 +126,41 @@ function render(){
       <div class="sets">${fmtSets(d.sets,ex.unit)}${d.sets.length?`<button data-act="undo" data-ex="${ex.id}">Undo</button>`:''}</div></div>`;
   }
   const inactive=T.routine.filter(r=>!Rules.isActive(r));
-  if(inactive.length) h+=`<details class="card"><summary>Inactive / optional (${inactive.length}) – max 4 active</summary>${inactive.map(r=>`<div class="row" style="margin-top:6px"><span>${esc(r.name)}</span><button class="ghost" data-act="toggle" data-ex="${r.id}">Activate</button></div>`).join('')}</details>`;
+  if(inactive.length) h+=`<details class="card"><summary>Inactive / optional (${inactive.length})</summary>${inactive.map(r=>`<div class="row" style="margin-top:6px"><span>${esc(r.name)}</span><button class="ghost" data-act="toggle" data-ex="${r.id}">Activate</button></div>`).join('')}</details>`;
   const any=T.routine.some(r=>draft[r.id]&&draft[r.id].sets.length);
   if(any) h+=`<label class="mut" style="display:block;margin:8px 0">Workout notes (optional)<textarea id="sessNotes" rows="2" style="min-height:64px">${esc(draftNotes[cur]||'')}</textarea></label>`;
+  h+=libraryCard(T);
   h+=`<div class="row" style="margin:12px 0"><button class="ghost" data-act="import">Import log</button></div>`;
   const hist=[...T.sessions].reverse();
-  if(hist.length) h+=`<details class="card"><summary>Session history (${hist.length})</summary>${hist.map(s=>`<div class="hist"><b>${s.date}</b>${s.label?' · '+esc(s.label):''}<div class="mut">${s.entries.map(e=>{const r=T.routine.find(x=>x.id===e.exerciseId);return esc(r?r.name:e.exerciseId)+' '+e.sets.length+'×'+(e.sets[0]?e.sets[0].reps:'')+(e.sets[0]&&e.sets[0].weight?' @'+e.sets[0].weight+'kg':'')}).join(' · ')}</div>${s.notes?`<div class="note">${ic('note')} ${esc(s.notes)}</div>`:''}</div>`).join('')}</details>`;
+  if(hist.length) h+=`<details class="card"><summary>Session history (${hist.length})</summary>${hist.map(s=>`<div class="hist"><b>${s.date}</b>${s.label?' · '+esc(s.label):''}<div class="mut">${s.entries.map(e=>{const r=T.routine.find(x=>x.id===e.exerciseId)||T.routine.find(x=>(x.legacyIds||[]).includes(e.exerciseId)); const nm=r?r.name:(e.exerciseId==='ex-row-time'||e.exerciseId==='ex-row-distance'?'Rowing':e.exerciseId); return esc(nm)+' '+e.sets.length+'×'+(e.sets[0]?e.sets[0].reps:'')+(e.sets[0]&&e.sets[0].weight?' @'+e.sets[0].weight+(r&&r.unit==='rowing'?' min':'kg'):'')}).join(' · ')}</div>${s.notes?`<div class="note">${ic('note')} ${esc(s.notes)}</div>`:''}</div>`).join('')}</details>`;
   $('#main').innerHTML=h;
   if(celebrate){celebrate=false;confetti();}
   if(focusAfter){const f=document.querySelector(focusAfter);focusAfter=null;if(f)f.focus({preventScroll:true});}
   const sn=$('#sessNotes'); if(sn) sn.oninput=()=>{draftNotes[cur]=sn.value};
 }
-function stepper(id,f,label,v){return `<div class="step"><button data-act="dec" data-ex="${id}" data-f="${f}" aria-label="less ${label}">−</button><div class="v">${v}<small>${label}</small></div><button data-act="inc" data-ex="${id}" data-f="${f}" aria-label="more ${label}">+</button></div>`}
+function stepper(id,f,label,v){const mode=f==='weight'||f==='reps'?'decimal':'numeric';const min=f==='weight'?0:1;
+  return `<div class="step"><button type="button" data-act="dec" data-ex="${id}" data-f="${f}" aria-label="less ${label}">−</button><div class="v"><input class="step-in" type="number" inputmode="${mode}" min="${min}" step="any" data-ex="${id}" data-f="${f}" value="${v}" aria-label="${label}"><small>${label}</small></div><button type="button" data-act="inc" data-ex="${id}" data-f="${f}" aria-label="more ${label}">+</button></div>`}
+function clampField(f, raw){ const n=Number(raw); if(!Number.isFinite(n)) return f==='weight'?0:1;
+  if(f==='weight') return Math.max(0, Math.round(n*10)/10); return Math.max(1, Math.round(n*10)/10); }
+function libraryCard(T){
+  const built=Rules.LIBRARY[cur]||[], custom=(S.customLibrary&&S.customLibrary[cur])||[];
+  const units=cur==='equipment'?[['level','Level + min'],['min','Minutes'],['m','Metres']]:cur==='bodyweight'?[['bodyweight','Reps'],['rowing','Rowing (m + min)'],['min','Minutes'],['m','Metres']]:[['kg','kg'],['bodyweight','Bodyweight'],['level','Level']];
+  return `<details class="card libcard"><summary>${ic('plus')} Exercise library</summary>
+    <div class="help">Add a custom exercise to this tab, or activate one from the built-in / saved library. No limit on how many are active.</div>
+    <div class="lib-add">
+      <label class="mut">Name<input type="text" id="libName" placeholder="e.g. Cable crunch" autocomplete="off"></label>
+      <label class="mut">Unit<select id="libUnit">${units.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
+      <div class="row"><label class="mut">Sets<input type="number" id="libSets" inputmode="numeric" min="1" value="3"></label>
+        <label class="mut">Target<input type="number" id="libReps" inputmode="decimal" min="1" value="${cur==='bodyweight'?12:10}"></label></div>
+      <button type="button" class="primary" data-act="libadd">${ic('plus')} Add to routine</button>
+    </div>
+    ${custom.length?`<div class="mut" style="margin-top:10px">Your library</div><div class="lib-list">${custom.map(n=>`<div class="row" style="margin-top:6px"><span>${esc(n)}</span>
+      <button type="button" class="ghost" data-act="libuse" data-n="${esc(n)}">Add</button>
+      <button type="button" class="ghost" data-act="librm" data-n="${esc(n)}" aria-label="Remove">${ic('x')}</button></div>`).join('')}</div>`:''}
+    ${built.length?`<div class="mut" style="margin-top:10px">Suggested</div><div class="lib-list">${built.map(n=>`<div class="row" style="margin-top:6px"><span>${esc(n)}</span>
+      <button type="button" class="ghost" data-act="libuse" data-n="${esc(n)}">Add</button></div>`).join('')}</div>`:''}
+  </details>`;
+}
 document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return; const T=S.tabs[cur];
   if(b.dataset.tab){cur=b.dataset.tab;localStorage.setItem(KEY+'.tab',cur);render();scrollTo(0,0);return}
@@ -156,13 +182,33 @@ document.addEventListener('click',e=>{
   else if(a==='dlskip'){S.deload=S.deload||{};S.deload[cur]={...(S.deload[cur]||{}),skippedOn:today()};save();}
   else if(a==='report'){openReport();return}
   else if(a==='repok'){S.reportDismissed=Rules.isoWeek(today());save();}
-  else if(a==='toggle'){const r=T.routine.find(r=>r.id===b.dataset.ex);if(r.active===false){if(Rules.activeSlots(T.routine)>=Rules.MAX_ACTIVE){toast('Max 4 exercises – deactivate one first');return}r.active=true;}else r.active=false;save();}
+  else if(a==='toggle'){const r=T.routine.find(r=>r.id===b.dataset.ex);if(r.active===false){r.active=true;}else r.active=false;save();}
   else if(a==='dismiss'){T.dismissed.push(b.dataset.n);save();}
   else if(a==='complete') complete();
   else if(a==='discard'){confirmDiscard();return}
   else if(a==='import') openImport();
+  else if(a==='libadd'){const name=($('#libName')&&$('#libName').value||'').trim(); if(!name){toast('Enter an exercise name');return;}
+    const unit=($('#libUnit')&&$('#libUnit').value)|| (cur==='bodyweight'?'bodyweight':cur==='equipment'?'level':'kg');
+    const sets=clampField('sets', $('#libSets')&&$('#libSets').value||3), reps=clampField('reps', $('#libReps')&&$('#libReps').value||10);
+    const ex=Rules.makeCustomExercise(name,{unit,targetSets:sets,targetReps:reps,noAutoProgress:unit==='rowing'||unit==='m'});
+    if(unit==='rowing'){ex.targetWeight=20;ex.legacyIds=[];}
+    T.routine=Rules.addExerciseToRoutine(T.routine,ex); S.customLibrary=Rules.addLibraryEntry(S.customLibrary,cur,name); save(); toast('Added '+name);}
+  else if(a==='libuse'){const n=b.dataset.n; const unit=cur==='bodyweight'?'bodyweight':cur==='equipment'?'level':'kg';
+    T.routine=Rules.addExerciseToRoutine(T.routine,Rules.makeCustomExercise(n,{unit})); save(); toast('Added '+n);}
+  else if(a==='librm'){S.customLibrary=Rules.removeLibraryEntry(S.customLibrary,cur,b.dataset.n); save(); toast('Removed from library');}
   else return; render();
 });
+// Typed stepper values (main cards): commit on change/blur; do not re-render on every keystroke
+document.addEventListener('change',e=>{
+  const inp=e.target.closest&&e.target.closest('input.step-in'); if(!inp||!inp.dataset.ex) return;
+  const T=S.tabs[cur], ex=T.routine.find(r=>r.id===inp.dataset.ex), d=draft[inp.dataset.ex]; if(!d||!ex) return;
+  d[inp.dataset.f]=clampField(inp.dataset.f, inp.value); render();
+});
+document.addEventListener('keydown',e=>{
+  const inp=e.target.closest&&e.target.closest('input.step-in'); if(!inp) return;
+  if(e.key==='Enter'){e.preventDefault(); inp.blur();}
+});
+
 // FEATURE · Discard workout: the X on the 'Workout in progress' banner opens a themed <dialog> confirm
 // ('Keep going' closes it, 'Discard' calls discardWorkout). Rules.discardDraft is pure and unit-tested.
 // Discard the in-progress workout: clears the unsaved draft + rest timer only; never touches saved history
@@ -205,7 +251,8 @@ function openQuick(opts={}){
   const dlg=$('#dlg'), Q={}, edited=new Set(), notes={}, deloadTabs=new Set(opts.deload?[opts.deload]:[]); let qb=opts.deload||cur;
   const build=k=>{const T=S.tabs[k];return T.routine.filter(Rules.isActive).map(ex=>{const p=Rules.nextPlan(ex,T.sessions);const it={ex,exerciseId:ex.id,sets:p.sets,reps:p.reps,weight:U(ex.unit).hasWeight?p.weight:0,effort:'Good',last:Rules.lastValues(ex,T.sessions)};
     if(deloadTabs.has(k)){const d=Rules.deloadPrefill(ex,T.sessions);if(d)Object.assign(it,d);}return it;})};
-  const qs=(k,f,l,v)=>`<div class="step"><button data-q="${k}" data-qf="${f}" data-qd="-1">−</button><div class="v">${v}<small>${l}</small></div><button data-q="${k}" data-qf="${f}" data-qd="1">+</button></div>`;
+  const qs=(k,f,l,v)=>{const mode=f==='weight'||f==='reps'?'decimal':'numeric';const min=f==='weight'?0:1;
+    return `<div class="step"><button type="button" data-q="${k}" data-qf="${f}" data-qd="-1" aria-label="less ${l}">−</button><div class="v"><input class="step-in" type="number" inputmode="${mode}" min="${min}" step="any" data-q="${k}" data-qf="${f}" value="${v}" aria-label="${l}"><small>${l}</small></div><button type="button" data-q="${k}" data-qf="${f}" data-qd="1" aria-label="more ${l}">+</button></div>`;};
   let date=today(), timerAfter=false;
   const draw=()=>{const q=Q[qb]||(Q[qb]=build(qb));
     const step=[...Object.values(Q)].some(q=>q.some(i=>i.touched))||Rules.draftSetCount(draft)?2:1;
@@ -225,9 +272,12 @@ function openQuick(opts={}){
     <div class="row"><button class="ghost" id="qCancel">Close</button><button class="primary" id="qSave">${ic('check')} Finish workout${edited.size>1?' ('+edited.size+' blocks)':''}</button></div>`;
     $('#qNotes').oninput=ev=>{notes[qb]=ev.target.value;if(ev.target.value.trim())edited.add(qb)};};
   draw();dlg.showModal();
+  dlg.onchange=ev=>{const inp=ev.target.closest&&ev.target.closest('input.step-in'); if(!inp||inp.dataset.q==null) return;
+    const i=Q[qb][+inp.dataset.q]; if(!i) return; date=$('#qDate').value||today();
+    i[inp.dataset.qf]=clampField(inp.dataset.qf, inp.value); i.touched=true; edited.add(qb); draw();};
   dlg.onclick=ev=>{const b=ev.target.closest('button');if(!b)return;ev.stopPropagation();
     date=$('#qDate').value||today();timerAfter=$('#qTimer').checked;
-    if(b.id==='qCancel'){dlg.close();dlg.onclick=null;return}
+    if(b.id==='qCancel'){dlg.close();dlg.onclick=null;dlg.onchange=null;return}
     if(b.dataset.qb){qb=b.dataset.qb;draw();return}
     if(b.dataset.qt==='start'){startTimer();draw();return}
     if(b.dataset.qt==='skip'){stopTimer();draw();return}
@@ -235,7 +285,7 @@ function openQuick(opts={}){
       if(Rules.draftSetCount(draft)){complete(true);n++;}
       for(const k of blocks){const T=S.tabs[k];const sess=Rules.buildQuickSession(date,Rules.touchedItems(Q[k]),notes[k]);if(!sess.entries.length)continue;if(deloadTabs.has(k))sess.deload=true;
         const recs=Rules.sessionRecords(T.routine,T.sessions,sess);T.sessions=Rules.addSession(T.sessions,sess);storeRecords(k,date,recs);T.plans.push({date,items:T.routine.filter(Rules.isActive).map(r=>({id:r.id,name:r.name,unit:r.unit,...Rules.nextPlan(r,T.sessions)}))});n++;}
-      if(!n)return;save();dlg.close();dlg.onclick=null;draft={};render();toast(n>1?n+' sessions saved':'Session saved');if(timerAfter)startTimer();return}
+      if(!n)return;save();dlg.close();dlg.onclick=null;dlg.onchange=null;draft={};render();toast(n>1?n+' sessions saved':'Session saved');if(timerAfter)startTimer();return}
     const i=Q[qb][+b.dataset.q];
     if(b.dataset.qdone){i.touched=!i.touched;if(i.touched)edited.add(qb);else if(!Q[qb].some(x=>x.touched)&&!(notes[qb]||'').trim())edited.delete(qb);draw();return}
     edited.add(qb);i.touched=true;if(b.dataset.qe)i.effort=b.dataset.qe;
