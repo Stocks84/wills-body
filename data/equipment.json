@@ -1,13 +1,15 @@
 {
-  "seedVersion": 1,
-  "note": "Cardio machines: weight = resistance/level, reps = minutes. No sessions logged yet.",
+  "seedVersion": 2,
+  "note": "Cardio: Rowing machine + Treadmill log metres + minutes (unit rowing). StepMaster and Bike stay Level + min.",
   "routine": [
     {
       "id": "ex-rowing-machine",
       "name": "Rowing machine",
       "targetSets": 1,
-      "targetReps": 10,
-      "unit": "level",
+      "targetReps": 2000,
+      "targetWeight": 20,
+      "unit": "rowing",
+      "noAutoProgress": true,
       "muscle": "cardio"
     },
     {
@@ -22,8 +24,10 @@
       "id": "ex-treadmill",
       "name": "Treadmill",
       "targetSets": 1,
-      "targetReps": 10,
-      "unit": "level",
+      "targetReps": 2000,
+      "targetWeight": 20,
+      "unit": "rowing",
+      "noAutoProgress": true,
       "muscle": "cardio"
     },
     {

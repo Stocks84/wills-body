@@ -42,9 +42,9 @@ One consistent set of inline SVG stroke icons (24×24, `currentColor`) replaces 
 <img src="docs/screenshots/icons.png" width="260" alt="Header and tab bar with line icons">
 
 ### Training logic and history
-- **Five tabs:** Arms, Chest & Back, Shoulders, Bodyweight, Equipment (cardio machines by level and minutes). **No cap** on how many exercises are active — add or deactivate freely per session.
+- **Five tabs:** Arms, Chest & Back, Shoulders, Bodyweight, Equipment. **No cap** on how many exercises are active — add or deactivate freely per session. Rowing machine and Treadmill log **metres + minutes**; StepMaster and Bike stay Level + min.
 - **Typed steppers:** tap − / + or type reps, distance, and weight directly (mobile-friendly `inputmode`; − no longer triggers pinch-to-zoom).
-- **Combined Rowing card** on Bodyweight: one entry for distance (m) and time (min). Older time/distance logs still show under that card.
+- **Combined Rowing card** on Bodyweight: one entry for distance (m) and time (min). Older time/distance logs still show under that card. Equipment Rowing machine / Treadmill use the same dual fields.
 - **Exercise library:** per-tab "Exercise library" card to add custom exercises (name, unit, targets) and pull from built-in suggestions; stored offline in `localStorage`.
 - **Next-session plan** per exercise from its history: all target reps hit → +2.5 kg (or +1 rep/unit); a Tough set → repeat; two misses in a row → 5% deload.
 - **Plateau and stall detection** with suggestion cards (swap in a same-muscle alternative from an approved library, or dismiss).
@@ -88,6 +88,8 @@ node rules.test.js
 ## Versioning
 The version lives in `manifest.webmanifest` and is shown in the app footer. Its middle number must match the `wills-body-vN` cache name in `sw.js` (a test enforces this), so each release refreshes the offline cache.
 
+**1.17.0** — Equipment Rowing machine and Treadmill log distance (m) + time (min); StepMaster/Bike stay Level + min. Older level-based logs keep their minutes (metres show as 0).
+
 **1.16.0** — typed steppers (no pinch-zoom on −), unlimited active exercises, combined Bodyweight Rowing (distance + time), and a per-tab exercise library. Screenshots for these UI bits not re-captured this release; existing gallery still shows timer/fold/theme.
 
 <details><summary>Import format</summary>
@@ -99,7 +101,7 @@ JSON (one tab):
   "sessions": [{"date":"2026-10-01","entries":[{"exerciseId":"ex-curl","sets":[{"reps":10,"weight":12,"effort":"Good"}]}]}]
 }
 ```
-`unit`: `kg` | `bodyweight` | `m` | `min` | `level`. `effort`: `Ok` | `Good` | `Tough`. CSV: `date,exercise,set,reps,weight,effort` (header optional). Importing replaces that tab's sessions.
+`unit`: `kg` | `bodyweight` | `m` | `min` | `level` | `rowing` (distance m + time min). `effort`: `Ok` | `Good` | `Tough`. CSV: `date,exercise,set,reps,weight,effort` (header optional). Importing replaces that tab's sessions.
 </details>
 
 ---

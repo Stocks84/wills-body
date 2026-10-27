@@ -323,6 +323,40 @@ function migrateCombinedRowing(tab){
   } else routine=routine.map(r=>r.id===ROW_COMBINED?{...r,legacyIds:[ROW_TIME,ROW_DIST],unit:'rowing',active:r.active!==false?r.active:wasActive}:r);
   return {...tab, routine};
 }
+
+// Equipment Rowing machine + Treadmill: Level+min → Distance m + Time min (unit 'rowing').
+// Old level sets: reps = minutes, weight = level. Remap once: weight = old minutes (reps), reps = 0 m
+// (unknown metres — do not invent distance). Level is dropped. Idempotent via equipmentMetersMigrated.
+const EQUIP_METERS_IDS=['ex-rowing-machine','ex-treadmill'];
+function migrateEquipmentMeters(tab){
+  if(!tab||!Array.isArray(tab.routine)) return tab;
+  if(tab.equipmentMetersMigrated) return tab;
+  const ids=new Set(EQUIP_METERS_IDS);
+  const hasRelevant=tab.routine.some(r=>ids.has(r.id))||(tab.sessions||[]).some(s=>(s.entries||[]).some(e=>ids.has(e.exerciseId)));
+  if(!hasRelevant) return tab;
+  const routine=tab.routine.map(r=>{
+    if(!ids.has(r.id)) return r;
+    if(r.unit==='rowing'){
+      return {...r, noAutoProgress:true,
+        targetReps:(r.targetReps!=null&&r.targetReps>=100)?r.targetReps:2000,
+        targetWeight:(r.targetWeight!=null&&r.targetWeight>0)?r.targetWeight:20};
+    }
+    // Still on level (or other): switch to rowing. Old targetReps was minutes → targetWeight.
+    const mins=(r.unit==='level'&&r.targetReps!=null&&r.targetReps>0&&r.targetReps<120)?r.targetReps:20;
+    return {...r, unit:'rowing', targetReps:2000, targetWeight:mins, noAutoProgress:true};
+  });
+  // Remap historical sets for these ids (only runs once thanks to the flag above).
+  const sessions=(tab.sessions||[]).map(s=>{
+    let touch=false;
+    const entries=(s.entries||[]).map(e=>{
+      if(!ids.has(e.exerciseId)) return e;
+      touch=true;
+      return {...e, sets:(e.sets||[]).map(x=>({...x, weight:+x.reps||0, reps:0}))};
+    });
+    return touch?{...s,entries}:s;
+  });
+  return {...tab, routine, sessions, equipmentMetersMigrated:true};
+}
 // Custom exercise library (per-tab names the user adds); merged with built-in LIBRARY for suggestions.
 function libraryFor(tab, custom){ const base=LIBRARY[tab]||[], extra=(custom&&custom[tab])||[];
   const seen=new Set(base.map(slug)); return [...base, ...extra.filter(n=>n&&!seen.has(slug(n)))]; }
@@ -347,6 +381,6 @@ function addExerciseToRoutine(routine, ex){
 }
 // Discard an unsaved draft: returns fresh draft/notes; never reads or writes sessions
 function discardDraft(draft,notes,tab){const n={...(notes||{})};delete n[tab];return {draft:{},notes:n};}
-const api={discardDraft,history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,draftSetCount,deloadStatus,deloadPrefill,roundStep,recentLast,weekStrip,sessionText,migrateCombinedRowing,libraryFor,addLibraryEntry,removeLibraryEntry,makeCustomExercise,addExerciseToRoutine,exKey,resolveSets,ROW_COMBINED,ROW_TIME,ROW_DIST};
+const api={discardDraft,history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,draftSetCount,deloadStatus,deloadPrefill,roundStep,recentLast,weekStrip,sessionText,migrateCombinedRowing,migrateEquipmentMeters,EQUIP_METERS_IDS,libraryFor,addLibraryEntry,removeLibraryEntry,makeCustomExercise,addExerciseToRoutine,exKey,resolveSets,ROW_COMBINED,ROW_TIME,ROW_DIST};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);

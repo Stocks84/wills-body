@@ -69,6 +69,9 @@ async function load(){
   // Combine Bodyweight rowing time+distance into one card (legacy session ids kept via legacyIds)
   for(const [k] of TABS){const t=S.tabs[k];if(!t)continue; const m=Rules.migrateCombinedRowing(t);
     if(m!==t && JSON.stringify(m.routine)!==JSON.stringify(t.routine)){S.tabs[k]=m;save();}}
+  // Equipment Rowing machine + Treadmill: Level+min → metres + minutes (remap historical sets once)
+  for(const [k] of TABS){const t=S.tabs[k];if(!t)continue; const m=Rules.migrateEquipmentMeters(t);
+    if(m!==t){S.tabs[k]=m;save();}}
 }
 const U=Rules.unitInfo;
 const fmtPlan=(p,u)=>u==='kg'?`${p.sets}×${p.reps} @ ${p.weight}kg`:u==='level'?`${p.sets}× ${p.reps} min @ L${p.weight}`:u==='rowing'?`${p.sets}× ${p.reps} m · ${p.weight} min`:`${p.sets}×${p.reps}${U(u).short?' '+U(u).short:''}`;
@@ -144,7 +147,7 @@ function clampField(f, raw){ const n=Number(raw); if(!Number.isFinite(n)) return
   if(f==='weight') return Math.max(0, Math.round(n*10)/10); return Math.max(1, Math.round(n*10)/10); }
 function libraryCard(T){
   const built=Rules.LIBRARY[cur]||[], custom=(S.customLibrary&&S.customLibrary[cur])||[];
-  const units=cur==='equipment'?[['level','Level + min'],['min','Minutes'],['m','Metres']]:cur==='bodyweight'?[['bodyweight','Reps'],['rowing','Rowing (m + min)'],['min','Minutes'],['m','Metres']]:[['kg','kg'],['bodyweight','Bodyweight'],['level','Level']];
+  const units=cur==='equipment'?[['rowing','Distance m + Time min'],['level','Level + min'],['min','Minutes'],['m','Metres']]:cur==='bodyweight'?[['bodyweight','Reps'],['rowing','Rowing (m + min)'],['min','Minutes'],['m','Metres']]:[['kg','kg'],['bodyweight','Bodyweight'],['level','Level']];
   return `<details class="card libcard"><summary>${ic('plus')} Exercise library</summary>
     <div class="help">Add a custom exercise to this tab, or activate one from the built-in / saved library. No limit on how many are active.</div>
     <div class="lib-add">

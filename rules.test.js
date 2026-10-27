@@ -128,4 +128,52 @@ t('app: typed steppers + no max-4 toast + library UI',()=>{const a=require('fs')
   assert.ok(!a.includes('Max 4 exercises')); assert.ok(a.includes('Exercise library')); assert.ok(a.includes('migrateCombinedRowing'));
   assert.ok(require('fs').readFileSync(__dirname+'/styles.css','utf8').includes('touch-action:manipulation'))});
 
+
+t('migrateEquipmentMeters flips level→rowing and remaps sets',()=>{
+  const tab={routine:[
+    {id:'ex-rowing-machine',name:'Rowing machine',targetSets:1,targetReps:10,unit:'level'},
+    {id:'ex-treadmill',name:'Treadmill',targetSets:1,targetReps:15,unit:'level'},
+    {id:'ex-bike',name:'Bike',targetSets:1,targetReps:10,unit:'level'}],
+    sessions:[{date:'2026-10-20',entries:[
+      {exerciseId:'ex-rowing-machine',sets:[{reps:12,weight:5,effort:'Good'}]},
+      {exerciseId:'ex-bike',sets:[{reps:20,weight:4,effort:'Ok'}]}]}]};
+  const m=R.migrateEquipmentMeters(tab);
+  assert.equal(m.equipmentMetersMigrated,true);
+  const row=m.routine.find(r=>r.id==='ex-rowing-machine');
+  assert.equal(row.unit,'rowing'); assert.equal(row.targetReps,2000); assert.equal(row.targetWeight,10); assert.ok(row.noAutoProgress);
+  const tm=m.routine.find(r=>r.id==='ex-treadmill');
+  assert.equal(tm.unit,'rowing'); assert.equal(tm.targetWeight,15);
+  assert.equal(m.routine.find(r=>r.id==='ex-bike').unit,'level');
+  const set=m.sessions[0].entries.find(e=>e.exerciseId==='ex-rowing-machine').sets[0];
+  assert.equal(set.reps,0); assert.equal(set.weight,12); // metres unknown→0; minutes kept
+  const bike=m.sessions[0].entries.find(e=>e.exerciseId==='ex-bike').sets[0];
+  assert.equal(bike.reps,20); assert.equal(bike.weight,4); // untouched
+});
+t('migrateEquipmentMeters is idempotent',()=>{
+  const tab={routine:[{id:'ex-rowing-machine',name:'Rowing machine',targetSets:1,targetReps:10,unit:'level'}],
+    sessions:[{date:'2026-10-20',entries:[{exerciseId:'ex-rowing-machine',sets:[{reps:12,weight:5}]}]}]};
+  const once=R.migrateEquipmentMeters(tab);
+  const twice=R.migrateEquipmentMeters(once);
+  assert.strictEqual(twice,once);
+  assert.equal(once.sessions[0].entries[0].sets[0].weight,12);
+  assert.equal(once.sessions[0].entries[0].sets[0].reps,0);
+});
+t('migrateEquipmentMeters no-op without relevant ids',()=>{
+  const tab={routine:[{id:'ex-bike',unit:'level'}],sessions:[]};
+  assert.strictEqual(R.migrateEquipmentMeters(tab),tab);
+});
+t('equipment seed uses rowing for machine+treadmill',()=>{
+  const d=JSON.parse(require('fs').readFileSync(__dirname+'/data/equipment.json','utf8'));
+  assert.equal(d.seedVersion,2);
+  const row=d.routine.find(r=>r.id==='ex-rowing-machine'), tm=d.routine.find(r=>r.id==='ex-treadmill');
+  assert.equal(row.unit,'rowing'); assert.equal(tm.unit,'rowing');
+  assert.equal(d.routine.find(r=>r.id==='ex-bike').unit,'level');
+  assert.equal(d.routine.find(r=>r.id==='ex-stepmaster-machine').unit,'level');
+});
+t('app wires equipment meters migrate + library rowing option',()=>{
+  const a=require('fs').readFileSync(__dirname+'/app.js','utf8');
+  assert.ok(a.includes('migrateEquipmentMeters'));
+  assert.ok(a.includes("Distance m + Time min"));
+});
+
 console.log(`\n${n} tests passed`);
