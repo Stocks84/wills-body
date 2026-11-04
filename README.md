@@ -59,7 +59,9 @@ One consistent set of inline SVG stroke icons (24×24, `currentColor`) replaces 
 ### Data, offline and install
 - **Offline-first PWA:** a service worker caches the app shell under a versioned cache; it installs to the home screen on iOS and Android.
 - **Private by default:** all data lives in the browser's `localStorage`; nothing is sent anywhere.
-- **Import** JSON or CSV per tab; **export** JSON backup or CSV; **copy session** as plain text.
+- **Workout in progress survives a reload:** logged sets and notes are saved as you go and restored the same day if the app is closed, killed by iOS, or reloaded.
+- **Failure-safe storage:** a failed save shows a toast instead of failing silently; unreadable or unknown-version data is kept in a `willsBody.v1.corrupt-…` / `.pre-migrate-…` copy before anything else happens, and if that can't be done the app shows a rescue card with a raw export instead of loading sample data. The app asks the browser for persistent storage.
+- **Backup and restore:** *Export JSON* is a full backup; importing it restores everything after a confirm (the previous data is kept in `willsBody.v1.pre-restore`). Tab imports (JSON or CSV) are validated session by session and can be undone once (toast **Undo** or *Undo last import* in the import dialog). **Export CSV** and **copy session** as plain text.
 - **Accessible:** labelled controls, `aria-pressed`/`aria-expanded` states, focus is kept on folding cards, and reduced motion is respected.
 
 ## Tech stack
@@ -88,6 +90,8 @@ node rules.test.js
 ## Versioning
 The version lives in `manifest.webmanifest` and is shown in the app footer. Its middle number must match the `wills-body-vN` cache name in `sw.js` (a test enforces this), so each release refreshes the offline cache.
 
+**1.18.0** — data safety: in-progress workouts persist across reloads; save errors are reported; corrupt or unknown-version data is backed up, migrated or rescued, never wiped; Export JSON is now a restorable full backup; imports are validated and sanitised (no script injection), undoable once, and CSV import is quote-aware and respects the `tab` column. Quick wins: 16px fields (no iOS zoom), 48px ✕/fold buttons, Undo after deactivating an exercise, readable week-strip text on green cells, `aria-pressed` on effort/block buttons, and a confirm before closing a Start-workout sheet with entries.
+
 **1.17.0** — Equipment Rowing machine and Treadmill log distance (m) + time (min); StepMaster/Bike stay Level + min. Older level-based logs keep their minutes (metres show as 0).
 
 **1.16.0** — typed steppers (no pinch-zoom on −), unlimited active exercises, combined Bodyweight Rowing (distance + time), and a per-tab exercise library. Screenshots for these UI bits not re-captured this release; existing gallery still shows timer/fold/theme.
@@ -101,7 +105,9 @@ JSON (one tab):
   "sessions": [{"date":"2026-10-01","entries":[{"exerciseId":"ex-curl","sets":[{"reps":10,"weight":12,"effort":"Good"}]}]}]
 }
 ```
-`unit`: `kg` | `bodyweight` | `m` | `min` | `level` | `rowing` (distance m + time min). `effort`: `Ok` | `Good` | `Tough`. CSV: `date,exercise,set,reps,weight,effort` (header optional). Importing replaces that tab's sessions.
+`unit`: `kg` | `bodyweight` | `m` | `min` | `level` | `rowing` (distance m + time min). `effort`: `Ok` | `Good` | `Tough`. CSV: `date,exercise,set,reps,weight,effort[,tab,unit,notes]` (header optional; with a header, columns are matched by name; quoted fields with commas, quotes and line breaks are fine). Rows whose `tab` is another tab are skipped, so the app's own Export CSV can be imported tab by tab. A tab import replaces that tab's sessions (exercises are matched by name, new ones are added) and can be undone once. Invalid sessions are rejected with a message; numbers and efforts are sanitised.
+
+Full backup: the file from **Export JSON** (`{"version":2,"tabs":{…}}`) restores every tab and setting after a confirm.
 </details>
 
 ---

@@ -175,3 +175,23 @@ button,.step button{touch-action:manipulation;-webkit-user-select:none;user-sele
 .libcard input[type=text],.libcard input[type=number],.libcard select{font:inherit;color:var(--txt);background:var(--input);border:1px solid var(--rim);border-radius:8px;padding:10px;width:100%}
 .libcard select{min-height:48px}
 .lib-list .row button{flex:0 0 auto}
+
+/* v1.18.0 data safety + quick wins */
+/* iOS zooms into any field under 16px: notes, import and library fields are 16px */
+textarea{font-size:16px;line-height:1.4;font-family:inherit;padding:8px}textarea.mono,#copyTxt{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.libcard input[type=text],.libcard input[type=number],.libcard select{font-size:16px}
+/* 48px tap targets: deactivate ✕, discard ✕, fold chevron */
+.deact{float:right;min-height:48px;min-width:48px;padding:0;margin-left:6px;display:grid;place-items:center}
+.foldbtn{min-height:48px;min-width:48px}
+.inprog-x{width:48px;height:48px;min-height:48px;min-width:48px}
+/* week strip: readable text on green cells (≥4.5:1 in both themes) */
+.strip .lvl2,.strip .lvl3{font-weight:700}
+.strip .lvl2,.strip .lvl2 small{color:#fff}
+.strip .lvl3,.strip .lvl3 small{color:#04130a}
+[data-theme=light] .strip .lvl2,[data-theme=light] .strip .lvl2 small,[data-theme=light] .strip .lvl3,[data-theme=light] .strip .lvl3 small{color:#04130a}
+html[data-shine=reduced] .strip .lvl2,html[data-shine=reduced] .strip .lvl2 small{color:#fff}
+html[data-shine=reduced] .strip .lvl3,html[data-shine=reduced] .strip .lvl3 small{color:#000}
+html[data-shine=reduced][data-theme=light] .strip .lvl2,html[data-shine=reduced][data-theme=light] .strip .lvl2 small,html[data-shine=reduced][data-theme=light] .strip .lvl3,html[data-shine=reduced][data-theme=light] .strip .lvl3 small{color:#000}
+/* toast with an Undo button */
+.toast.act{display:flex;align-items:center;gap:12px;pointer-events:auto}.toast.act span{flex:1}.toast.act button{min-height:44px;padding:0 14px;flex:none}
+.card.notice{border-color:var(--warn)}

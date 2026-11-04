@@ -62,14 +62,19 @@ function weeklyStreak(sessionDates, absences, today){
   return streak;
 }
 const slug=s=>String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-function parseCSV(text){ // date,exercise,set,reps,weight,effort
-  const lines=text.trim().split(/\r?\n/).filter(Boolean); if(/^date\s*,/i.test(lines[0])) lines.shift();
-  const byDate={}, names={};
-  for(const ln of lines){ const [date,exercise,set,reps,weight,effort]=ln.split(',').map(s=>s.trim());
-    if(!date||!exercise) continue; const id='ex-'+slug(exercise); names[id]=exercise;
+function parseCSV(text, tab){ // date,exercise,set,reps,weight,effort[,tab,unit,notes] – quote-aware; header maps columns by name
+  const rows=csvRows(text); let cols=CSV_COLS;
+  if(rows.length&&/^date$/i.test((rows[0][0]||'').trim())){ cols=rows.shift().map(h=>h.trim().toLowerCase()); }
+  const ix=n=>cols.indexOf(n), get=(r,n)=>{const i=ix(n);return i<0||i>=r.length?'':String(r[i]).trim();};
+  const byDate={}, names={}, units={}, tabsSeen=new Set(); let skipped=0;
+  for(const r of rows){ const rowTab=get(r,'tab'); if(rowTab) tabsSeen.add(rowTab);
+    if(tab&&rowTab&&rowTab!==tab) continue;
+    const date=get(r,'date'), exercise=get(r,'exercise'); if(!DATE_RE.test(date)||!exercise){skipped++;continue;}
+    const id='ex-'+slug(exercise); names[id]=exercise; const u=get(r,'unit'); if(UNITS.includes(u)) units[id]=u;
     const s=byDate[date]||(byDate[date]={date,entries:[]}); let e=s.entries.find(e=>e.exerciseId===id); if(!e) s.entries.push(e={exerciseId:id,sets:[]});
-    const ef=(effort||'Good'); e.sets.push({reps:+reps||0, weight:+weight||0, effort:['Ok','Good','Tough'].includes(ef)?ef:'Good'});}
-  return {sessions:Object.values(byDate).sort((a,b)=>a.date<b.date?-1:1), names};
+    const ef=get(r,'effort')||'Good'; e.sets.push({reps:Math.max(0,+get(r,'reps')||0), weight:Math.max(0,+get(r,'weight')||0), effort:EFFORTS.includes(ef)?ef:'Good'});
+    const nt=get(r,'notes'); if(nt) s.notes=s.notes?s.notes+'\n'+nt:nt; }
+  return {sessions:Object.values(byDate).sort((a,b)=>a.date<b.date?-1:1), names, units, tabs:[...tabsSeen], skipped};
 }
 const LIBRARY={arms:['Incline dumbbell curls','Cable rope pushdowns','Wrist curls'],'chest-back':['Machine chest fly','Single-arm dumbbell row','Lat pulldown'],
   shoulders:['Arnold press','Cable lateral raises','Rear delt flyes'],bodyweight:['Diamond push-ups','Bulgarian split squats','Towel rows']};
@@ -381,6 +386,97 @@ function addExerciseToRoutine(routine, ex){
 }
 // Discard an unsaved draft: returns fresh draft/notes; never reads or writes sessions
 function discardDraft(draft,notes,tab){const n={...(notes||{})};delete n[tab];return {draft:{},notes:n};}
-const api={discardDraft,history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,draftSetCount,deloadStatus,deloadPrefill,roundStep,recentLast,weekStrip,sessionText,migrateCombinedRowing,migrateEquipmentMeters,EQUIP_METERS_IDS,libraryFor,addLibraryEntry,removeLibraryEntry,makeCustomExercise,addExerciseToRoutine,exKey,resolveSets,ROW_COMBINED,ROW_TIME,ROW_DIST};
+// ---- Data safety (v1.18.0): HTML escaping, CSV tokenising, import validation, backup restore, state migration ----
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DATE_RE=/^\d{4}-\d{2}-\d{2}$/, EFFORTS=['Ok','Good','Tough'], UNITS=['kg','bodyweight','m','min','level','rowing'];
+const num=(v,d=0)=>{const n=Number(v);return Number.isFinite(n)?n:d;};
+const str=(v,max=500)=>typeof v==='string'?v.slice(0,max):(v==null?'':String(v).slice(0,max));
+// Quote-aware CSV tokenizer (RFC 4180-ish): commas, "quoted, fields", "" escapes, newlines inside quotes, CRLF
+function csvRows(text){
+  const rows=[]; let row=[], f='', q=false, i=0; text=String(text||'').replace(/^\uFEFF/,'');
+  for(;i<text.length;i++){ const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; continue; }
+    if(c==='"'){ q=true; } else if(c===','){ row.push(f); f=''; }
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&text[i+1]==='\n') i++; row.push(f); rows.push(row); row=[]; f=''; }
+    else f+=c; }
+  if(f!==''||row.length){ row.push(f); rows.push(row); }
+  return rows.filter(r=>r.some(c=>c.trim()!==''));
+}
+const CSV_COLS=['date','exercise','set','reps','weight','effort','tab','unit','notes'];
+function cleanSet(x){ x=x&&typeof x==='object'&&!Array.isArray(x)?x:{}; // numbers coerced, effort whitelisted; unknown keys kept (never rendered)
+  const o={...x, reps:Math.max(0,num(x.reps)), weight:Math.max(0,num(x.weight))};
+  if('effort' in x) o.effort=EFFORTS.includes(x.effort)?x.effort:null; else o.effort=null;
+  if(x.note!=null) o.note=str(x.note,500); return o; }
+function validSession(s){ return !!s && typeof s==='object' && DATE_RE.test(s.date) && Array.isArray(s.entries) &&
+  s.entries.every(e=>e && typeof e==='object' && typeof e.exerciseId==='string' && e.exerciseId.trim()!=='' && Array.isArray(e.sets)); }
+const REC_TYPES=['weight','reps','volume'];
+function cleanSession(s){ // keeps unknown keys and key order (so a backup restores byte-for-byte), sanitises known ones
+  const o={...s, date:s.date, entries:s.entries.map(e=>({...e, exerciseId:str(e.exerciseId,120), sets:e.sets.map(cleanSet)}))};
+  if(s.label!=null) o.label=str(s.label,120); else delete o.label;
+  if(s.notes) o.notes=str(s.notes,4000); else delete o.notes;
+  for(const k of ['local','notesLocal','deload']) if(s[k]) o[k]=true; else delete o[k];
+  if(Array.isArray(s.records)) o.records=s.records.filter(r=>r&&REC_TYPES.includes(r.type)).map(r=>{const o={...r,exerciseId:str(r.exerciseId,120),name:str(r.name,120)};for(const k of ['value','prev']) if(k in r) o[k]=r[k]==null?null:num(r[k]);return o;});
+  else delete o.records;
+  return o; }
+const RT_NUM=['targetSets','targetReps','repMin','repMax','targetWeight','weightStep'];
+function cleanRoutineItem(r){ if(!r||typeof r!=='object'||typeof r.id!=='string'||!r.id.trim()) return null;
+  const o={...r, id:str(r.id,120), name:str(r.name||r.id,120)};
+  for(const k of RT_NUM) if(k in r) o[k]=Math.max(0,num(r[k],k==='targetSets'?3:k==='targetReps'?10:0));
+  if(!('targetSets' in o)) o.targetSets=3; if(!('targetReps' in o)) o.targetReps=10;
+  o.unit=UNITS.includes(r.unit)?r.unit:'kg';
+  if('legacyIds' in r) o.legacyIds=Array.isArray(r.legacyIds)?r.legacyIds.filter(x=>typeof x==='string'):[];
+  for(const k of ['group','replaces']) if(k in r && r[k]!=null) o[k]=str(r[k],120);
+  for(const k of ['active','assist','noAutoProgress']) if(k in r) o[k]=!!r[k];
+  return o; }
+// Single-tab import ({routine?, sessions}): every session must be valid; sets are coerced to numbers
+function validateTabImport(d){
+  if(!d||typeof d!=='object'||!Array.isArray(d.sessions)) throw new Error('JSON needs a "sessions" array');
+  d.sessions.forEach((s,i)=>{ if(!validSession(s)) throw new Error(`Session ${i+1} is invalid (needs date YYYY-MM-DD and entries with exerciseId + sets)`); });
+  let routine=null;
+  if(Array.isArray(d.routine)&&d.routine.length){ routine=d.routine.map(cleanRoutineItem);
+    const bad=routine.indexOf(null); if(bad>=0) throw new Error(`Routine item ${bad+1} needs an "id"`); }
+  return {routine, sessions:d.sessions.map(cleanSession).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0)};
+}
+const isFullBackup=d=>!!d&&typeof d==='object'&&d.version===2&&!!d.tabs&&typeof d.tabs==='object'&&!Array.isArray(d.tabs);
+function cleanTab(t, strict){ t=t&&typeof t==='object'?t:{};
+  const sessions=Array.isArray(t.sessions)?t.sessions:[];
+  if(strict) sessions.forEach((s,i)=>{ if(!validSession(s)) throw new Error(`Session ${i+1} is invalid`); });
+  const routine=(Array.isArray(t.routine)?t.routine:[]).map(cleanRoutineItem).filter(Boolean);
+  const plans=(Array.isArray(t.plans)?t.plans:[]).filter(p=>p&&Array.isArray(p.items)).map(p=>({date:DATE_RE.test(p.date)?p.date:'',
+    items:p.items.filter(i=>i&&typeof i==='object').map(i=>({...i,id:str(i.id,120),name:str(i.name,120),unit:UNITS.includes(i.unit)?i.unit:'kg',sets:num(i.sets),reps:num(i.reps),weight:num(i.weight)}))}));
+  return {...t, _example:!!t._example, routine, sessions:sessions.filter(validSession).map(cleanSession), plans,
+    dismissed:(Array.isArray(t.dismissed)?t.dismissed:[]).filter(x=>typeof x==='string'), seedVersion:Math.max(1,num(t.seedVersion,1)),
+    seedDates:(Array.isArray(t.seedDates)?t.seedDates:[]).filter(x=>DATE_RE.test(x))};
+}
+// Full backup (the app's own Export JSON) -> sanitised state; throws if any session in any tab is invalid
+function sanitizeBackup(d){
+  if(!isFullBackup(d)) throw new Error('Not a full Will\'s Body backup');
+  const tabs={}; for(const [k,t] of Object.entries(d.tabs)){ try{ tabs[str(k,40)]=cleanTab(t,true); }catch(e){ throw new Error(`Tab "${k}": ${e.message}`); } }
+  const customLibrary={}; if(d.customLibrary&&typeof d.customLibrary==='object') for(const [k,v] of Object.entries(d.customLibrary)) if(Array.isArray(v)) customLibrary[k]=v.filter(x=>typeof x==='string').map(x=>str(x,120));
+  const out={...d, version:2, tabs, customLibrary,
+    absences:(Array.isArray(d.absences)?d.absences:[]).filter(a=>a&&DATE_RE.test(a.date)).map(a=>({date:a.date,tag:['work','holiday'].includes(a.tag)?a.tag:str(a.tag,20)})),
+    restSec:Math.min(90,Math.max(60,num(d.restSec,75)))};
+  for(const k of ['weeklyTarget','statsWindow']) if(k in d) out[k]=num(d[k])||undefined;
+  if('reportDismissed' in d) out.reportDismissed=str(d.reportDismissed,10);
+  return out;
+}
+// Unknown/old version: keep the data instead of wiping it. Returns a version-2 state or null (raw is backed up by the caller)
+function migrateState(d){
+  if(!d||typeof d!=='object'||Array.isArray(d)) return null;
+  if(d.tabs&&typeof d.tabs==='object'&&!Array.isArray(d.tabs)){ const tabs={}; for(const [k,t] of Object.entries(d.tabs)) tabs[k]=cleanTab(t,false);
+    return {...d, version:2, tabs, absences:Array.isArray(d.absences)?d.absences:[], restSec:num(d.restSec,75)||75, migratedFrom:d.version==null?'none':d.version}; }
+  if(Array.isArray(d.sessions)){ const tab=typeof d.tab==='string'&&d.tab?d.tab:'arms';
+    return {version:2, tabs:{[tab]:cleanTab({routine:d.routine,sessions:d.sessions},false)}, absences:[], restSec:75, migratedFrom:d.version==null?'none':d.version}; }
+  return null;
+}
+// In-progress workout persisted per day: only today's draft is restored; sets are coerced
+function draftFromStore(raw, day){ let d; try{ d=typeof raw==='string'?JSON.parse(raw):raw; }catch(e){ return null; }
+  if(!d||d.day!==day||!d.draft||typeof d.draft!=='object') return null;
+  const draft={}; for(const [id,x] of Object.entries(d.draft)){ if(!x||!Array.isArray(x.sets)) continue;
+    draft[id]={sets:x.sets.map(cleanSet).map(s=>({...s,effort:s.effort||'Good'})),reps:Math.max(1,num(x.reps,1)),weight:Math.max(0,num(x.weight)),effort:EFFORTS.includes(x.effort)?x.effort:'Good',targetSets:Math.max(1,num(x.targetSets,1))}; }
+  const notes={}; if(d.notes&&typeof d.notes==='object') for(const [k,v] of Object.entries(d.notes)) if(typeof v==='string') notes[k]=v;
+  return {draft, notes};
+}
+const api={discardDraft,esc,csvRows,cleanSet,validSession,cleanSession,cleanRoutineItem,validateTabImport,isFullBackup,sanitizeBackup,migrateState,draftFromStore,history,nextPlan,detectPlateaus,isoWeek,weeklyStreak,parseCSV,suggestions,LIBRARY,slug,MAX_ACTIVE,isActive,activeSlots,acceptSuggestion,mergeSeed,isStalled,muscleOf,alternatives,plateauCards,swapExercise,buildQuickSession,addSession,FALLBACK,LIB_MUSCLE,trendSeries,sparkPoints,unitInfo,fmtSet,lastValues,brzycki,e1rmSeries,detectRecords,sessionRecords,weekBounds,weeklyReport,workoutStats,toCSV,addDays,touchedItems,draftSetCount,deloadStatus,deloadPrefill,roundStep,recentLast,weekStrip,sessionText,migrateCombinedRowing,migrateEquipmentMeters,EQUIP_METERS_IDS,libraryFor,addLibraryEntry,removeLibraryEntry,makeCustomExercise,addExerciseToRoutine,exKey,resolveSets,ROW_COMBINED,ROW_TIME,ROW_DIST};
 if(typeof module!=='undefined') module.exports=api; else root.Rules=api;
 })(this);

@@ -176,4 +176,48 @@ t('app wires equipment meters migrate + library rowing option',()=>{
   assert.ok(a.includes("Distance m + Time min"));
 });
 
+// ---- 1.18.0 data safety ----
+t('esc escapes & < > " and single quote',()=>assert.equal(R.esc(`<img src=x onerror='a'>&"`),'&lt;img src=x onerror=&#39;a&#39;&gt;&amp;&quot;'));
+t('esc handles numbers/null',()=>{assert.equal(R.esc(12.5),'12.5');assert.equal(R.esc(null),'')});
+t('csvRows: quoted commas, escaped quotes, newlines, CRLF',()=>{const r=R.csvRows('a,"b, c","say ""hi"""\r\n1,"two\nlines",3\n\n');
+  assert.deepEqual(r,[['a','b, c','say "hi"'],['1','two\nlines','3']])});
+t('parseCSV: quoted exercise name with comma keeps columns',()=>{const r=R.parseCSV('date,exercise,set,reps,weight,effort\n2026-10-01,"Curl, hammer",1,10,12,Tough');
+  const e=r.sessions[0].entries[0];assert.equal(r.names[e.exerciseId],'Curl, hammer');assert.deepEqual(e.sets[0],{reps:10,weight:12,effort:'Tough'})});
+t('parseCSV: honours tab column',()=>{const csv='date,exercise,set,reps,weight,effort,tab,unit,notes\n2026-10-01,Curl,1,10,12,Good,arms,kg,"felt good, strong"\n2026-10-01,Push-up,1,20,0,Good,bodyweight,bodyweight,';
+  const a=R.parseCSV(csv,'arms');assert.equal(a.sessions.length,1);assert.deepEqual(Object.values(a.names),['Curl']);assert.equal(a.sessions[0].notes,'felt good, strong');assert.equal(a.units['ex-curl'],'kg');
+  const b=R.parseCSV(csv,'bodyweight');assert.deepEqual(Object.values(b.names),['Push-up']);assert.deepEqual(b.tabs.sort(),['arms','bodyweight']);
+  assert.equal(R.parseCSV(csv,'shoulders').sessions.length,0)});
+t('parseCSV: skips invalid dates, no header still positional',()=>{const r=R.parseCSV('<b>,Curl,1,10,12,Good\n2026-10-02,Curl,1,8,12,Ok');assert.equal(r.sessions.length,1);assert.equal(r.skipped,1);assert.equal(r.sessions[0].entries[0].sets[0].effort,'Ok')});
+t('toCSV -> parseCSV round trip per tab (names with commas + notes)',()=>{const tabs={arms:{routine:[{id:'c',name:'Curl, hammer',unit:'kg'}],sessions:[{date:'2026-10-01',notes:'a, "b"',entries:[{exerciseId:'c',sets:[{reps:10,weight:12,effort:'Good'},{reps:9,weight:12,effort:'Tough'}]}]}]},
+  bodyweight:{routine:[{id:'p',name:'Push',unit:'bodyweight'}],sessions:[{date:'2026-10-02',entries:[{exerciseId:'p',sets:[{reps:20,weight:0,effort:'Ok'}]}]}]}};
+  const r=R.parseCSV(R.toCSV(tabs),'arms');assert.equal(r.sessions.length,1);assert.equal(r.sessions[0].notes,'a, "b"');assert.equal(r.sessions[0].entries[0].sets.length,2);assert.equal(Object.values(r.names)[0],'Curl, hammer')});
+t('cleanSet coerces strings / markup to numbers and whitelists effort',()=>{assert.deepEqual(R.cleanSet({reps:'<img src=x onerror=alert(1)>',weight:'12.5',effort:'<b>'}),{reps:0,weight:12.5,effort:null});
+  assert.deepEqual(R.cleanSet({reps:-3,weight:null,effort:'Tough'}),{reps:0,weight:0,effort:'Tough'})});
+t('validSession',()=>{assert.ok(R.validSession({date:'2026-10-01',entries:[{exerciseId:'c',sets:[]}]}));
+  assert.ok(!R.validSession({date:'2026-10-01'}));assert.ok(!R.validSession({date:'01/10/2026',entries:[]}));assert.ok(!R.validSession({date:'2026-10-01',entries:[{sets:[]}]}));assert.ok(!R.validSession(null))});
+t('validateTabImport rejects the brick-the-app session',()=>assert.throws(()=>R.validateTabImport({sessions:[{date:'2026-11-01'}]}),/Session 1/));
+t('validateTabImport rejects missing sessions',()=>assert.throws(()=>R.validateTabImport({routine:[]}),/sessions/));
+t('validateTabImport sanitises sets, dates sorted, routine cleaned',()=>{const v=R.validateTabImport({routine:[{id:'c',name:'Curl',targetSets:'3',unit:'evil'}],
+  sessions:[{date:'2026-10-03',entries:[{exerciseId:'c',sets:[{reps:'10',weight:'<svg onload=x>',effort:'Good'}]}]},{date:'2026-10-01',entries:[]}]});
+  assert.deepEqual(v.sessions.map(s=>s.date),['2026-10-01','2026-10-03']);assert.deepEqual(v.sessions[1].entries[0].sets[0],{reps:10,weight:0,effort:'Good'});
+  assert.equal(v.routine[0].unit,'kg');assert.equal(v.routine[0].targetSets,3)});
+t('validateTabImport: routine item without id fails',()=>assert.throws(()=>R.validateTabImport({routine:[{name:'x'}],sessions:[]}),/Routine item 1/));
+const backup={version:2,restSec:80,weeklyTarget:4,absences:[{date:'2026-10-07',tag:'holiday'},{date:'bad'}],customLibrary:{arms:['Cable curls',5]},
+  tabs:{arms:{routine:[{id:'c',name:'Curl',targetSets:3,targetReps:10,unit:'kg',active:false}],sessions:[{date:'2026-10-01',local:true,notes:'n',entries:[{exerciseId:'c',sets:[{reps:10,weight:12,effort:'Good',note:'grip'}]}]}],plans:[{date:'2026-10-01',items:[{id:'c',name:'Curl',unit:'kg',sets:3,reps:10,weight:12.5,action:'increase'}]}],dismissed:['x'],seedVersion:2,seedDates:[]}}};
+t('isFullBackup recognises Export JSON only',()=>{assert.ok(R.isFullBackup(backup));assert.ok(!R.isFullBackup({sessions:[]}));assert.ok(!R.isFullBackup({version:3,tabs:{}}))});
+t('sanitizeBackup keeps a real backup intact',()=>{const c=R.sanitizeBackup(JSON.parse(JSON.stringify(backup)));
+  assert.deepEqual(c.tabs.arms.sessions,backup.tabs.arms.sessions);assert.deepEqual(c.tabs.arms.routine,backup.tabs.arms.routine);assert.deepEqual(c.tabs.arms.plans,backup.tabs.arms.plans);
+  assert.equal(c.restSec,80);assert.equal(c.weeklyTarget,4);assert.equal(c.absences.length,1);assert.deepEqual(c.customLibrary.arms,['Cable curls'])});
+t('sanitizeBackup throws on an invalid session',()=>assert.throws(()=>R.sanitizeBackup({version:2,tabs:{arms:{sessions:[{date:'x'}]}}}),/arms/));
+t('migrateState: unknown version with tabs keeps data',()=>{const m=R.migrateState({version:3,tabs:{arms:{routine:[{id:'c',name:'Curl',unit:'kg'}],sessions:[{date:'2026-10-01',entries:[{exerciseId:'c',sets:[{reps:5,weight:10}]}]}]}}});
+  assert.equal(m.version,2);assert.equal(m.tabs.arms.sessions.length,1);assert.equal(m.migratedFrom,3)});
+t('migrateState: single-tab legacy {sessions} kept, garbage -> null',()=>{const m=R.migrateState({sessions:[{date:'2026-10-01',entries:[]}],tab:'bodyweight'});assert.equal(m.tabs.bodyweight.sessions.length,1);
+  assert.equal(R.migrateState('x'),null);assert.equal(R.migrateState([1,2]),null);assert.equal(R.migrateState({foo:1}),null)});
+t('draftFromStore: same day restored, other day dropped, junk safe',()=>{const raw=JSON.stringify({day:'2026-11-04',draft:{c:{sets:[{reps:'10',weight:12,effort:'Tough'}],reps:10,weight:12,effort:'Good',targetSets:3}},notes:{arms:'heavy'}});
+  const r=R.draftFromStore(raw,'2026-11-04');assert.equal(R.draftSetCount(r.draft),1);assert.equal(r.draft.c.sets[0].reps,10);assert.equal(r.notes.arms,'heavy');
+  assert.equal(R.draftFromStore(raw,'2026-11-05'),null);assert.equal(R.draftFromStore('{oops','2026-11-04'),null);assert.equal(R.draftFromStore(null,'2026-11-04'),null)});
+t('app wires draft persistence, safe save, rescue and import validation',()=>{const a=require('fs').readFileSync(__dirname+'/app.js','utf8');
+  for(const k of ["'.draft'","'.corrupt-'","'.pre-restore'","'.pre-import'",'validateTabImport','sanitizeBackup','navigator.storage',"removeAttribute('aria-busy')",'oncancel','aria-pressed']) assert.ok(a.includes(k),k);});
+t('16px on textareas + library fields (no iOS zoom)',()=>{const c=require('fs').readFileSync(__dirname+'/styles.css','utf8');assert.ok(/textarea\{font-size:16px/.test(c));assert.ok(/\.libcard select\{font-size:16px\}/.test(c))});
+
 console.log(`\n${n} tests passed`);
