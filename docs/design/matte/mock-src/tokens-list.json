@@ -1,0 +1,187 @@
+[
+  {
+    "type": "color",
+    "name": "--color-bg",
+    "value": "#14130F",
+    "description": "Dark page graphite. Chalk text on this is 16.33:1."
+  },
+  {
+    "type": "color",
+    "name": "--color-surface",
+    "value": "#1C1B17",
+    "description": "Dark cards and the desktop logger pane. Chalk 15.14:1, accent text 5.44:1, line 4.14:1."
+  },
+  {
+    "type": "color",
+    "name": "--color-raised",
+    "value": "#27261F",
+    "description": "Dark fields, current set row, selected tab fill. Chalk 13.34:1, accent text 4.80:1, line 3.65:1."
+  },
+  {
+    "type": "color",
+    "name": "--color-line",
+    "value": "#807C72",
+    "description": "Control and card edges on dark. 4.46:1 on bg, 4.14:1 on surface, 3.65:1 on raised. Never use a quieter rule for controls."
+  },
+  {
+    "type": "color",
+    "name": "--color-ink",
+    "value": "#F4F0E6",
+    "description": "Chalk. Primary text and timer numerals on dark. 16.33:1 on bg."
+  },
+  {
+    "type": "color",
+    "name": "--color-ink-2",
+    "value": "#B7B2A6",
+    "description": "Muted text on dark. 8.79:1 on bg, 8.15:1 on surface, 7.18:1 on raised."
+  },
+  {
+    "type": "color",
+    "name": "--color-accent",
+    "value": "#B8432F",
+    "description": "Plate-rust fill for Start, Finish, Log set, and the completed tick only. Chalk on fill is 4.75:1. Do not use this as text on dark (3.19:1 on surface)."
+  },
+  {
+    "type": "color",
+    "name": "--color-accent-text",
+    "value": "#D4785A",
+    "description": "Lighter rust for Next numbers and selected effort on dark. 5.87:1 on bg, 5.44:1 on surface, 4.80:1 on raised."
+  },
+  {
+    "type": "color",
+    "name": "--color-on-accent",
+    "value": "#F4F0E6",
+    "description": "Chalk on accent fill, 4.75:1."
+  },
+  {
+    "type": "color",
+    "name": "--color-bg-light",
+    "value": "#F3F0E8",
+    "description": "Light page, chalk paper. Ink 15.44:1, accent text 4.75:1, line 4.60:1."
+  },
+  {
+    "type": "color",
+    "name": "--color-surface-light",
+    "value": "#FFFCF6",
+    "description": "Light cards. Ink 17.17:1, accent 5.28:1, line 5.12:1."
+  },
+  {
+    "type": "color",
+    "name": "--color-raised-light",
+    "value": "#EBE6DA",
+    "description": "Light fields. Ink 14.12:1, muted 5.50:1, line 4.21:1. Do not put accent text here (4.34:1)."
+  },
+  {
+    "type": "color",
+    "name": "--color-line-light",
+    "value": "#6F6C64",
+    "description": "Control and card edges on light. 4.60:1 on bg, 5.12:1 on surface, 4.21:1 on raised."
+  },
+  {
+    "type": "color",
+    "name": "--color-ink-light",
+    "value": "#1A1916",
+    "description": "Primary text on light. 15.44:1 on bg."
+  },
+  {
+    "type": "color",
+    "name": "--color-ink-2-light",
+    "value": "#5E5A54",
+    "description": "Muted text on light. 6.01:1 on bg, 6.69:1 on surface."
+  },
+  {
+    "type": "color",
+    "name": "--color-accent-text-light",
+    "value": "#B8432F",
+    "description": "Accent text on light uses the fill colour. 4.75:1 on bg, 5.28:1 on surface. Not for raised."
+  },
+  {
+    "type": "fontFamily",
+    "name": "--font-display",
+    "value": "Barlow Condensed, sans-serif",
+    "description": "Weight 600, tabular figures. Titles, exercise names, set numbers, Next targets, rest timer."
+  },
+  {
+    "type": "fontFamily",
+    "name": "--font-sans",
+    "value": "Source Sans 3, sans-serif",
+    "description": "Weight 400 body, 600 labels and primary buttons. Minimum 13px. Self-host in production."
+  },
+  {
+    "type": "fontSize",
+    "name": "--font-size-min",
+    "value": "13px",
+    "description": "Smallest allowed text (labels, chips, tab labels, captions)."
+  },
+  {
+    "type": "fontSize",
+    "name": "--font-size-body",
+    "value": "16px",
+    "description": "Body and button labels."
+  },
+  {
+    "type": "fontSize",
+    "name": "--font-size-title",
+    "value": "20px",
+    "description": "Card titles and compact Next numbers."
+  },
+  {
+    "type": "fontSize",
+    "name": "--font-size-display",
+    "value": "28px",
+    "description": "App wordmark and desktop session title."
+  },
+  {
+    "type": "fontSize",
+    "name": "--font-size-timer",
+    "value": "44px",
+    "description": "Rest timer numerals, Barlow Condensed 600 tabular."
+  },
+  {
+    "type": "fontWeight",
+    "name": "--font-weight-body",
+    "value": 400
+  },
+  {
+    "type": "fontWeight",
+    "name": "--font-weight-display",
+    "value": 600
+  },
+  {
+    "type": "radius",
+    "name": "--radius-chip",
+    "value": "6px"
+  },
+  {
+    "type": "radius",
+    "name": "--radius",
+    "value": "8px",
+    "description": "Cards, buttons, tabs, set rows."
+  },
+  {
+    "type": "spacing",
+    "name": "--space-1",
+    "value": "4px"
+  },
+  {
+    "type": "spacing",
+    "name": "--space-2",
+    "value": "8px"
+  },
+  {
+    "type": "spacing",
+    "name": "--space-3",
+    "value": "12px"
+  },
+  {
+    "type": "spacing",
+    "name": "--space-4",
+    "value": "16px"
+  },
+  {
+    "type": "spacing",
+    "name": "--target",
+    "value": "48px",
+    "description": "Minimum gym-sized control. Primary is 56\u201364px."
+  }
+]
