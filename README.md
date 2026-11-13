@@ -4,7 +4,9 @@ A mobile-first, offline-capable gym logging app (Progressive Web App) built with
 
 **Live app:** https://stocks84.github.io/wills-body
 
-<p><img src="docs/screenshots/dark-theme.png" width="260" alt="Home screen in the metallic dark theme"> <img src="docs/screenshots/light-theme.png" width="260" alt="Home screen in the light theme"></p>
+<p><img src="docs/screenshots/dark-theme.png" width="260" alt="Home screen in the matte dark theme"> <img src="docs/screenshots/light-theme.png" width="260" alt="Home screen in the matte light theme"></p>
+
+The two theme photos above are the 1.19.0 matte home. Photos further down (timer, folded cards, discard, toasts) are from earlier releases and still show the old chrome.
 
 ## Features
 
@@ -19,7 +21,7 @@ Once an exercise's target sets are logged, its card collapses to a single line (
 <img src="docs/screenshots/fold-finished.png" width="260" alt="A completed exercise folded to one line">
 
 ### Reduce shine
-A header toggle replaces the metallic gradients with flat, high-contrast colours, in both themes. If you haven't chosen, it follows the system's *increase contrast* setting, and it applies before first paint so there's no flash.
+A header toggle switches to a flat high-contrast theme (black or white, thicker ink borders, the same rust primary) in either colour scheme. If you haven't chosen, it follows the system's *increase contrast* setting, and it applies before first paint so there's no flash.
 
 <img src="docs/screenshots/reduce-shine.png" width="260" alt="Reduce shine: flat high-contrast look">
 
@@ -33,8 +35,8 @@ The *Workout in progress* banner has an **X** button. It asks *"Discard this wor
 
 <p><img src="docs/screenshots/discard-banner.png" width="260" alt="Workout in progress banner with X button"> <img src="docs/screenshots/discard-confirm.png" width="260" alt="Discard confirm with Keep going and Discard"></p>
 
-### Metallic dark theme and light theme
-Dark by default, with brushed-metal gradients, rim highlights and chrome primary buttons. The light theme is one tap away in the header and is remembered; the browser theme colour follows it.
+### Matte dark theme and light theme
+Dark by default: graphite and chalk, with one plate-rust primary (`#B8432F`) and chalk type on that fill in every theme, including light and Reduce shine. Cards are flat colour plus a 1px edge — no metal, glass, or glow. The light theme is one tap away in the header and is remembered; the browser theme colour follows the page background. Display type is self-hosted Barlow Condensed; body type is self-hosted Source Sans 3 (see `fonts/OFL.txt`).
 
 ### Line-icon set
 One consistent set of inline SVG stroke icons (24×24, `currentColor`) replaces emoji across tabs, buttons and cards, so icons follow the theme and stay crisp at any size.
@@ -50,9 +52,9 @@ One consistent set of inline SVG stroke icons (24×24, `currentColor`) replaces 
 - **Plateau and stall detection** with suggestion cards (swap in a same-muscle alternative from an approved library, or dismiss).
 - **Deload reminder** after 6 training weeks, with a pre-filled −20% session (snooze or skip a cycle).
 - **Start workout sheet:** logs several blocks in one go, pre-filled from the plan, with *Last time* one-tap fill and an optional date.
-- **Personal records** (top weight, best reps, best weight × reps) with a confetti banner (none under `prefers-reduced-motion`).
+- **Personal records** (top weight, best reps, best weight × reps) shown on a record card. There is no confetti.
 - **Session history** with optional notes, **trend sparklines** and an estimated 1RM (Brzycki).
-- **Weekly streak** (work/holiday absences don't break it), **this-week strip** that highlights neglected tabs, workouts-vs-plan percentage, and a **weekly report**.
+- **Weekly streak** (work/holiday absences don't break it), a **this-week strip** of session counts per tab, workouts in the last 7/30/90 days, and a **weekly report** with human dates (`9–15 Nov`).
 
 <img src="docs/screenshots/weekly-report.png" width="260" alt="Weekly report dialog">
 
@@ -90,7 +92,9 @@ node rules.test.js
 ## Versioning
 The version lives in `manifest.webmanifest` and is shown in the app footer. Its middle number must match the `wills-body-vN` cache name in `sw.js` (a test enforces this), so each release refreshes the offline cache.
 
-**1.18.0** — data safety: in-progress workouts persist across reloads; save errors are reported; corrupt or unknown-version data is backed up, migrated or rescued, never wiped; Export JSON is now a restorable full backup; imports are validated and sanitised (no script injection), undoable once, and CSV import is quote-aware and respects the `tab` column. Quick wins: 16px fields (no iOS zoom), 48px ✕/fold buttons, Undo after deactivating an exercise, readable week-strip text on green cells, `aria-pressed` on effort/block buttons, and a confirm before closing a Start-workout sheet with entries.
+**1.19.0** — Matte visual pass: graphite / chalk / plate-rust tokens, self-hosted fonts, compact home cards, Strong-style logging rows, docked rest timer with a safe-area inset, sticky Finish on the start-workout sheet, human `en-GB` dates, and no confetti. Reduce shine stays high-contrast without recolouring the primary button.
+
+**1.18.0** — data safety: in-progress workouts persist across reloads; save errors are reported; corrupt or unknown-version data is backed up, migrated or rescued, never wiped; Export JSON is now a restorable full backup; imports are validated and sanitised (no script injection), undoable once, and CSV import is quote-aware and respects the `tab` column. Quick wins: 16px fields (no iOS zoom), 48px ✕/fold buttons, Undo after deactivating an exercise, readable week-strip text on filled cells, `aria-pressed` on effort/block buttons, and a confirm before closing a Start-workout sheet with entries.
 
 **1.17.0** — Equipment Rowing machine and Treadmill log distance (m) + time (min); StepMaster/Bike stay Level + min. Older level-based logs keep their minutes (metres show as 0).
 

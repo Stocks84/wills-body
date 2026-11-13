@@ -35,8 +35,7 @@ const IP={dumbbell:'<rect x="4" y="8" width="3" height="8" rx="1"/><rect x="17" 
   download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'};
 const ic=(n,c='')=>`<svg class="ic${c?' '+c:''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${IP[n]}</svg>`;
 const ICONS={arms:'dumbbell','chest-back':'barbell',shoulders:'press',bodyweight:'jump',equipment:'bike'};
-const SHY={Bodyweight:'Body&shy;weight',Equipment:'Equip&shy;ment',Shoulders:'Shoul&shy;ders'};
-const tabBtn=(k,l)=>`<span class="ti" aria-hidden="true">${ic(ICONS[k])}</span><span class="tl">${SHY[l]||esc(l)}</span>`;
+const tabBtn=(k,l)=>`<span class="ti" aria-hidden="true">${ic(ICONS[k])}</span><span class="tl">${esc(l)}</span>`;
 let draftNotes={};
 // FEATURE · Fold finished exercises: once an exercise's target sets are logged today its card collapses to a one-line
 // summary button (✓ name · n/n sets) to keep the page short. Tapping re-expands it; nothing is saved to storage.
@@ -46,6 +45,25 @@ const loggedToday=(T,id)=>T.sessions.filter(s=>s.date===today()).reduce((n,s)=>n
 let S, cur=localStorage.getItem(KEY+'.tab')||'arms', draft={}, ui={}; // draft: exId -> {sets:[], reps, weight, effort, targetSets}
 const $=s=>document.querySelector(s), esc=Rules.esc; // esc() escapes & < > " ' – use it on EVERY interpolated value (names, numbers, dates, ids)
 const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(iso){
+  const s=String(iso||''); if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const [y,m,d]=s.split('-').map(Number);
+  return WD[new Date(Date.UTC(y,m-1,d)).getUTCDay()]+' '+d+' '+MO[m-1];
+}
+function fmtRange(a,b){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(a||''))||!/^\d{4}-\d{2}-\d{2}$/.test(String(b||''))) return (a||'')+' – '+(b||'');
+  const [y1,m1,d1]=a.split('-').map(Number), [y2,m2,d2]=b.split('-').map(Number);
+  if(y1===y2 && m1===m2) return d1+'\u2013'+d2+' '+MO[m1-1];
+  if(y1===y2) return d1+' '+MO[m1-1]+'\u2013'+d2+' '+MO[m2-1];
+  return d1+' '+MO[m1-1]+' '+y1+'\u2013'+d2+' '+MO[m2-1]+' '+y2;
+}
+function daysBetween(iso){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||''))) return 0;
+  const [y,m,d]=iso.split('-').map(Number), t=today().split('-').map(Number);
+  return Math.round((Date.UTC(t[0],t[1]-1,t[2])-Date.UTC(y,m-1,d))/864e5);
+}
+function agoPhrase(iso){const n=daysBetween(iso); return n<=0?'today':n===1?'1 day ago':n+' days ago'}
 // FEATURE · Data safety (1.18.0): save() never throws (toast + false on quota/blocked storage); unreadable or
 // unknown-version data is copied to a backup key BEFORE anything else happens and is never overwritten with seed data.
 function save(){
@@ -105,72 +123,167 @@ function restoreDraft(){const r=Rules.draftFromStore(localStorage.getItem(DRAFT_
 const U=Rules.unitInfo;
 const fmtPlan=(p,u)=>esc(fmtPlanTxt(p,u)), fmtPlanTxt=(p,u)=>u==='kg'?`${p.sets}×${p.reps} @ ${p.weight}kg`:u==='level'?`${p.sets}× ${p.reps} min @ L${p.weight}`:u==='rowing'?`${p.sets}× ${p.reps} m · ${p.weight} min`:`${p.sets}×${p.reps}${U(u).short?' '+U(u).short:''}`;
 function fmtSets(sets,u){return sets.map(x=>`<span class="chip">${esc(Rules.fmtSet(x,u))}${x.effort?' · '+esc(x.effort):''}</span>`).join('')}
-function render(){
-  const T=S.tabs[cur], allDates=Object.values(S.tabs).flatMap(t=>t.sessions.map(s=>s.date));
-  $('#streak').innerHTML=ic('flame')+' '+Rules.weeklyStreak(allDates,S.absences,today())+' wk streak';
-  const st=Rules.workoutStats(S.tabs,S.absences,today(),S.statsWindow,S.weeklyTarget);
-  $('#stats').innerHTML=ic('pulse')+` ${st.done} in ${st.days}d${st.pct==null?'':' · '+st.pct+'%'}`; $('#stats').title=`${st.done} workouts / ${st.planned} planned (${S.weeklyTarget}/week, absence weeks excluded). Tap to change window.`;
-  $('#tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${k===cur}" data-tab="${k}">${tabBtn(k,l)}</button>`).join('');
-  let h='';
-  if(loadNotice) h+=`<div class="card notice"><h3>${ic('alert')} ${loadNotice.kind==='corrupt'?"Saved data couldn't be read":'Data upgraded from an older format'}</h3><div class="help">${loadNotice.kind==='corrupt'?'Nothing was deleted: the unreadable copy was kept on this phone. Export it and send it over so it can be recovered.':'A copy of the original was kept on this phone before upgrading.'}</div><div class="row"><button class="ghost" data-act="rawexport">${ic('download')} Export raw copy</button><button class="ghost" data-act="noticeok">Dismiss</button></div></div>`;
-  const lastS=T.sessions[T.sessions.length-1], tabLabel=TABS.find(t=>t[0]===cur)[1];
-  h+=`<div class="tabhead"><h2>${tabLabel}</h2><div class="mut">${Rules.activeSlots(T.routine)} active · ${T.sessions.length} sessions · last ${lastS?esc(lastS.date):'—'}</div></div>`;
-  h+=`<div class="strip" aria-label="This week per tab">${Rules.weekStrip(S.tabs,TABS.map(t=>t[0]),today()).map(c=>{const l=TABS.find(t=>t[0]===c.tab)[1];
-    return `<button data-tab="${c.tab}" aria-label="${l}" class="cell ${c.neglected?'neglected':'lvl'+Math.min(3,c.sessions)} ${c.tab===cur?'cur':''}" title="${l}: ${c.sessions} sessions, ${c.volume} kg, ${c.minutes} min"><span>${SHY[l]||l}</span><b>${c.sessions}</b><small>${c.neglected?'neglected':c.volume?Math.round(c.volume)+' kg':c.minutes?c.minutes+' min':'done'}</small></button>`}).join('')}</div>`;
-  h+=`<button class="ghost" data-act="copy" style="width:100%;margin:4px 0">${ic('copy')} Copy session</button>`;
-  const dl=deloadFor(cur);
-  if(dl.due) h+=`<div class="card deload"><h3>${ic('leaf')} Deload week due</h3><div class="help">${esc(dl.weeks)} training weeks since ${esc(dl.anchor)}. Do one lighter session at −20% weight to recover; it won't count for records or stall checks.</div>
-    <button class="primary" data-act="deload">Plan deload session</button><div class="row" style="margin-top:8px"><button class="ghost" data-act="dlsnooze">Snooze 1 week</button><button class="ghost" data-act="dlskip">Skip this cycle</button></div></div>`;
-  if(lastRecords.length) h+=`<div class="card record"><h3>${ic('trophy')} New record${lastRecords.length>1?'s':''}!</h3>${lastRecords.map(r=>`<div>${recTxt(r)}</div>`).join('')}<button class="ghost" data-act="recok" style="margin-top:8px;width:100%">Nice – dismiss</button></div>`;
-  const wk=Rules.isoWeek(today());
-  if(new Date().getDay()===0 && S.reportDismissed!==wk) h+=reportCard(true);
-  if(T._example) h+=`<div class="banner"><span>Example routine – import your log</span><button data-act="import">Import</button></div>`;
-  const nDraft=Rules.draftSetCount(draft);
-  if(nDraft) h+=`<div class="inprog"><div><b>Workout in progress · ${nDraft} set${nDraft>1?'s':''}</b><div class="help">Finish saves your workout and sets next time's targets.</div></div><button class="ghost iconbtn inprog-x" data-act="discard" aria-label="Discard workout" title="Discard workout">${ic('x')}</button><button class="primary" data-act="complete">${ic('check')} Finish workout</button></div>`;
-  else h+=`<button class="primary" data-act="quick" style="margin:8px 0">${ic('play')} Start workout</button><div class="help">Pick a block, log your sets, then Finish.</div>`;
-  for(const c of Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed,S.customLibrary))
-    h+=`<div class="card sugg"><h3>${ic('swap')} Time to change this exercise</h3><div class="mut">${esc(c.reason)}</div>${c.alternatives.map(x=>`<div class="row" style="margin-top:8px"><span>${esc(x.name)}${x.source==='library'?'':' <span class=mut>(alt)</span>'}</span><button data-act="swap" data-from="${esc(c.exerciseId)}" data-n="${esc(x.name)}">Swap in</button><button class="ghost" data-act="dismiss" data-n="${esc(x.name)}" aria-label="Dismiss">${ic('x')}</button></div>`).join('')}</div>`;
-  const stalledIds=new Set(Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed).map(c=>c.exerciseId));
-  for(const s of Rules.suggestions(cur,T.routine,T.sessions,T.dismissed,S.customLibrary).filter(s=>!stalledIds.has(s.exerciseId)))
-    h+=`<div class="card sugg"><h3>${ic('bulb')} Try ${esc(s.exercise)}</h3><div class="mut">${esc(s.reason)}</div><div class="row" style="margin-top:8px">
-      <button data-act="up" data-n="${esc(s.exercise)}" data-from="${esc(s.exerciseId)}">${ic('plus')} Add</button><button data-act="dismiss" data-n="${esc(s.exercise)}">${ic('x')} Dismiss</button></div></div>`;
-  const snap=T.plans[T.plans.length-1];
-  if(snap) h+=`<div class="card"><h3>Saved plan for next session</h3><div class="mut">Snapshot from ${esc(snap.date)}</div>${snap.items.map(i=>`<div>${esc(i.name)}: <span class="plan">${fmtPlan(i,i.unit)}</span></div>`).join('')}</div>`;
-  for(const ex of T.routine.filter(Rules.isActive)){
-    const hist=Rules.history(ex.id,T.sessions), last=hist[hist.length-1], plan=Rules.nextPlan(ex,T.sessions);
-    const d=draft[ex.id]||(draft[ex.id]={sets:[],reps:plan.reps,weight:plan.weight,effort:'Good',targetSets:plan.sets});
-    const flags=Rules.detectPlateaus(ex,T.sessions);
-    const fk=cur+'/'+ex.id, nToday=d.sets.length+loggedToday(T,ex.id), allDone=d.targetSets>0&&nToday>=d.targetSets;
-    // Fold logic: allDone = today's logged sets ≥ target; a manual re-open (unfolded set) is remembered until the card is no longer complete
-    if(!allDone) unfolded.delete(fk);
-    if(allDone&&!unfolded.has(fk)){
-      h+=`<button class="card folded" data-act="unfold" data-ex="${esc(ex.id)}" aria-expanded="false" aria-label="${esc(ex.name)}: all ${esc(d.targetSets)} sets logged today. Show details">${ic('checkc','ok')}<span class="fname">${esc(ex.name)}</span><span class="mut">${esc(nToday)}/${esc(d.targetSets)} sets</span>${ic('chevd')}</button>`;
-      continue;}
-    h+=`<div class="card">${allDone?`<button class="ghost foldbtn" data-act="fold" data-ex="${esc(ex.id)}" aria-expanded="true" aria-label="Fold ${esc(ex.name)}">${ic('chevu')}</button>`:''}<h3>${esc(ex.name)}</h3><div class="mut">Routine: ${esc(ex.targetSets)} × ${ex.repMin&&ex.repMin!==ex.repMax?esc(ex.repMin)+'–':''}${esc(ex.targetReps)} ${U(ex.unit).reps.toLowerCase()}</div>
-      <div class="mut">Last: ${last?esc(last.date)+'</div><div class="sets">'+fmtSets(last.sets,ex.unit):'none yet'}</div>
-      <div><button class="ghost deact" data-act="toggle" data-ex="${esc(ex.id)}" aria-label="Deactivate ${esc(ex.name)}" title="Deactivate">${ic('x')}</button>Next: <span class="plan">${fmtPlan(plan,ex.unit)}</span> <span class="mut">${esc(plan.note)}</span></div>
-      ${trendHTML(ex,T.sessions)}
-      ${flags.map(f=>`<div style="color:var(--warn)">${ic('alert')} ${esc(f.reason)}</div>`).join('')}
-      ${(()=>{const rl=Rules.recentLast(ex,T.sessions,today());return rl?`<button class="ghost lastbtn" data-act="fill" data-ex="${esc(ex.id)}">${ic('undo')} Same as last time (${esc(rl.date)}): ${fmtPlan(rl,ex.unit)}</button>`:''})()}
-      ${stepper(ex.id,'targetSets','Sets',d.targetSets)}${stepper(ex.id,'reps',U(ex.unit).reps,d.reps)}
-      ${U(ex.unit).hasWeight?stepper(ex.id,'weight',U(ex.unit).weight,d.weight):''}
-      <div class="eff">${['Ok','Good','Tough'].map(e=>`<button class="${d.effort===e?'on':''}" aria-pressed="${d.effort===e}" data-act="eff" data-ex="${esc(ex.id)}" data-v="${e}">${e}</button>`).join('')}</div>
-      <button class="primary" data-act="log" data-ex="${esc(ex.id)}">Log set ${Math.min(d.sets.length+1,99)} of ${esc(d.targetSets)}</button>
-      <div class="sets">${fmtSets(d.sets,ex.unit)}${d.sets.length?`<button data-act="undo" data-ex="${esc(ex.id)}">Undo</button>`:''}</div></div>`;
+function ensureDraft(ex, sessions){
+  if(!draft[ex.id]){
+    const plan=Rules.nextPlan(ex, sessions);
+    draft[ex.id]={sets:[],reps:plan.reps,weight:plan.weight,effort:'Good',targetSets:plan.sets};
   }
-  const inactive=T.routine.filter(r=>!Rules.isActive(r));
-  if(inactive.length) h+=`<details class="card"><summary>Inactive / optional (${inactive.length})</summary>${inactive.map(r=>`<div class="row" style="margin-top:6px"><span>${esc(r.name)}</span><button class="ghost" data-act="toggle" data-ex="${esc(r.id)}">Activate</button></div>`).join('')}</details>`;
-  const any=T.routine.some(r=>draft[r.id]&&draft[r.id].sets.length);
-  if(any) h+=`<label class="mut" style="display:block;margin:8px 0">Workout notes (optional)<textarea id="sessNotes" rows="2" style="min-height:64px">${esc(draftNotes[cur]||'')}</textarea></label>`;
-  h+=libraryCard(T);
-  h+=`<div class="row" style="margin:12px 0"><button class="ghost" data-act="import">Import log</button></div>`;
-  const hist=[...T.sessions].reverse();
-  if(hist.length) h+=`<details class="card"><summary>Session history (${hist.length})</summary>${hist.map(s=>`<div class="hist"><b>${esc(s.date)}</b>${s.label?' · '+esc(s.label):''}<div class="mut">${s.entries.map(e=>{const r=T.routine.find(x=>x.id===e.exerciseId)||T.routine.find(x=>(x.legacyIds||[]).includes(e.exerciseId)); const nm=r?r.name:(e.exerciseId==='ex-row-time'||e.exerciseId==='ex-row-distance'?'Rowing':e.exerciseId); return esc(nm)+' '+e.sets.length+'×'+esc(e.sets[0]?e.sets[0].reps:'')+(e.sets[0]&&e.sets[0].weight?' @'+esc(e.sets[0].weight)+(r&&r.unit==='rowing'?' min':'kg'):'')}).join(' · ')}</div>${s.notes?`<div class="note">${ic('note')} ${esc(s.notes)}</div>`:''}</div>`).join('')}</details>`;
+  return draft[ex.id];
+}
+function colW(unit){return unit==='level'?'Lvl':unit==='rowing'?'min':'kg'}
+function colR(unit){return unit==='rowing'?'m':(unit==='level'||unit==='min')?'min':'Reps'}
+function prevOf(set, unit){if(!set) return '—'; return U(unit).hasWeight?set.weight+'\u00d7'+set.reps:String(set.reps)}
+function foldState(ex, T){
+  const d=ensureDraft(ex, T.sessions);
+  const nToday=d.sets.length+loggedToday(T,ex.id), allDone=d.targetSets>0&&nToday>=d.targetSets, fk=cur+'/'+ex.id;
+  if(!allDone) unfolded.delete(fk);
+  return {d,nToday,allDone,fk};
+}
+function setTable(ex, d, last){
+  const info=U(ex.unit), hasW=!!info.hasWeight;
+  const n=Math.max(d.targetSets||1, d.sets.length+(d.sets.length>=(d.targetSets||1)?0:1));
+  let h=`<div class="setgrid${hasW?'':' noweight'}"><div class="sethead"><span>Set</span><span>Previous</span>${hasW?`<span>${esc(colW(ex.unit))}</span>`:''}<span>${esc(colR(ex.unit))}</span><span></span></div>`;
+  for(let i=0;i<n;i++){
+    const prev=last&&last.sets?last.sets[i]:null, prevH=`<span class="prev">${esc(prevOf(prev, ex.unit))}</span>`;
+    if(i<d.sets.length){
+      const s=d.sets[i];
+      h+=`<div class="setrow"><span class="sn">${i+1}</span>${prevH}${hasW?`<span class="cell">${esc(s.weight)}</span>`:''}<span class="cell">${esc(s.reps)}</span><span class="tick on">${ic('check')}</span></div>`;
+    }else if(i===d.sets.length){
+      h+=`<div class="setrow cur"><span class="sn">${i+1}</span>${prevH}`
+        +(hasW?`<input class="step-in" type="number" inputmode="decimal" min="0" step="any" data-ex="${esc(ex.id)}" data-f="weight" value="${esc(d.weight)}" aria-label="${esc(info.weight||'Weight')}">`:'')
+        +`<input class="step-in cur" type="number" inputmode="decimal" min="1" step="any" data-ex="${esc(ex.id)}" data-f="reps" value="${esc(d.reps)}" aria-label="${esc(info.reps)}">`
+        +`<button type="button" class="tick" data-act="log" data-ex="${esc(ex.id)}" aria-label="Log set ${i+1}">${ic('check')}</button></div>`;
+    }else{
+      h+=`<div class="setrow"><span class="sn">${i+1}</span>${prevH}${hasW?`<span class="cell quiet">${esc(d.weight)}</span>`:''}<span class="cell"><i class="pend"></i></span><span class="tick" aria-hidden="true"></span></div>`;
+    }
+  }
+  return h+'</div>';
+}
+function loggerInner(ex, T){
+  const hist=Rules.history(ex.id,T.sessions), last=hist[hist.length-1], plan=Rules.nextPlan(ex,T.sessions);
+  const d=ensureDraft(ex, T.sessions), flags=Rules.detectPlateaus(ex,T.sessions);
+  const range=ex.repMin&&ex.repMin!==ex.repMax?esc(ex.repMin)+'\u2013'+esc(ex.repMax):esc(ex.targetReps);
+  const rl=Rules.recentLast(ex,T.sessions,today());
+  return `<h3>${esc(ex.name)}</h3>
+    <div class="mut">Routine: ${esc(ex.targetSets)} × ${range} ${esc(U(ex.unit).reps.toLowerCase())}</div>
+    <div class="nextline"><span class="mut">Next</span><span class="plan">${fmtPlan(plan,ex.unit)}</span><span class="suggnote">${esc(plan.note||'')}</span></div>
+    ${flags.map(f=>`<div class="cue">${ic('alert')} ${esc(f.reason)}</div>`).join('')}
+    ${rl?`<button type="button" class="ghost lastbtn" data-act="fill" data-ex="${esc(ex.id)}">${ic('undo')} Same as last time (${esc(fmtDate(rl.date))}): ${fmtPlan(rl,ex.unit)}</button>`:''}
+    ${setTable(ex,d,last)}
+    <div class="eff">${['Ok','Good','Tough'].map(e=>`<button type="button" class="${d.effort===e?'on':''}" aria-pressed="${d.effort===e}" data-act="eff" data-ex="${esc(ex.id)}" data-v="${e}">${e}</button>`).join('')}</div>
+    <button type="button" class="primary" data-act="log" data-ex="${esc(ex.id)}">Log set ${Math.min(d.sets.length+1,99)} of ${esc(d.targetSets)}</button>
+    <div class="sets">${fmtSets(d.sets,ex.unit)}${d.sets.length?`<button type="button" data-act="undo" data-ex="${esc(ex.id)}">${ic('undo')} Undo</button>`:''}</div>
+    ${trendHTML(ex,T.sessions)}`;
+}
+function foldedBtn(ex, fold){
+  return `<button type="button" class="card folded" data-act="unfold" data-ex="${esc(ex.id)}" aria-expanded="false" aria-label="${esc(ex.name)}: all ${esc(fold.d.targetSets)} sets logged today. Show details">${ic('checkc','ok')}<span class="fname">${esc(ex.name)}</span><span class="mut">${esc(fold.nToday)}/${esc(fold.d.targetSets)} sets</span>${ic('chevd')}</button>`;
+}
+function compactHTML(ex, T, selected){
+  const fold=foldState(ex, T);
+  if(fold.allDone&&!unfolded.has(fold.fk)) return foldedBtn(ex, fold);
+  const hist=Rules.history(ex.id,T.sessions), last=hist[hist.length-1], plan=Rules.nextPlan(ex,T.sessions);
+  const t=Rules.trendSeries(ex,T.sessions), flags=Rules.detectPlateaus(ex,T.sessions);
+  const range=ex.repMin&&ex.repMin!==ex.repMax?esc(ex.repMin)+'\u2013'+esc(ex.repMax):esc(ex.targetReps);
+  const cue=flags[0]?`<div class="cue">${ic('alert')} ${esc(flags[0].reason)}</div>`:(t.dates.length>=2?`<div class="trendline">${ic('trend')} Trend (${t.dates.length} sessions)</div>`:'');
+  return `<div class="exwrap${selected?' has-deact':''}">
+    <button type="button" class="card ex${selected?' sel':''}" data-act="openlog" data-ex="${esc(ex.id)}">
+      <h3 class="title">${esc(ex.name)}</h3>
+      <div class="mut">${esc(ex.targetSets)} × ${range} ${esc(U(ex.unit).reps.toLowerCase())} · Last ${last?esc(fmtDate(last.date)):'—'}</div>
+      ${last?`<div class="sets">${fmtSets(last.sets,ex.unit)}</div>`:''}
+      <div class="nextline"><span class="mut">Next</span><span class="plan">${fmtPlan(plan,ex.unit)}</span><span class="suggnote">${esc(plan.note||'')}</span></div>
+      ${cue}
+    </button>
+    ${selected?`<button type="button" class="ghost iconbtn deact" data-act="toggle" data-ex="${esc(ex.id)}" aria-label="Deactivate ${esc(ex.name)}" title="Deactivate">${ic('x')}</button>`:''}
+  </div>`;
+}
+function notesField(){
+  const any=Object.values(draft).some(d=>d&&d.sets&&d.sets.length);
+  return any?`<label class="mut" style="display:block;margin:8px 0">Workout notes (optional)<textarea id="sessNotes" rows="2">${esc(draftNotes[cur]||'')}</textarea></label>`:'';
+}
+function loggingHTML(T, openId){
+  const acts=T.routine.filter(Rules.isActive), idx=Math.max(0, acts.findIndex(e=>e.id===openId)), ex=acts[idx];
+  if(!ex) return '';
+  const label=TABS.find(t=>t[0]===cur)[1], nDraft=Rules.draftSetCount(draft), fold=foldState(ex, T);
+  let h=`<div class="loghead"><button type="button" class="iconbtn" data-act="closelog" aria-label="Close">${ic('x')}</button><div class="grow"><h2>${esc(label)}</h2><div class="mut">${nDraft?'In progress':'Logging'} · ${idx+1} of ${acts.length}</div></div><button type="button" class="primary slim" data-act="complete">${ic('check')} Finish</button></div>`;
+  h+=fold.allDone&&!unfolded.has(fold.fk)?foldedBtn(ex, fold):`<div class="card">${loggerInner(ex,T)}</div>`;
+  for(const o of acts){ if(o.id===ex.id) continue; const plan=Rules.nextPlan(o,T.sessions);
+    h+=`<button type="button" class="upnext" data-act="openlog" data-ex="${esc(o.id)}"><span><span class="k">Up next</span><span class="nm">${esc(o.name)}</span></span><span class="plan">${fmtPlan(plan,o.unit)}</span></button>`; }
+  return h+notesField();
+}
+function paneHTML(T, openId){
+  const acts=T.routine.filter(Rules.isActive), ex=acts.find(e=>e.id===openId)||acts[0];
+  if(!ex) return '<p class="mut">No active exercises.</p>';
+  const label=TABS.find(t=>t[0]===cur)[1], nDraft=Rules.draftSetCount(draft), idx=acts.findIndex(e=>e.id===ex.id)+1;
+  let h=`<div class="sesshead"><div class="sesshead-row"><h2>${esc(label)}</h2>${nDraft?`<button type="button" class="iconbtn" data-act="discard" aria-label="Discard workout" title="Discard workout">${ic('x')}</button><button type="button" class="primary slim" data-act="complete">Finish</button>`:''}</div><p class="meta">${nDraft?'In progress':'Ready'} · ${idx} of ${acts.length}</p></div>`;
+  const fold=foldState(ex, T);
+  h+=fold.allDone&&!unfolded.has(fold.fk)?foldedBtn(ex, fold):`<div class="card">${loggerInner(ex,T)}</div>`;
+  return `<div class="pane-scroll">${h}${notesField()}</div>`;
+}
+function render(){
+  const wide=matchMedia('(min-width:1024px)').matches;
+  const T=S.tabs[cur], allDates=Object.values(S.tabs).flatMap(t=>t.sessions.map(s=>s.date));
+  const lastS=T.sessions[T.sessions.length-1];
+  const wl=$('#weekline'); if(wl) wl.textContent=lastS?`Last session ${fmtDate(lastS.date)} · ${agoPhrase(lastS.date)}`:'No sessions yet';
+  $('#streak').innerHTML=`${Rules.activeSlots(T.routine)} active · ${T.sessions.length} sessions · ${ic('flame')} ${Rules.weeklyStreak(allDates,S.absences,today())} wk streak`;
+  const st=Rules.workoutStats(S.tabs,S.absences,today(),S.statsWindow,S.weeklyTarget);
+  const statTxt=st.done===0?`0 sessions in the last ${st.days} days`:`${st.done} ${st.done===1?'session':'sessions'} in the last ${st.days} days${st.pct==null?'':' · '+st.pct+'% complete'}`;
+  $('#stats').innerHTML=ic('pulse')+' '+statTxt;
+  $('#stats').title=`${st.done} workouts, ${st.planned} planned (${S.weeklyTarget} a week, absence weeks excluded). Tap to change the window.`;
+  $('#tabs').innerHTML=TABS.map(([k,l])=>`<button type="button" role="tab" aria-selected="${k===cur}" data-tab="${k}">${tabBtn(k,l)}</button>`).join('');
+  const acts=T.routine.filter(Rules.isActive);
+  acts.forEach(ex=>ensureDraft(ex, T.sessions));
+  let openId=null;
+  if(ui.open && acts.some(e=>e.id===ui.open)) openId=ui.open;
+  else if(wide) openId=(acts.find(e=>draft[e.id]&&draft[e.id].sets.length)||acts[0]||{}).id||null;
+  else if(!ui.home){ const hit=acts.find(e=>draft[e.id]&&draft[e.id].sets.length); if(hit) openId=hit.id; }
+  if(openId) ui.open=openId;
+  const mobileLog=!wide && !!openId;
+  document.body.classList.toggle('logging', mobileLog);
+  parkTimer();
+  let h='';
+  if(mobileLog) h=loggingHTML(T, openId);
+  else {
+    if(loadNotice) h+=`<div class="card notice"><h3>${ic('alert')} ${loadNotice.kind==='corrupt'?"Saved data couldn't be read":'Data upgraded from an older format'}</h3><div class="help">${loadNotice.kind==='corrupt'?'Nothing was deleted: the unreadable copy was kept on this phone. Export it and send it over so it can be recovered.':'A copy of the original was kept on this phone before upgrading.'}</div><div class="row"><button type="button" class="ghost" data-act="rawexport">${ic('download')} Export raw copy</button><button type="button" class="ghost" data-act="noticeok">Dismiss</button></div></div>`;
+    const week=Rules.weekStrip(S.tabs,TABS.map(t=>t[0]),today());
+    if(week.some(c=>c.sessions>0)) h+=`<div class="strip" aria-label="This week">${week.map(c=>{const l=TABS.find(t=>t[0]===c.tab)[1]; const n=c.sessions|0;
+      const detail=n?(c.volume?Math.round(c.volume)+' kg':c.minutes?c.minutes+' min':'done'):'\u2014';
+      return `<button type="button" data-tab="${c.tab}" aria-label="${esc(l)}, ${n} ${n===1?'session':'sessions'} this week" class="cell lvl${Math.min(3,n)}${c.tab===cur?' cur':''}">${ic(ICONS[c.tab])}<b>${n}</b><small>${esc(detail)}</small></button>`;
+    }).join('')}</div>`;
+    h+=`<button type="button" class="ghost" data-act="copy" style="width:100%;margin:8px 0">${ic('copy')} Copy session</button>`;
+    const nDraft=Rules.draftSetCount(draft);
+    if(nDraft) h+=`<div class="inprog"><div><b>Workout in progress · ${nDraft} set${nDraft>1?'s':''}</b><div class="help">Finish saves your workout and sets next time's targets.</div></div><button type="button" class="ghost iconbtn inprog-x" data-act="discard" aria-label="Discard workout" title="Discard workout">${ic('x')}</button></div>`;
+    else h+=`<button type="button" class="primary start" data-act="quick">${ic('play')} Start workout</button><div class="help">Pick a block, log your sets, then Finish.</div>`;
+    const dl=deloadFor(cur);
+    if(dl.due) h+=`<div class="card deload"><h3>${ic('leaf')} Deload week due</h3><div class="help">${esc(dl.weeks)} training weeks since ${esc(fmtDate(dl.anchor))}. Do one lighter session at −20% weight to recover; it won't count for records or stall checks.</div>
+      <button type="button" class="primary" data-act="deload">Plan deload session</button><div class="row" style="margin-top:8px"><button type="button" class="ghost" data-act="dlsnooze">Snooze 1 week</button><button type="button" class="ghost" data-act="dlskip">Skip this cycle</button></div></div>`;
+    if(lastRecords.length) h+=`<div class="card record"><h3>${ic('trophy')} New record${lastRecords.length>1?'s':''}</h3>${lastRecords.map(r=>`<div>${recTxt(r)}</div>`).join('')}<button type="button" class="ghost" data-act="recok" style="margin-top:8px;width:100%">Dismiss</button></div>`;
+    const wk=Rules.isoWeek(today());
+    if(new Date().getDay()===0 && S.reportDismissed!==wk) h+=reportCard(true);
+    if(T._example) h+=`<div class="banner"><span>Example routine – import your log</span><button type="button" data-act="import">Import</button></div>`;
+    for(const c of Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed,S.customLibrary))
+      h+=`<div class="card sugg"><h3>${ic('swap')} Time to change this exercise</h3><div class="mut">${esc(c.reason)}</div>${c.alternatives.map(x=>`<div class="row" style="margin-top:8px"><span>${esc(x.name)}${x.source==='library'?'':' <span class=mut>(alt)</span>'}</span><button type="button" data-act="swap" data-from="${esc(c.exerciseId)}" data-n="${esc(x.name)}">Swap in</button><button type="button" class="ghost" data-act="dismiss" data-n="${esc(x.name)}" aria-label="Dismiss">${ic('x')}</button></div>`).join('')}</div>`;
+    const stalledIds=new Set(Rules.plateauCards(cur,T.routine,T.sessions,T.dismissed).map(c=>c.exerciseId));
+    for(const s of Rules.suggestions(cur,T.routine,T.sessions,T.dismissed,S.customLibrary).filter(s=>!stalledIds.has(s.exerciseId)))
+      h+=`<div class="card sugg"><h3>${ic('bulb')} Try ${esc(s.exercise)}</h3><div class="mut">${esc(s.reason)}</div><div class="row" style="margin-top:8px">
+        <button type="button" data-act="up" data-n="${esc(s.exercise)}" data-from="${esc(s.exerciseId)}">${ic('plus')} Add</button><button type="button" data-act="dismiss" data-n="${esc(s.exercise)}">${ic('x')} Dismiss</button></div></div>`;
+    const snap=T.plans[T.plans.length-1];
+    if(snap) h+=`<div class="card"><h3>Saved plan for next session</h3><div class="mut">Snapshot from ${esc(fmtDate(snap.date))}</div>${snap.items.map(i=>`<div>${esc(i.name)}: <span class="plan">${fmtPlan(i,i.unit)}</span></div>`).join('')}</div>`;
+    for(const ex of acts) h+=compactHTML(ex, T, wide&&ex.id===openId);
+    const inactive=T.routine.filter(r=>!Rules.isActive(r));
+    if(inactive.length) h+=`<details class="card"><summary>Inactive / optional (${inactive.length})</summary>${inactive.map(r=>`<div class="row" style="margin-top:8px"><span>${esc(r.name)}</span><button type="button" class="ghost" data-act="toggle" data-ex="${esc(r.id)}">Activate</button></div>`).join('')}</details>`;
+    if(!wide) h+=notesField();
+    h+=libraryCard(T);
+    h+=`<div class="row" style="margin:16px 0"><button type="button" class="ghost" data-act="import">Import log</button></div>`;
+    const hist=[...T.sessions].reverse();
+    if(hist.length) h+=`<details class="card"><summary>Session history (${hist.length})</summary>${hist.map(s=>`<div class="hist"><b>${esc(fmtDate(s.date))}</b>${s.label?' · '+esc(s.label):''}<div class="mut">${s.entries.map(e=>{const r=T.routine.find(x=>x.id===e.exerciseId)||T.routine.find(x=>(x.legacyIds||[]).includes(e.exerciseId)); const nm=r?r.name:(e.exerciseId==='ex-row-time'||e.exerciseId==='ex-row-distance'?'Rowing':e.exerciseId); return esc(nm)+' '+e.sets.length+'×'+esc(e.sets[0]?e.sets[0].reps:'')+(e.sets[0]&&e.sets[0].weight?' @'+esc(e.sets[0].weight)+(r&&r.unit==='rowing'?' min':'kg'):'')}).join(' · ')}</div>${s.notes?`<div class="note">${ic('note')} ${esc(s.notes)}</div>`:''}</div>`).join('')}</details>`;
+  }
   const main=$('#main'); main.innerHTML=h; main.removeAttribute('aria-busy');
-  if(celebrate){celebrate=false;confetti();}
+  const pane=$('#pane');
+  if(pane){ if(wide){pane.hidden=false;pane.innerHTML=paneHTML(T, openId);} else {pane.hidden=true;pane.innerHTML='';} }
   if(focusAfter){const f=document.querySelector(focusAfter);focusAfter=null;if(f)f.focus({preventScroll:true});}
   const sn=$('#sessNotes'); if(sn) sn.oninput=()=>{draftNotes[cur]=sn.value;saveDraft()};
   saveDraft();
+  placeChrome();
 }
 function stepper(id,f,label,v){const mode=f==='weight'||f==='reps'?'decimal':'numeric';const min=f==='weight'?0:1;
   return `<div class="step"><button type="button" data-act="dec" data-ex="${esc(id)}" data-f="${f}" aria-label="less ${label}">−</button><div class="v"><input class="step-in" type="number" inputmode="${mode}" min="${min}" step="any" data-ex="${esc(id)}" data-f="${f}" value="${esc(v)}" aria-label="${label}"><small>${label}</small></div><button type="button" data-act="inc" data-ex="${esc(id)}" data-f="${f}" aria-label="more ${label}">+</button></div>`}
@@ -205,6 +318,8 @@ document.addEventListener('click',e=>{
   else if(a==='copy'){copySession();return}
   // Fold / unfold toggles UI state only and restores keyboard focus to the same card
   else if(a==='unfold'||a==='fold'){const k=cur+'/'+b.dataset.ex,q=CSS.escape(b.dataset.ex);a==='unfold'?unfolded.add(k):unfolded.delete(k);focusAfter=`[data-act=${a==='unfold'?'fold':'unfold'}][data-ex="${q}"]`;}
+  else if(a==='openlog'){ui.open=b.dataset.ex;ui.home=false;}
+  else if(a==='closelog'){if(Rules.draftSetCount(draft)){confirmDiscard();return}ui.open=null;ui.home=true;}
   else if(a==='log'){d.sets.push({reps:d.reps,weight:U(ex.unit).hasWeight?d.weight:0,effort:d.effort});startTimer();focusAfter=`[data-ex="${CSS.escape(ex.id)}"]:is([data-act=unfold],[data-act=log])`;}
   else if(a==='undo') d.sets.pop();
   else if(a==='up'){const n=b.dataset.n;T.routine=Rules.acceptSuggestion(T.routine,{exerciseId:b.dataset.from},{id:'ex-'+Rules.slug(n),name:n,targetSets:3,targetReps:cur==='bodyweight'?12:10,unit:cur==='bodyweight'?'bodyweight':cur==='equipment'?'level':'kg'});save();}
@@ -252,13 +367,14 @@ document.addEventListener('keydown',e=>{
 // ('Keep going' closes it, 'Discard' calls discardWorkout). Rules.discardDraft is pure and unit-tested.
 // Discard the in-progress workout: clears the unsaved draft + rest timer only; never touches saved history
 function confirmDiscard(){const dlg=$('#dlg');resetDlg(dlg);
-  dlg.innerHTML=`<h3>Discard this workout?</h3><p class="mut">Sets logged in this session won't be saved.</p><div class="row" style="margin-top:12px"><button class="ghost" id="discKeep" autofocus>Keep going</button><button class="danger" id="discGo">${ic('x')} Discard</button></div>`;
+  dlg.innerHTML=`<h3>Discard this workout?</h3><p class="mut">Sets logged in this session won't be saved.</p><div class="row" style="margin-top:8px"><button class="ghost" id="discKeep" autofocus>Keep going</button><button class="danger" id="discGo">${ic('x')} Discard</button></div>`;
   dlg.showModal();$('#discKeep').onclick=()=>dlg.close();
   $('#discGo').onclick=()=>{dlg.close();discardWorkout();};}
-function discardWorkout(){const r=Rules.discardDraft(draft,draftNotes,cur);draft=r.draft;draftNotes=r.notes;clearDraft();stopTimer();render();scrollTo(0,0);toast('Workout discarded');}
+function discardWorkout(){const r=Rules.discardDraft(draft,draftNotes,cur);draft=r.draft;draftNotes=r.notes;clearDraft();stopTimer();ui.open=null;ui.home=true;render();scrollTo(0,0);toast('Workout discarded');}
 function complete(quiet){
   const T=S.tabs[cur], entries=T.routine.filter(r=>draft[r.id]&&draft[r.id].sets.length).map(r=>({exerciseId:r.id,sets:draft[r.id].sets}));
   if(!entries.length) return;
+  ui.open=null;ui.home=true;
   const date=today(), recs=Rules.sessionRecords(T.routine,T.sessions,{date,entries}), ex=T.sessions.find(s=>s.date===date);
   if(ex){for(const en of entries){const o=ex.entries.find(x=>x.exerciseId===en.exerciseId);o?o.sets.push(...en.sets):ex.entries.push(en)}} else T.sessions.push({date,entries,local:true});
   const nt=(draftNotes[cur]||'').trim(); if(nt){const s=T.sessions.find(s=>s.date===date);s.notes=s.notes&&s.local?s.notes+'\n'+nt:(s.notes?s.notes+'\n'+nt:nt);s.notesLocal=true;} delete draftNotes[cur];
@@ -266,19 +382,14 @@ function complete(quiet){
   storeRecords(cur,date,recs); draft={}; clearDraft(); save(); if(!quiet){stopTimer(); toast('Workout saved – next targets set');}
 }
 function trendHTML(ex,sessions){const t=Rules.trendSeries(ex,sessions);if(t.dates.length<2)return '';
-  return `<details class="trend"><summary>${ic('trend')} Trend (${t.dates.length} sessions)</summary>${t.series.map((s,i)=>`<div class="mut">${s.label}: ${esc(s.values[0])} → ${esc(s.values[s.values.length-1])}</div>
-    <svg viewBox="0 0 280 48" width="100%" height="48" role="img" aria-label="${s.label} trend"><polyline fill="none" stroke="${i?'var(--acc2)':'var(--acc)'}" stroke-width="3" stroke-linejoin="round" points="${Rules.sparkPoints(s.values)}"/></svg>`).join('')}
+  return `<details class="trend"><summary>${ic('trend')} Trend (${t.dates.length} sessions)</summary>${t.series.map((s,i)=>`<div class="mut">${esc(s.label)}: ${esc(s.values[0])} → ${esc(s.values[s.values.length-1])}</div>
+    <svg viewBox="0 0 280 48" width="100%" height="48" role="img" aria-label="${esc(s.label)} trend"><polyline fill="none" stroke="${i?'var(--trend-2)':'var(--acc-text)'}" stroke-width="3" stroke-linejoin="round" points="${Rules.sparkPoints(s.values)}"/></svg>`).join('')}
     ${(()=>{const e=Rules.e1rmSeries(ex,sessions);return e&&e.length>=2?`<div class="mut">Est. 1RM (Brzycki, sets ≤12 reps): ${esc(e[0].v)} → ${esc(e[e.length-1].v)} kg</div><svg viewBox="0 0 280 48" width="100%" height="48" role="img" aria-label="Estimated 1RM trend"><polyline fill="none" stroke="var(--warn)" stroke-width="3" stroke-dasharray="6 4" points="${Rules.sparkPoints(e.map(p=>p.v))}"/></svg>`:''})()}
-    <div class="mut">${esc(t.dates[0])} → ${esc(t.dates[t.dates.length-1])}</div></details>`;}
+    <div class="mut">${esc(fmtDate(t.dates[0]))} – ${esc(fmtDate(t.dates[t.dates.length-1]))}</div></details>`;}
 function deloadFor(k){const o=(S.deload||{})[k]||{};return Rules.deloadStatus(S.tabs[k].sessions,today(),o);}
-let lastRecords=[], celebrate=false;
-function storeRecords(k,date,recs){ if(!recs.length) return; const s=S.tabs[k].sessions.find(s=>s.date===date); s.records=(s.records||[]).concat(recs); celebrate=true; lastRecords=lastRecords.concat(recs.map(r=>({...r,tab:k}))); }
+let lastRecords=[];
+function storeRecords(k,date,recs){ if(!recs.length) return; const s=S.tabs[k].sessions.find(s=>s.date===date); s.records=(s.records||[]).concat(recs); lastRecords=lastRecords.concat(recs.map(r=>({...r,tab:k}))); }
 const recTxt=r=>r.type==='weight'?`${esc(r.name)}: top weight ${esc(r.value)} (was ${esc(r.prev)})`:r.type==='reps'?`${esc(r.name)}: ${esc(r.value)} reps in a set (was ${esc(r.prev)})`:`${esc(r.name)}: ${esc(r.value)} kg×reps in a set (was ${esc(r.prev)})`;
-function confetti(){ if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const box=document.createElement('div');box.className='confetti';box.setAttribute('aria-hidden','true');
-  const cols=['#22c55e','#60a5fa','#f59e0b','#f472b6','#facc15'];
-  for(let i=0;i<40;i++){const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.background=cols[i%5];p.style.animationDelay=(Math.random()*0.4)+'s';p.style.transform=`rotate(${Math.random()*360}deg)`;box.append(p);}
-  document.body.append(box);setTimeout(()=>box.remove(),2200);}
 // FEATURE · Toasts: short non-blocking messages styled per theme; announced by screen readers via aria-live,
 // capped at 3 visible, auto-dismiss after 2.5 s with a fade-out class.
 // Themed toasts in a polite live region; CSS lifts the stack above the rest timer when it's showing
@@ -298,25 +409,23 @@ function openQuick(opts={}){
   const dlg=$('#dlg'); resetDlg(dlg); const Q={}, edited=new Set(), notes={}, deloadTabs=new Set(opts.deload?[opts.deload]:[]); let qb=opts.deload||cur;
   const build=k=>{const T=S.tabs[k];return T.routine.filter(Rules.isActive).map(ex=>{const p=Rules.nextPlan(ex,T.sessions);const it={ex,exerciseId:ex.id,sets:p.sets,reps:p.reps,weight:U(ex.unit).hasWeight?p.weight:0,effort:'Good',last:Rules.lastValues(ex,T.sessions)};
     if(deloadTabs.has(k)){const d=Rules.deloadPrefill(ex,T.sessions);if(d)Object.assign(it,d);}return it;})};
-  const qs=(k,f,l,v)=>{const mode=f==='weight'||f==='reps'?'decimal':'numeric';const min=f==='weight'?0:1;
-    return `<div class="step"><button type="button" data-q="${k}" data-qf="${f}" data-qd="-1" aria-label="less ${l}">−</button><div class="v"><input class="step-in" type="number" inputmode="${mode}" min="${min}" step="any" data-q="${k}" data-qf="${f}" value="${esc(v)}" aria-label="${l}"><small>${l}</small></div><button type="button" data-q="${k}" data-qf="${f}" data-qd="1" aria-label="more ${l}">+</button></div>`;};
   let date=today(), timerAfter=false;
   const draw=()=>{const q=Q[qb]||(Q[qb]=build(qb));
     const step=[...Object.values(Q)].some(q=>q.some(i=>i.touched))||Rules.draftSetCount(draft)?2:1;
-    dlg.innerHTML=`<h3>Workout</h3>
+    const tabLabel=TABS.find(t=>t[0]===qb)[1];
+    dlg.innerHTML=`<div class="sheet"><div class="sheet-h"><h3>${esc(tabLabel)}</h3><button type="button" class="ghost" id="qCancel">Close</button></div><div class="sheet-b">
     <ol class="steps">${['Pick block','Log sets','Finish'].map((s,i)=>`<li class="${i+1===step?'now':i+1<step?'done':''}">${i+1}. ${s}</li>`).join('')}</ol>
-    <div class="help">1 · Choose what you're training. You can switch blocks any time – your entries stay.</div>
-    <div class="blocks">${TABS.map(([k,l])=>`<button data-qb="${k}" class="${k===qb?'on':''}" aria-pressed="${k===qb}">${tabBtn(k,l)}${edited.has(k)?' •':''}</button>`).join('')}</div>
-    <div class="qtimer ${tInt?'':'hidden'}">${ic('timer')} Rest <b class="qTimerCount">${tInt?$('#timerCount').textContent:''}</b>s <button data-qt="skip">Skip</button></div>
-    ${deloadTabs.has(qb)?'<div class="card deload"><b>'+ic('leaf')+' Deload session</b> – prefilled at −20%. Saved as a deload: no records, ignored by stall checks.</div>':''}
-    <div class="help">2 · Tap a row to change numbers. Only rows you touch get saved – tick Done to log a row as shown.</div>
+    <div class="help">Choose what you're training. You can switch blocks any time. Entries stay.</div>
+    <div class="blocks">${TABS.map(([k,l])=>`<button type="button" data-qb="${k}" class="${k===qb?'on':''}" aria-pressed="${k===qb}">${tabBtn(k,l)}${edited.has(k)?' •':''}</button>`).join('')}</div>
+    <div class="qtimer ${tInt?'':'hidden'}">${ic('timer')} Rest <b class="qTimerCount">${tInt?$('#timerCount').textContent:''}</b>s <button type="button" data-qt="skip">Skip</button></div>
+    ${deloadTabs.has(qb)?'<div class="banner"><b>'+ic('leaf')+' Deload session</b> – prefilled at −20%. Saved as a deload: no records, ignored by stall checks.</div>':''}
+    <div class="help">Tap a row to change numbers. Only rows you touch get saved. Tick done to log a row as shown.</div>
     <label class="mut">Date <input type="date" id="qDate" value="${esc(date)}"></label>
-    ${q.map((i,k)=>`<div class="card ${i.touched?'touched':''}"><button class="tick ${i.touched?'on':''}" data-q="${k}" data-qdone="1" aria-pressed="${!!i.touched}" aria-label="Mark ${esc(i.ex.name)} done">${i.touched?ic('check')+' Done':'Done'}</button><h3>${esc(i.ex.name)}</h3>${i.last?`<button class="ghost lastbtn" data-q="${k}" data-ql="1">${ic('undo')} Last time ${esc(i.last.date)}: ${fmtPlan(i.last,i.ex.unit)}</button>`:'<div class="mut">No previous log</div>'}${qs(k,'sets','Sets',i.sets)}${qs(k,'reps',U(i.ex.unit).reps,i.reps)}${U(i.ex.unit).hasWeight?qs(k,'weight',U(i.ex.unit).weight,i.weight):''}
-      <div class="eff">${['Ok','Good','Tough'].map(e=>`<button class="${i.effort===e?'on':''}" aria-pressed="${i.effort===e}" data-q="${k}" data-qe="${e}">${e}</button>`).join('')}</div></div>`).join('')}
-    <label class="mut" style="display:block">Notes for this block (optional)<textarea id="qNotes" rows="2" style="min-height:64px">${esc(notes[qb]||'')}</textarea></label>
-    <div class="row" style="margin:8px 0"><button class="ghost" data-qt="start">${ic('timer')} Start rest</button><label class="row" style="flex:2"><input type="checkbox" id="qTimer" ${timerAfter?'checked':''} style="flex:0;width:28px;height:28px"> Timer after save</label></div>
-    <div class="help">3 · Finish saves your workout and sets next time's targets.</div>
-    <div class="row"><button class="ghost" id="qCancel">Close</button><button class="primary" id="qSave">${ic('check')} Finish workout${edited.size>1?' ('+edited.size+' blocks)':''}</button></div>`;
+    ${q.map((i,k)=>quickLogger(i,k)).join('')}
+    <label class="mut" style="display:block">Notes for this block (optional)<textarea id="qNotes" rows="2">${esc(notes[qb]||'')}</textarea></label>
+    <div class="row"><button type="button" class="ghost" data-qt="start">${ic('timer')} Start rest</button><label class="row" style="flex:2;min-height:48px"><input type="checkbox" id="qTimer" ${timerAfter?'checked':''}> Timer after save</label></div>
+    <div class="help">Finish saves your workout and sets next time's targets.</div>
+    </div><div class="sheet-f"><button type="button" class="primary" id="qSave">${ic('check')} Finish</button></div></div>`;
     $('#qNotes').oninput=ev=>{notes[qb]=ev.target.value;if(ev.target.value.trim())edited.add(qb)};};
   // Esc / Android back / Close ask first when the sheet has entries that would be lost
   const hasEntries=()=>edited.size>0||Object.values(Q).some(q=>q.some(i=>i.touched));
@@ -353,23 +462,64 @@ function copySession(){ const T=S.tabs[cur], label=TABS.find(t=>t[0]===cur)[1];
     dlg.showModal();const ta=$('#copyTxt');ta.focus();ta.select();try{document.execCommand('copy')}catch(e){}$('#copyClose').onclick=()=>dlg.close();};
   if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(txt).then(()=>toast('Session copied'),fallback); else fallback(); }
 // Weekly report
+function quickLogger(i,k){
+  const ex=i.ex, info=U(ex.unit), hasW=!!info.hasWeight;
+  const prev=i.last?(hasW?i.last.weight+'\u00d7'+i.last.reps:String(i.last.reps)):'—';
+  const n=Math.max(1, Number(i.sets)||1);
+  let rows='';
+  for(let s=0;s<n;s++){
+    const curRow=s===0;
+    rows+=`<div class="setrow${curRow?' cur':''}"><span class="sn">${s+1}</span><span class="prev">${esc(prev)}</span>`
+      +(hasW?(curRow?`<input class="step-in" type="number" inputmode="decimal" min="0" step="any" data-q="${k}" data-qf="weight" value="${esc(i.weight)}" aria-label="${esc(info.weight)}">`:`<span class="cell quiet">${esc(i.weight)}</span>`):'')
+      +(curRow?`<input class="step-in cur" type="number" inputmode="decimal" min="1" step="any" data-q="${k}" data-qf="reps" value="${esc(i.reps)}" aria-label="${esc(info.reps)}">`:`<span class="cell"><i class="pend"></i></span>`)
+      +(curRow?`<button type="button" class="tick ${i.touched?'on':''}" data-q="${k}" data-qdone="1" aria-pressed="${!!i.touched}" aria-label="Mark ${esc(ex.name)} done">${i.touched?ic('check'):''}</button>`:`<span class="tick" aria-hidden="true"></span>`)
+      +`</div>`;
+  }
+  return `<div class="card ${i.touched?'touched':''}"><h3>${esc(ex.name)}</h3>
+    ${i.last?`<button type="button" class="ghost lastbtn" data-q="${k}" data-ql="1">${ic('undo')} Last time ${esc(fmtDate(i.last.date))}: ${fmtPlan(i.last,ex.unit)}</button>`:'<div class="mut">No previous log</div>'}
+    <div class="step"><button type="button" data-q="${k}" data-qf="sets" data-qd="-1" aria-label="less Sets">−</button><div class="v"><input class="step-in" type="number" inputmode="numeric" min="1" step="any" data-q="${k}" data-qf="sets" value="${esc(i.sets)}" aria-label="Sets"><small>Sets</small></div><button type="button" data-q="${k}" data-qf="sets" data-qd="1" aria-label="more Sets">+</button></div>
+    <div class="setgrid${hasW?'':' noweight'}"><div class="sethead"><span>Set</span><span>Previous</span>${hasW?`<span>${esc(colW(ex.unit))}</span>`:''}<span>${esc(colR(ex.unit))}</span><span></span></div>${rows}</div>
+    <div class="eff">${['Ok','Good','Tough'].map(e=>`<button type="button" class="${i.effort===e?'on':''}" aria-pressed="${i.effort===e}" data-q="${k}" data-qe="${e}">${e}</button>`).join('')}</div></div>`;
+}
 function reportCard(inline){const r=Rules.weeklyReport(S.tabs,today());
-  return `<div class="card report"><h3>${ic('calendar')} Weekly report · ${esc(r.start)} → ${esc(r.end)}</h3>
+  const inner=`<h3>${ic('calendar')} Weekly report · ${esc(fmtRange(r.start,r.end))}</h3>
     <div class="kpis"><div><b>${esc(r.sessions)}</b><small>sessions</small></div><div><b>${esc(r.sets)}</b><small>sets</small></div><div><b>${esc(Number(r.volume).toLocaleString())}</b><small>kg volume</small></div><div><b>${r.records.length}</b><small>records</small></div></div>
     ${r.minutes?`<div class="mut">Cardio: ${esc(r.minutes)} min</div>`:''}
     <div class="mut">${TABS.filter(([k])=>r.byTab[k]).map(([k,l])=>l+' ×'+r.byTab[k]).join(' · ')||'No sessions yet this week'}</div>
     ${r.records.map(x=>`<div>${ic('trophy')} ${recTxt(x)}</div>`).join('')}
-    ${inline?'<button class="ghost" data-act="repok" style="width:100%;margin-top:8px">Dismiss until next week</button>':''}</div>`;}
+    ${inline?'<button type="button" class="ghost" data-act="repok" style="width:100%;margin-top:8px">Dismiss until next week</button>':''}`;
+  return inline?`<div class="card report">${inner}</div>`:`<div class="report bare">${inner}</div>`;
+}
 function openReport(){const dlg=$('#dlg');resetDlg(dlg);dlg.innerHTML=reportCard(false)+'<button class="primary" id="repClose">Close</button>';dlg.showModal();$('#repClose').onclick=()=>dlg.close();}
 // FEATURE · Rest timer pill: starts after each logged set; counts down from the saved rest (60–90 s),
 // −15s/+15s nudge only the running countdown, Skip stops it, and the pin toggles a floating pill vs a docked bar.
 // Uses a wall-clock end time (tEnd) so the count stays accurate if the tab is throttled; ends with vibrate + beep.
 // Rest timer
 let tEnd=0,tInt=null,actx;
+function parkTimer(){
+  const t=$('#timer'), host=$('#toasts');
+  if(t && host && t.parentElement!==document.body) document.body.insertBefore(t, host);
+}
+function placeChrome(){
+  const wide=matchMedia('(min-width:1024px)').matches;
+  document.body.classList.toggle('wide', wide);
+  const pane=$('#pane'), t=$('#timer'), host=$('#toasts');
+  if(wide && pane && !pane.hidden && t) pane.append(t);
+  else if(t && host && t.parentElement!==document.body) document.body.insertBefore(t, host);
+  syncTimerPad();
+}
+function syncTimerPad(){
+  const t=$('#timer'); if(!t) return;
+  const wide=document.body.classList.contains('wide');
+  const docked=!t.classList.contains('hidden') && !t.classList.contains('float') && !wide;
+  document.body.classList.toggle('timer-docked', docked);
+  if(docked) document.documentElement.style.setProperty('--timer-h', (t.offsetHeight+8)+'px');
+}
 function startTimer(){stopTimer();tEnd=Date.now()+S.restSec*1e3;$('#timer').classList.remove('hidden');document.querySelectorAll('.qtimer').forEach(x=>x.classList.remove('hidden'));tick();tInt=setInterval(tick,250);
-  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)()}catch(e){}
+  requestAnimationFrame(syncTimerPad);}
 function tick(){const s=Math.max(0,Math.ceil((tEnd-Date.now())/1e3));$('#timerCount').textContent=s;document.querySelectorAll('.qTimerCount').forEach(x=>x.textContent=s);if(s<=0){stopTimer();buzz()}}
-function stopTimer(){clearInterval(tInt);tInt=null;$('#timer').classList.add('hidden');document.querySelectorAll('.qtimer').forEach(x=>x.classList.add('hidden'))}
+function stopTimer(){clearInterval(tInt);tInt=null;$('#timer').classList.add('hidden');document.querySelectorAll('.qtimer').forEach(x=>x.classList.add('hidden'));syncTimerPad()}
 function buzz(){try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}
   try{if(!actx)return;const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=660;g.gain.setValueAtTime(0.0001,actx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.15,actx.currentTime+0.05);g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+0.6);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+0.65)}catch(e){}}
@@ -379,7 +529,7 @@ const nudge=sec=>{if(!tInt)return;tEnd=Math.max(Date.now(),tEnd+sec*1e3);tick()}
 $('#tMinus').onclick=()=>nudge(-15);$('#tPlus').onclick=()=>nudge(15);
 // Float timer preference (own key; never touches workout data)
 const FLOAT_KEY=KEY+'.timerFloat';
-function applyFloat(on){$('#timer').classList.toggle('float',on);$('#floatBtn').setAttribute('aria-pressed',on);$('#floatBtn').title=on?'Dock timer to full-width bar':'Float timer';}
+function applyFloat(on){$('#timer').classList.toggle('float',on);$('#floatBtn').setAttribute('aria-pressed',on);$('#floatBtn').title=on?'Dock timer to full-width bar':'Float timer';syncTimerPad()}
 applyFloat(localStorage.getItem(FLOAT_KEY)==='1');
 $('#floatBtn').onclick=()=>{const on=!$('#timer').classList.contains('float');localStorage.setItem(FLOAT_KEY,on?'1':'0');applyFloat(on)};
 // Import / export / absence dialogs
@@ -438,13 +588,17 @@ $('#stats').onclick=()=>{if(!S)return;S.statsWindow=S.statsWindow===7?30:S.stats
 $('#exportBtn').onclick=()=>!S?exportRaw():dl('wills-body-backup-'+today()+'.json','application/json',JSON.stringify(S,null,2));
 $('#absenceBtn').onclick=()=>{if(!S)return;const dlg=$('#dlg');resetDlg(dlg);dlg.innerHTML=`<h3>Log absence</h3><p class="mut">Weeks with a work or holiday absence don't break your streak.</p>
   <input type="date" id="absDate" value="${today()}"><div class="row" style="margin-top:10px"><button data-tag="work">${ic('briefcase')} Work</button><button data-tag="holiday">${ic('umbrella')} Holiday</button></div>
-  <div class="mut" style="margin-top:8px">${S.absences.slice(-5).map(a=>esc(a.date)+' '+esc(a.tag)).join('<br>')}</div><button class="ghost" style="width:100%;margin-top:10px" id="absClose">Close</button>`;
+  <div class="mut" style="margin-top:8px">${S.absences.slice(-5).map(a=>esc(fmtDate(a.date))+' '+esc(a.tag)).join('<br>')}</div><button type="button" class="ghost" style="width:100%;margin-top:8px" id="absClose">Close</button>`;
   dlg.showModal();$('#absClose').onclick=()=>dlg.close();
   dlg.querySelectorAll('[data-tag]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();S.absences.push({date:$('#absDate').value,tag:b.dataset.tag});save();dlg.close();render()});};
 // Theme (default dark, persisted)
 const THEME_KEY=KEY+'.theme';
-function applyTheme(t){document.documentElement.dataset.theme=t;$('#themeBtn').innerHTML=ic(t==='light'?'moon':'sun');$('#themeBtn').setAttribute('aria-label','Switch to '+(t==='light'?'dark':'light')+' theme');
-  document.querySelector('meta[name=theme-color]').content=t==='light'?'#e9ecf0':'#131519';}
+function syncThemeColor(){
+  const root=document.documentElement, light=root.dataset.theme==='light', shine=root.dataset.shine==='reduced';
+  const bg=shine?(light?'#FFFFFF':'#000000'):(light?'#F3F0E8':'#14130F');
+  const m=document.querySelector('meta[name=theme-color]'); if(m) m.content=bg;
+}
+function applyTheme(t){document.documentElement.dataset.theme=t;$('#themeBtn').innerHTML=ic(t==='light'?'moon':'sun');$('#themeBtn').setAttribute('aria-label','Switch to '+(t==='light'?'dark':'light')+' theme');syncThemeColor()}
 applyTheme(localStorage.getItem(THEME_KEY)==='light'?'light':'dark');
 $('#themeBtn').onclick=()=>{const t=document.documentElement.dataset.theme==='light'?'dark':'light';localStorage.setItem(THEME_KEY,t);applyTheme(t)};
 // FEATURE · Reduce shine: swaps the metallic gradients for flat, high-contrast colours via html[data-shine=reduced]
@@ -453,7 +607,7 @@ $('#themeBtn').onclick=()=>{const t=document.documentElement.dataset.theme==='li
 const SHINE_KEY=KEY+'.reduceShine', hiContrast=matchMedia('(prefers-contrast: more)');
 function applyShine(){const v=localStorage.getItem(SHINE_KEY), on=v==null?hiContrast.matches:v==='1';
   if(on)document.documentElement.dataset.shine='reduced';else delete document.documentElement.dataset.shine;
-  $('#shineBtn').setAttribute('aria-pressed',on);$('#shineBtn').title=on?'Restore shine':'Reduce shine';}
+  $('#shineBtn').setAttribute('aria-pressed',on);$('#shineBtn').title=on?'Restore shine':'Reduce shine';syncThemeColor()}
 $('#shineBtn').innerHTML=ic('contrast');applyShine();
 $('#shineBtn').onclick=()=>{localStorage.setItem(SHINE_KEY,document.documentElement.dataset.shine==='reduced'?'0':'1');applyShine()};
 hiContrast.addEventListener&&hiContrast.addEventListener('change',applyShine);
@@ -469,4 +623,5 @@ load().then(()=>{document.body.classList.remove('loading');sl.value=S.restSec;$(
 // Ask the browser not to evict this app's storage (granted silently for installed PWAs on most browsers)
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persisted().then(p=>p||navigator.storage.persist()).catch(()=>{})}catch(e){}
 sl.oninput=()=>{if(!S)return;S.restSec=+sl.value;$('#restVal').textContent=sl.value;save();if(tInt){/*keep running*/}};
+addEventListener('resize',()=>{if(!S)return;const w=matchMedia('(min-width:1024px)').matches;if(w!==document.body.classList.contains('wide'))render();else syncTimerPad();});
 if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
