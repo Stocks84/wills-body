@@ -74,7 +74,7 @@ header{padding:calc(16px + env(safe-area-inset-top, 0px)) 16px 0}
 .brand{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:48px}
 h1{margin:0;font-size:28px;line-height:32px;letter-spacing:.02em;color:var(--txt)}
 .tools{display:flex;gap:8px;flex:none}
-.meta{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:20px;font-weight:400}
+.meta,#weekline{margin:8px 0 0;color:var(--mut);font-size:13px;line-height:16px;font-weight:400}
 .subline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px;font-size:13px;line-height:16px}
 #streak{color:var(--mut);font-size:13px;line-height:16px}
 #stats{
@@ -129,7 +129,7 @@ button.danger{background:var(--danger);color:var(--on-acc);border:1px solid var(
 .card.ex.sel{border:2px solid var(--txt)}
 .exwrap{position:relative;margin:0 0 16px}
 .exwrap .deact{position:absolute;top:4px;right:4px;z-index:1}
-.card.ex .title{padding-right:48px}
+.exwrap.has-deact .card.ex .title{padding-right:48px}
 .mut{color:var(--mut);font-size:13px;line-height:16px;font-weight:400}
 .help{color:var(--mut);font-size:14px;line-height:20px;margin:4px 0 8px}
 .sugg .mut,.suggnote,.note14{font-size:14px;line-height:20px;color:var(--mut)}
@@ -197,7 +197,7 @@ button.danger{background:var(--danger);color:var(--on-acc);border:1px solid var(
 }
 .sethead span:nth-child(n+3){text-align:center}
 .setrow{min-height:56px;padding:4px 8px;border-radius:8px;border:2px solid transparent}
-.setrow.cur{background:var(--raised)}
+.setrow.cur{background:var(--raised);border:2px solid var(--txt)}
 .sn{font-size:20px;line-height:24px;text-align:center;color:var(--txt)}
 .prev{font-size:20px;line-height:24px;text-align:right;color:var(--mut);min-width:0}
 .setrow .cell{font-size:20px;line-height:24px;text-align:center;color:var(--txt)}
@@ -208,7 +208,7 @@ button.danger{background:var(--danger);color:var(--on-acc);border:1px solid var(
   font-size:20px;line-height:24px;-moz-appearance:textfield;appearance:textfield;
 }
 .setrow .step-in::-webkit-outer-spin-button,.setrow .step-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.setrow .step-in.cur{border:2px solid var(--txt)}
+.setrow .step-in.cur{border:2px solid var(--txt);background:var(--bg)}
 .pend{display:block;width:16px;height:2px;background:var(--mut);border-radius:1px;margin-inline:auto}
 .tick{
   width:48px;height:48px;min-width:48px;min-height:48px;padding:0;border-radius:8px;
@@ -274,7 +274,7 @@ details summary,.trend summary{min-height:48px;display:flex;align-items:center;c
 }
 .timer .count{font-size:44px;line-height:48px;color:var(--txt);min-width:2ch}
 .timer label{flex:1;min-width:0;font-size:13px;line-height:16px;font-weight:600;color:var(--mut)}
-.timer input[type=range]{width:100%;height:48px;margin:0}
+.timer input[type=range]{width:100%;height:16px;margin:0}
 .timer .adj{display:none}
 .timer .pin{min-width:48px}
 .timer.float{
@@ -319,7 +319,18 @@ input[type=date],input[type=file],input[type=text],input[type=number]{font-size:
 .libcard select{font-size:16px}
 .libcard select{min-height:48px}
 .lib-list .row button{flex:0 0 auto}
-input[type=range],input[type=checkbox]{accent-color:var(--acc)}
+input[type=checkbox]{accent-color:var(--acc)}
+#timer input[type=range]{
+  -webkit-appearance:none;appearance:none;accent-color:var(--mut);
+  width:100%;height:16px;margin:0;background:transparent;border:0;padding:0;
+}
+#timer input[type=range]::-webkit-slider-runnable-track{height:8px;background:var(--mut);border-radius:4px}
+#timer input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:16px;height:16px;margin-top:-4px;
+  background:var(--txt);border:0;border-radius:8px;
+}
+#timer input[type=range]::-moz-range-track{height:8px;background:var(--mut);border:0;border-radius:4px}
+#timer input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--txt);border:0;border-radius:8px}
 
 .toasts{
   position:fixed;left:50%;transform:translateX(-50%);
@@ -376,11 +387,16 @@ body.logging main{padding-top:calc(16px + env(safe-area-inset-top, 0px))}
   body.wide nav{position:static;padding-top:16px}
   body.wide #pane{
     grid-column:2;grid-row:1 / span 6;align-self:start;position:sticky;top:24px;
-    display:flex;flex-direction:column;gap:16px;min-width:0;max-height:calc(100vh - 48px);overflow:auto;
-    background:var(--card);border:1px solid var(--line);border-radius:8px;padding:0 16px 16px;
+    display:flex;flex-direction:column;gap:0;min-width:0;
+    height:calc(100vh - 48px);max-height:calc(100vh - 48px);overflow:hidden;
+    background:var(--card);border:1px solid var(--line);border-radius:8px;padding:0;
   }
+  body.wide #pane .pane-scroll{flex:1;min-height:0;overflow:auto;padding:0 16px 16px}
   body.wide #pane .card{background:transparent}
-  body.wide #timer{position:static;border:0;border-top:1px solid var(--line);border-radius:0;padding:16px 0 0;margin-top:auto}
+  body.wide #timer{
+    position:static;flex:none;margin:0;border:0;border-top:1px solid var(--line);border-radius:0;
+    padding:16px;background:var(--card);
+  }
   body.wide #timer.float{
     position:fixed;right:calc(16px + env(safe-area-inset-right, 0px));
     bottom:calc(16px + env(safe-area-inset-bottom, 0px));

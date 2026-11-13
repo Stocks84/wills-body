@@ -170,7 +170,6 @@ function loggerInner(ex, T){
     ${flags.map(f=>`<div class="cue">${ic('alert')} ${esc(f.reason)}</div>`).join('')}
     ${rl?`<button type="button" class="ghost lastbtn" data-act="fill" data-ex="${esc(ex.id)}">${ic('undo')} Same as last time (${esc(fmtDate(rl.date))}): ${fmtPlan(rl,ex.unit)}</button>`:''}
     ${setTable(ex,d,last)}
-    ${stepper(ex.id,'targetSets','Sets',d.targetSets)}
     <div class="eff">${['Ok','Good','Tough'].map(e=>`<button type="button" class="${d.effort===e?'on':''}" aria-pressed="${d.effort===e}" data-act="eff" data-ex="${esc(ex.id)}" data-v="${e}">${e}</button>`).join('')}</div>
     <button type="button" class="primary" data-act="log" data-ex="${esc(ex.id)}">Log set ${Math.min(d.sets.length+1,99)} of ${esc(d.targetSets)}</button>
     <div class="sets">${fmtSets(d.sets,ex.unit)}${d.sets.length?`<button type="button" data-act="undo" data-ex="${esc(ex.id)}">${ic('undo')} Undo</button>`:''}</div>
@@ -186,7 +185,7 @@ function compactHTML(ex, T, selected){
   const t=Rules.trendSeries(ex,T.sessions), flags=Rules.detectPlateaus(ex,T.sessions);
   const range=ex.repMin&&ex.repMin!==ex.repMax?esc(ex.repMin)+'\u2013'+esc(ex.repMax):esc(ex.targetReps);
   const cue=flags[0]?`<div class="cue">${ic('alert')} ${esc(flags[0].reason)}</div>`:(t.dates.length>=2?`<div class="trendline">${ic('trend')} Trend (${t.dates.length} sessions)</div>`:'');
-  return `<div class="exwrap">
+  return `<div class="exwrap${selected?' has-deact':''}">
     <button type="button" class="card ex${selected?' sel':''}" data-act="openlog" data-ex="${esc(ex.id)}">
       <h3 class="title">${esc(ex.name)}</h3>
       <div class="mut">${esc(ex.targetSets)} × ${range} ${esc(U(ex.unit).reps.toLowerCase())} · Last ${last?esc(fmtDate(last.date)):'—'}</div>
@@ -194,7 +193,7 @@ function compactHTML(ex, T, selected){
       <div class="nextline"><span class="mut">Next</span><span class="plan">${fmtPlan(plan,ex.unit)}</span><span class="suggnote">${esc(plan.note||'')}</span></div>
       ${cue}
     </button>
-    <button type="button" class="ghost iconbtn deact" data-act="toggle" data-ex="${esc(ex.id)}" aria-label="Deactivate ${esc(ex.name)}" title="Deactivate">${ic('x')}</button>
+    ${selected?`<button type="button" class="ghost iconbtn deact" data-act="toggle" data-ex="${esc(ex.id)}" aria-label="Deactivate ${esc(ex.name)}" title="Deactivate">${ic('x')}</button>`:''}
   </div>`;
 }
 function notesField(){
@@ -218,7 +217,7 @@ function paneHTML(T, openId){
   let h=`<div class="sesshead"><div class="sesshead-row"><h2>${esc(label)}</h2>${nDraft?`<button type="button" class="iconbtn" data-act="discard" aria-label="Discard workout" title="Discard workout">${ic('x')}</button><button type="button" class="primary slim" data-act="complete">Finish</button>`:''}</div><p class="meta">${nDraft?'In progress':'Ready'} · ${idx} of ${acts.length}</p></div>`;
   const fold=foldState(ex, T);
   h+=fold.allDone&&!unfolded.has(fold.fk)?foldedBtn(ex, fold):`<div class="card">${loggerInner(ex,T)}</div>`;
-  return h+notesField();
+  return `<div class="pane-scroll">${h}${notesField()}</div>`;
 }
 function render(){
   const wide=matchMedia('(min-width:1024px)').matches;
@@ -245,7 +244,8 @@ function render(){
   if(mobileLog) h=loggingHTML(T, openId);
   else {
     if(loadNotice) h+=`<div class="card notice"><h3>${ic('alert')} ${loadNotice.kind==='corrupt'?"Saved data couldn't be read":'Data upgraded from an older format'}</h3><div class="help">${loadNotice.kind==='corrupt'?'Nothing was deleted: the unreadable copy was kept on this phone. Export it and send it over so it can be recovered.':'A copy of the original was kept on this phone before upgrading.'}</div><div class="row"><button type="button" class="ghost" data-act="rawexport">${ic('download')} Export raw copy</button><button type="button" class="ghost" data-act="noticeok">Dismiss</button></div></div>`;
-    h+=`<div class="strip" aria-label="This week">${Rules.weekStrip(S.tabs,TABS.map(t=>t[0]),today()).map(c=>{const l=TABS.find(t=>t[0]===c.tab)[1]; const n=c.sessions|0;
+    const week=Rules.weekStrip(S.tabs,TABS.map(t=>t[0]),today());
+    if(week.some(c=>c.sessions>0)) h+=`<div class="strip" aria-label="This week">${week.map(c=>{const l=TABS.find(t=>t[0]===c.tab)[1]; const n=c.sessions|0;
       const detail=n?(c.volume?Math.round(c.volume)+' kg':c.minutes?c.minutes+' min':'done'):'\u2014';
       return `<button type="button" data-tab="${c.tab}" aria-label="${esc(l)}, ${n} ${n===1?'session':'sessions'} this week" class="cell lvl${Math.min(3,n)}${c.tab===cur?' cur':''}">${ic(ICONS[c.tab])}<b>${n}</b><small>${esc(detail)}</small></button>`;
     }).join('')}</div>`;
